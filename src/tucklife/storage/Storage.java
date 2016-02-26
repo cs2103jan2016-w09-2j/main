@@ -1,7 +1,7 @@
-package cs2103tut;
+package tucklife.storage;
 
-import cs2103tut.Task;
-import cs2103tut.TaskList;
+import tucklife.storage.Task;
+import tucklife.storage.TaskList;
 
 public class Storage {
 	

@@ -1,8 +1,8 @@
-package cs2103tut;
+package tucklife.storage;
 
 import java.util.ArrayList;
 
-import cs2103tut.Task;
+import tucklife.storage.Task;
 
 public class TaskList {
 

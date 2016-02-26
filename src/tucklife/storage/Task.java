@@ -1,4 +1,4 @@
-package cs2103tut;
+package tucklife.storage;
 
 import java.util.Date;
 

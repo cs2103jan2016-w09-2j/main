@@ -19,12 +19,12 @@ public class Task {
 	int id;
 	
 	public Task(ProtoTask task){
-		
 		//create the Task
 	}
 	
 	Task edit(ProtoTask task){
-		return task;
+		//edit task
+		return this;
 	}
 	
 	String display(){

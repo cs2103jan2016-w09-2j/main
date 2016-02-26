@@ -1,3 +1,5 @@
+package tucklife.parser;
+
 import java.util.Scanner;
 
 public class TestParser {

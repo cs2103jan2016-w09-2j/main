@@ -9,7 +9,7 @@ public class Storage {
 	static TaskList doneList;
 	
 	enum COMMAND_TYPE {
-		ADD, DISPLAY, COMPLETE, DISPLAYDONE, DELETE, EDIT, INVALID, SAVE, SORT, SEARCH
+		ADD, DISPLAY, COMPLETE, DISPLAYDONE, DELETE, EDIT, INVALID
 	}
 	
 	String parseCommand(ProtoTask pt) {
@@ -31,12 +31,6 @@ public class Storage {
 			return COMMAND_TYPE.DELETE;
 		} else if (commandTypeString.equalsIgnoreCase("edit")) {
 			return COMMAND_TYPE.EDIT;
-		} else if (commandTypeString.equalsIgnoreCase("save")) {
-			return COMMAND_TYPE.SAVE;
-		} else if (commandTypeString.equalsIgnoreCase("sort")) {
-			return COMMAND_TYPE.SORT;
-		} else if (commandTypeString.equalsIgnoreCase("search")) {
-			return COMMAND_TYPE.SEARCH;
 		} else {
 			return COMMAND_TYPE.INVALID;
 		}
@@ -46,6 +40,8 @@ public class Storage {
 		switch (commandType) {
 		case ADD :
 			return add(pt);
+		case COMPLETE :
+			return complete(pt.getID());
 		case DISPLAY :
 			return display();
 		case DISPLAYDONE :
@@ -54,14 +50,6 @@ public class Storage {
 			return delete(pt.getID());
 		case EDIT :
 			return edit(pt.getID(), pt);
-		case INVALID :
-			return invalid(pt);
-		case SAVE :
-			return save(pt);
-		case SORT :
-			return sort(pt);
-		case SEARCH :
-			return search(pt);
 		default:
 			//throw an error if the command is not recognized
 			throw new Error("Unrecognized command type");
@@ -78,9 +66,10 @@ public class Storage {
 		return "gg";
 	}
 	
-	static void complete(int taskID) {
+	static String complete(int taskID) {
 		Task completedTask = toDoList.delete(taskID);
 		doneList.add(completedTask);
+		return "gg";
 	}
 	
 	static String delete(int taskID) {

@@ -2,7 +2,7 @@ package tucklife.storage;
 
 import java.util.ArrayList;
 
-import tucklife.storage.Task;
+import tucklife.storage.ProtoTask;
 
 public class TaskList {
 
@@ -41,6 +41,11 @@ public class TaskList {
 		return sb.toString();
 	}
 	
+	void add(ProtoTask task) {
+		Task newTask = new Task(task);
+		taskList.add(newTask);
+	}
+	
 	void add(Task task) {
 		taskList.add(task);
 	}
@@ -57,7 +62,7 @@ public class TaskList {
 	}
 	
 	//i think should be void. do checking external when receive command
-	boolean edit(int taskID, Task toEditTask) {
+	boolean edit(int taskID, ProtoTask toEditTask) {
 		boolean edited = false;
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {

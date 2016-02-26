@@ -1,6 +1,7 @@
 package tucklife.storage;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import tucklife.storage.Task;
 
@@ -71,6 +72,10 @@ public class TaskList {
 
 	private boolean hasFoundID(int taskID, Task task) {
 		return task.id == taskID;
+	}
+	
+	public Iterator<Task> iterator(){
+		return taskList.iterator();
 	}
 	
 }

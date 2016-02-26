@@ -1,3 +1,5 @@
+package tucklife.parser;
+
 public class Parser {
 	
 	private String[] commandTypes = { "add", "complete", "delete", "demo", "display", "displaydone",

@@ -1,9 +1,13 @@
-package tucklife.parser;
+package tucklife.storage;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
 public class ProtoTask {
+	
+	int getID() {
+		return 1;
+	}
 	
 	private String type;
 	private ArrayList<String> params;

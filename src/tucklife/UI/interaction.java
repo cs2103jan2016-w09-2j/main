@@ -2,6 +2,9 @@ package tucklife.UI;
 
 import java.util.Scanner;
 import tucklife.parser.Parser;
+import tucklife.parser.ProtoTask;
+import tucklife.storage.ExternalStorage;
+import tucklife.storage.Storage;
 
 public class interaction {
 	
@@ -25,8 +28,8 @@ public class interaction {
             
             ProtoTask pt = p.parse(command);
             
-            if(pt.isError){
-            	System.out.println(pt.toString);
+            if(pt.isError()){
+            	System.out.println(pt.toString());
             }
             else{
             	if(pt.getCommand().equals("save")){
@@ -35,7 +38,7 @@ public class interaction {
             	
             	if(pt.getCommand().equals("load")){
             		es.load();
-            		System.out.println(s.load(es.getLoadedLists()));
+            		s.load(es.getLoadedLists());
             	}
             	else{
             		System.out.println(s.parseCommand(pt));

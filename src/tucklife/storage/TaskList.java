@@ -56,9 +56,10 @@ public class TaskList {
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {
 				removed = task;
-				taskList.remove(task);
+				//taskList.remove(task);
 			}
 		}
+		taskList.remove(removed);
 		return removed;
 	}
 	

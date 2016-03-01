@@ -35,13 +35,14 @@ public class interaction {
             	if(pt.getCommand().equals("save")){
             		System.out.println(es.save(s.save()));
             	}
-            	
-            	if(pt.getCommand().equals("load")){
-            		es.load();
-            		s.load(es.getLoadedLists());
-            	}
             	else{
-            		System.out.println(s.parseCommand(pt));
+	            	if(pt.getCommand().equals("load")){
+	            		es.load();
+	            		s.load(es.getLoadedLists());
+	            	}
+	            	else{
+	            		System.out.println(s.parseCommand(pt));
+	            	}
             	}
             }
             

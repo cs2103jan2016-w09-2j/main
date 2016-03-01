@@ -6,7 +6,7 @@ import tucklife.parser.ProtoTask;
 import tucklife.storage.ExternalStorage;
 import tucklife.storage.Storage;
 
-public class Interaction {
+public class interaction {
 	
 	private static final String MESSAGE_COMMAND_PROMPT = "Input command";
 	private static final String MESSAGE_WELCOME = "Welcome to Tucklife!";

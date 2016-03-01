@@ -219,11 +219,11 @@ public class ProtoTask {
 			}
 
 			if (startDate != null) {
-				toDisplay += "Start date: " + startDate.getTime() + "\n";
+				toDisplay += "Start date: " + startDate + "\n";
 			}
 
 			if (endDate != null) {
-				toDisplay += "End date: " + endDate.getTime() + "\n";
+				toDisplay += "End date: " + endDate + "\n";
 			}
 
 			return toDisplay;

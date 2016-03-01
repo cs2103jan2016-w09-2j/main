@@ -85,9 +85,10 @@ public class Parser {
 					
 					if (!taskDesc.isEmpty()) {
 						pt.setTaskDesc(taskDesc);
-					} else {
+					} else if (commandType.equals("add")) {
 						pt = new ProtoTask("error");
 						pt.setErrorMessage("task description required");
+						break;
 					}
 					
 					String location = extractParameter("@", commandArg);

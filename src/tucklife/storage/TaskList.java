@@ -3,14 +3,14 @@ package tucklife.storage;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import tucklife.storage.ProtoTask;
+import tucklife.parser.ProtoTask;
 
 public class TaskList {
 
 	ArrayList<Task> taskList;
 	
-	public TaskList() {
-		
+	public TaskList() {		
+		taskList = new ArrayList<Task>();
 	}
 	
 	boolean contains(int taskID) {
@@ -77,6 +77,10 @@ public class TaskList {
 
 	private boolean hasFoundID(int taskID, Task task) {
 		return task.id == taskID;
+	}
+	
+	public Iterator<Task> iterator(){
+		return taskList.iterator();
 	}
 	
 }

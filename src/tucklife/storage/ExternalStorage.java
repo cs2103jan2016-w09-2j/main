@@ -62,7 +62,9 @@ public class ExternalStorage {
 			while(br.ready()){
 				String nextTask = br.readLine();
 				
-				Task t = new Task();
+				ProtoTask pt = new ProtoTask("add");
+				
+				Task t = new Task(pt);
 				list.add(t);
 			}
 			

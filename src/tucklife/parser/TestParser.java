@@ -17,14 +17,9 @@ public class TestParser {
 				sc.close();
 				System.exit(0);
 			} else {
-				String parseResult = p.parse(command);
+				ProtoTask pt = p.parse(command);
 
-				if (parseResult.isEmpty()) {
-					System.out.println(p.getProtoTask().toString());
-				} else {
-					System.out.println(parseResult);
-					System.out.println();
-				}
+				System.out.println(pt.toString());
 			}
 		}
 	}

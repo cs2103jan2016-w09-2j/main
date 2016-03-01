@@ -2,11 +2,12 @@ package tucklife.storage;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import tucklife.parser.ProtoTask;
 
 public class Task {
 	
 	String location;
-	String priority;
+	int priority;
 	String category;
 	String additional;
 	String name;
@@ -20,10 +21,28 @@ public class Task {
 	
 	public Task(ProtoTask task){
 		//create the Task
+		this.location = task.getLocation();
+		this.priority = task.getPriority();
+		this.category = task.getCategory();
+		this.additional = task.getAdditional();
+		this.name = task.getTaskDesc();
+		this.startDate = task.getStartDate();
+		this.endDate = task.getEndDate();
+		this.floating = startDate == null && endDate == null; //task.isFloating();
+		this.id = 0;
 	}
 	
 	Task edit(ProtoTask task){
 		//edit task
+		this.location = task.getLocation() == null ? this.location : task.getLocation();
+		this.priority = task.getPriority() == -1 ? this.priority : task.getPriority();
+		this.category = task.getCategory() == null ? this.category : task.getCategory();
+		this.additional = task.getAdditional() == null ? this.additional : task.getAdditional();
+		this.name = task.getTaskDesc() == null ? this.name : task.getTaskDesc();
+		this.startDate = task.getStartDate() == null ? this.startDate : task.getStartDate();
+		this.endDate = task.getEndDate() == null ? this.endDate : task.getEndDate();
+		this.floating = startDate == null && endDate == null; //task.isFloating();
+		this.id = task.getId() == -1 ? 0 : task.getId();
 		return this;
 	}
 	
@@ -51,7 +70,7 @@ public class Task {
 	}
 
 	private String addPriorityToDisplayString(String displayString) {
-		if (priority != null) {
+		if (priority != -1) {
 			displayString += "priority: " + priority + " | ";
 		}
 		return displayString;

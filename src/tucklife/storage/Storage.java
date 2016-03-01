@@ -15,20 +15,20 @@ public class Storage {
 		ADD, DISPLAY, COMPLETE, DISPLAYDONE, DELETE, EDIT, INVALID
 	}
 	
-	String parseCommand(ProtoTask pt) {
+	public String parseCommand(ProtoTask pt) {
 		COMMAND_TYPE ct = determineCommandType(pt.getCommand());
 		String returnMessage = parseCommand(pt,ct); 
 		return returnMessage;
 	}
 	
-	TaskList[] save() {
+	public TaskList[] save() {
 		TaskList[] saveList = new TaskList[2];
 		saveList[0] = toDoList;
 		saveList[1] = doneList;
 		return saveList;
 	}
 	
-	void load(TaskList[] loadList) {
+	public void load(TaskList[] loadList) {
 		toDoList = loadList[0];
 		doneList = loadList[1];
 	}

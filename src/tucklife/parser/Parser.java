@@ -11,11 +11,7 @@ public class Parser {
 		
 	}
 	
-	public ProtoTask getProtoTask() {
-		return pt;
-	}
-	
-	public String parse(String command) {
+	public ProtoTask parse(String command) {
 		String commandType = getFirstWord(command);
 		String commandArgument = getRemainingArgument(command);
 		
@@ -24,14 +20,14 @@ public class Parser {
 			
 			String message = splitParameters(commandType, commandArgument);
 			if (!message.isEmpty()) {
-				return message;
+				pt.setErrorMessage(message);
 			}
 		} else {
-			return "error: '" + commandType + "' is not a valid command";
+			pt = new ProtoTask("error");
+			pt.setErrorMessage("'" + commandType + "' is not a valid command");
 		}
 		
-		// Parse successful
-		return "";
+		return pt;
 	}
 	
 	public String getFirstWord(String command) {
@@ -68,11 +64,13 @@ public class Parser {
 		switch (commandType) {
 			case "edit" :
 				if (commandArg.isEmpty() || getRemainingArgument(commandArg).isEmpty()) {
-					return "error: too little parameters"; 
+					pt = new ProtoTask("error");
+					pt.setErrorMessage("too little parameters");
 				} else if (!isPositiveInteger(getFirstWord(commandArg))) {
-					return "error: 'id' must be a positive integer";
+					pt = new ProtoTask("error");
+					pt.setErrorMessage("'id' must be a positive integer");
 				} else {
-					pt.addParam("id", getFirstWord(commandArg));
+					pt.setId(Integer.parseInt(getFirstWord(commandArg)));
 					commandArg = getRemainingArgument(commandArg);
 				}
 				
@@ -80,12 +78,13 @@ public class Parser {
 				
 			case "add" :
 				if (commandArg.isEmpty()) {
-					return "error: too litte parameters";
+					pt = new ProtoTask("error");
+					pt.setErrorMessage("too little parameters");
 				} else {
-					String title = extractParameter("", commandArg);
+					String taskDesc = extractParameter("", commandArg);
 					
-					if (!title.isEmpty()) {
-						pt.addParam("title", title);
+					if (!taskDesc.isEmpty()) {
+						pt.setTaskDesc(taskDesc);
 					}
 					
 					String location = extractParameter("@", commandArg);
@@ -93,30 +92,37 @@ public class Parser {
 					String cat = extractParameter("#", commandArg);
 					String time = extractParameter("+", commandArg);
 					String date = extractParameter("$", commandArg);
-					String info = extractParameter("&", commandArg);
+					String additional = extractParameter("&", commandArg);
 					
 					if (!location.isEmpty()) {
-						pt.addParam("location", location);
+						pt.setLocation(location);
 					}
 					
 					if (!priority.isEmpty()) {
-						pt.addParam("priority", priority);
+						int priorityRank = convertPriority(priority);
+						
+						if (priorityRank == -1) {
+							pt.setErrorMessage("invalid priority");
+						} else {
+							pt.setPriority(priorityRank);
+						}
+						
 					}
 					
 					if (!cat.isEmpty()) {
-						pt.addParam("category", cat);
+						pt.setCategory(cat);
 					}
 					
 					if (!time.isEmpty()) {
-						pt.addParam("time", time);
+						//TODO parse time
 					}
 					
 					if (!date.isEmpty()) {
-						pt.addParam("date", date);
+						//TODO parse date
 					}
 					
-					if (!info.isEmpty()) {
-						pt.addParam("infomation", info);
+					if (!additional.isEmpty()) {
+						pt.setAdditional(additional);
 					}
 				}
 				break;
@@ -125,26 +131,29 @@ public class Parser {
 			case "complete" :
 			case "delete" :
 				if (commandArg.isEmpty()) {
-					return "error: 'id' required";
+					pt = new ProtoTask("error");
+					pt.setErrorMessage("'id' required");
 				} else if (!isPositiveInteger(commandArg)) {
-					return "error: 'id' must be a positive integer";
+					pt = new ProtoTask("error");
+					pt.setErrorMessage("'id' must be a positive integer");
 				} else {
-					pt.addParam("id", commandArg);
+					pt.setId(Integer.parseInt(commandArg));
 				}
 				break;
 				
 			// Parameter: command
 			case "demo" :
 				if (isValidCommandType(commandArg)) {
-					pt.addParam("command", commandArg);
+					pt.setDemoCommand(commandArg);
 				} else {
-					return "error: '" + commandArg + "' is not recognised";
+					pt = new ProtoTask("error");
+					pt.setErrorMessage("'" + commandArg + "' is not a valid command");
 				}
 				break;
 				
 			case "display" :
 				if (isPositiveInteger(commandArg)) {
-					pt.addParam("id", commandArg);
+					pt.setId(Integer.parseInt(commandArg));
 					break;
 				}
 				
@@ -154,25 +163,25 @@ public class Parser {
 				//TODO: Check if sorting by valid parameter
 				String search = extractParameter("", commandArg);
 				if (!search.isEmpty()) {
-					pt.addParam("search", search);
+					pt.setSearchKey(search);
 				}
 				
-				String sortOrder = "";
+				int sortOrder = -1;
 				String sortBy = extractParameter("+", commandArg);
 				
 				if (!sortBy.isEmpty()) {
-					sortOrder = "asc";
+					sortOrder = 1;
 				} else {
 					sortBy = extractParameter("-", commandArg);
 					
 					if (!sortBy.isEmpty()) {
-						sortOrder = "desc";
+						sortOrder = 0;
 					}
 				}
 				
-				if (!sortOrder.isEmpty()) {
-					pt.addParam("sortOrder", sortOrder);
-					pt.addParam("sortBy", sortBy);
+				if (sortOrder != -1) {
+					pt.setSortOrder(sortOrder);
+					pt.setSortCrit(sortBy);
 				}
 				
 				break;
@@ -181,9 +190,10 @@ public class Parser {
 			case "saveto" :
 				//TODO: Check if file path is valid
 				if (commandArg.isEmpty()) {
-					return "error: 'file path' required";
+					pt = new ProtoTask("error");
+					pt.setErrorMessage("file path required");
 				} else {
-					pt.addParam("path", commandArg);
+					pt.setPath(commandArg);
 				}
 				break;
 				
@@ -191,7 +201,8 @@ public class Parser {
 			case "help" :
 			case "save" :
 				if (!commandArg.isEmpty()) {
-					return "error: too many parameters";
+					pt = new ProtoTask("error");
+					pt.setErrorMessage("too many parameters");
 				}
 				break;
 		}
@@ -253,5 +264,17 @@ public class Parser {
 		}
 		
 		return isInt;
+	}
+	
+	public int convertPriority(String priority) {
+		if (priority.equalsIgnoreCase("high")) {
+			return 1;
+		} else if (priority.equalsIgnoreCase("medium")) {
+			return 2;
+		} else if (priority.equalsIgnoreCase("low")) {
+			return 3;
+		} else {
+			return -1;
+		}
 	}
 }

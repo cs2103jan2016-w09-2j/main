@@ -18,6 +18,18 @@ public class Storage {
 		return returnMessage;
 	}
 	
+	TaskList[] save() {
+		TaskList[] saveList = new TaskList[2];
+		saveList[0] = toDoList;
+		saveList[1] = doneList;
+		return saveList;
+	}
+	
+	void load(TaskList[] loadList) {
+		toDoList = loadList[0];
+		doneList = loadList[1];
+	}
+	
 	static COMMAND_TYPE determineCommandType(String commandTypeString) {
 		if (commandTypeString.equalsIgnoreCase("add")) {
 			return COMMAND_TYPE.ADD;

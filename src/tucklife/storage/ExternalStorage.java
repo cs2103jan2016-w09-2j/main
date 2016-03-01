@@ -1,5 +1,6 @@
 package tucklife.storage;
 
+import tucklife.parser.ProtoTask;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -61,9 +62,36 @@ public class ExternalStorage {
 			
 			while(br.ready()){
 				String nextTask = br.readLine();
+				ProtoTask pt = new ProtoTask("add");
 				
-				Task t = new Task();
-				list.add(t);
+				String[] taskDetails = nextTask.split("|");
+				
+				pt.setTaskDesc(taskDetails[1].trim());
+				
+				for(int i = 2; i < taskDetails.length; i++){
+					String field = taskDetails[i].trim();
+					String[] fieldDetails = field.split(" ");
+					String fieldHeader = fieldDetails[0];
+					
+					if(fieldHeader.equalsIgnoreCase("category:")){
+						pt.setCategory(field.substring(10));
+					} else if(fieldHeader.equalsIgnoreCase("priority:")){
+						int p = Integer.parseInt(fieldDetails[1]);
+						pt.setPriority(p);
+					} else if(fieldHeader.equalsIgnoreCase("location:")){
+						pt.setLocation(field.substring(10));
+					} else if(fieldHeader.equalsIgnoreCase("additional")){
+						pt.setAdditional(field.substring(24));
+					} else if(fieldHeader.equalsIgnoreCase("deadline:")){
+						// date loading TBC
+						
+					} else if(fieldHeader.equalsIgnoreCase("start:")){
+						// date loading TBC
+						
+					}						
+				}
+				
+				list.add(pt);
 			}
 			
 			br.close();
@@ -108,7 +136,9 @@ public class ExternalStorage {
 			Iterator<Task> tasks = list.iterator();
 			
 			while(tasks.hasNext()){
-				bos.write(tasks.next().toString().getBytes());
+				Task t = tasks.next();
+				
+				bos.write(t.displayAll().getBytes());
 			}
 			
 			bos.flush();

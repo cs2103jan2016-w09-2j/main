@@ -3,7 +3,7 @@ package tucklife.storage;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import tucklife.storage.ProtoTask;
+import tucklife.parser.ProtoTask;
 
 public class TaskList {
 

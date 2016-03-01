@@ -1,6 +1,6 @@
 package tucklife.storage;
 
-import tucklife.storage.ProtoTask;
+import tucklife.parser.ProtoTask;
 import tucklife.storage.TaskList;
 
 public class Storage {
@@ -13,7 +13,7 @@ public class Storage {
 	}
 	
 	String parseCommand(ProtoTask pt) {
-		COMMAND_TYPE ct = determineCommandType(pt.getType());
+		COMMAND_TYPE ct = determineCommandType(pt.getCommand());
 		String returnMessage = parseCommand(pt,ct); 
 		return returnMessage;
 	}
@@ -41,15 +41,15 @@ public class Storage {
 		case ADD :
 			return add(pt);
 		case COMPLETE :
-			return complete(pt.getID());
+			return complete(pt.getId());
 		case DISPLAY :
 			return display();
 		case DISPLAYDONE :
 			return displayDone();
 		case DELETE :
-			return delete(pt.getID());
+			return delete(pt.getId());
 		case EDIT :
-			return edit(pt.getID(), pt);
+			return edit(pt.getId(), pt);
 		default:
 			//throw an error if the command is not recognized
 			throw new Error("Unrecognized command type");
@@ -58,23 +58,23 @@ public class Storage {
 	
 	static String add(ProtoTask task) {
 		toDoList.add(task);
-		return "gg";
+		return "success";
 	}
 	
 	static String edit(int taskID, ProtoTask toEditTask) {
 		toDoList.edit(taskID, toEditTask);
-		return "gg";
+		return "success";
 	}
 	
 	static String complete(int taskID) {
 		Task completedTask = toDoList.delete(taskID);
 		doneList.add(completedTask);
-		return "gg";
+		return "success";
 	}
 	
 	static String delete(int taskID) {
 		toDoList.delete(taskID);
-		return "gg";
+		return "success";
 	}
 	
 	static String displayID(int taskID) {

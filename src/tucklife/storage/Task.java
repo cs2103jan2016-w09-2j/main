@@ -17,6 +17,8 @@ public class Task {
 	
 	boolean floating;
 	
+	static int globalID = 1;
+
 	int id;
 	
 	public Task(ProtoTask task){
@@ -29,7 +31,8 @@ public class Task {
 		this.startDate = task.getStartDate();
 		this.endDate = task.getEndDate();
 		this.floating = startDate == null && endDate == null; //task.isFloating();
-		this.id = 0;
+		this.id = globalID;
+		globalID++;
 	}
 	
 	Task edit(ProtoTask task){
@@ -42,7 +45,7 @@ public class Task {
 		this.startDate = task.getStartDate() == null ? this.startDate : task.getStartDate();
 		this.endDate = task.getEndDate() == null ? this.endDate : task.getEndDate();
 		this.floating = startDate == null && endDate == null; //task.isFloating();
-		this.id = task.getId() == -1 ? 0 : task.getId();
+		this.id = task.getId() == -1 ? this.id : task.getId();
 		return this;
 	}
 	

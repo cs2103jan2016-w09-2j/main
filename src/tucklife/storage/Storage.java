@@ -5,6 +5,9 @@ import tucklife.storage.TaskList;
 
 public class Storage {
 	
+	private static final String RETURN_MESSAGE_FOR_ADD = "{%1$s} was added to TuckLife's to-do list!";
+	private static final String RETURN_MESSAGE_FOR_EDIT = "{%1$s} whas been edited in TuckLife's to-do list!";
+	
 	static TaskList toDoList;
 	static TaskList doneList;
 	
@@ -16,6 +19,18 @@ public class Storage {
 		COMMAND_TYPE ct = determineCommandType(pt.getCommand());
 		String returnMessage = parseCommand(pt,ct); 
 		return returnMessage;
+	}
+	
+	TaskList[] save() {
+		TaskList[] saveList = new TaskList[2];
+		saveList[0] = toDoList;
+		saveList[1] = doneList;
+		return saveList;
+	}
+	
+	void load(TaskList[] loadList) {
+		toDoList = loadList[0];
+		doneList = loadList[1];
 	}
 	
 	static COMMAND_TYPE determineCommandType(String commandTypeString) {
@@ -57,13 +72,15 @@ public class Storage {
 	}
 	
 	static String add(ProtoTask task) {
-		toDoList.add(task);
-		return "success";
+		Task newTask = new Task(task);
+		toDoList.add(newTask);
+		return String.format(RETURN_MESSAGE_FOR_ADD, newTask.displayAll());
 	}
 	
 	static String edit(int taskID, ProtoTask toEditTask) {
 		toDoList.edit(taskID, toEditTask);
-		return "success";
+		String editedTaskDetails = toDoList.displayID(taskID);
+		return String.format(RETURN_MESSAGE_FOR_EDIT, editedTaskDetails);
 	}
 	
 	static String complete(int taskID) {

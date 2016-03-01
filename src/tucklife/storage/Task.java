@@ -13,6 +13,7 @@ public class Task {
 	String additional;
 	String name;
 	
+	
 	Calendar startDate; //if null, means that it is a task not event
 	Calendar endDate; //either deadline or end time for event. if null, means it is a floating task
 	
@@ -32,7 +33,7 @@ public class Task {
 		this.startDate = task.getStartDate();
 		this.endDate = task.getEndDate();
 		this.floating = startDate == null && endDate == null; //task.isFloating();
-		this.id = globalID;
+		this.id = globalID;	
 		globalID++;
 	}
 	

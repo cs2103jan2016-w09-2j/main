@@ -8,8 +8,8 @@ public class Storage {
 	private static final String RETURN_MESSAGE_FOR_ADD = "{%1$s} was added to TuckLife's to-do list!";
 	private static final String RETURN_MESSAGE_FOR_EDIT = "{%1$s} whas been edited in TuckLife's to-do list!";
 	
-	static TaskList toDoList;
-	static TaskList doneList;
+	static TaskList toDoList = new TaskList();
+	static TaskList doneList = new TaskList();
 	
 	enum COMMAND_TYPE {
 		ADD, DISPLAY, COMPLETE, DISPLAYDONE, DELETE, EDIT, INVALID

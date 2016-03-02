@@ -5,8 +5,11 @@ import tucklife.storage.TaskList;
 
 public class Storage {
 	
-	private static final String RETURN_MESSAGE_FOR_ADD = "{%1$s} was added to TuckLife's to-do list!";
-	private static final String RETURN_MESSAGE_FOR_EDIT = "{%1$s} whas been edited in TuckLife's to-do list!";
+	private static final String RETURN_MESSAGE_FOR_ADD = "{%1$s} has been added to TuckLife's to-do list!";
+	private static final String RETURN_MESSAGE_FOR_EDIT = "{%1$s} has been edited in TuckLife's to-do list!";
+	private static final String RETURN_MESSAGE_FOR_DELETE = "{%1$s} has been deleted from TuckLife's to-do list!";
+	private static final String RETURN_MESSAGE_FOR_COMPLETE = "{%1$s} has been moved to TuckLife's done list!";
+	
 	
 	static TaskList toDoList = new TaskList();
 	static TaskList doneList = new TaskList();
@@ -86,12 +89,12 @@ public class Storage {
 	static String complete(int taskID) {
 		Task completedTask = toDoList.delete(taskID);
 		doneList.add(completedTask);
-		return "success";
+		return String.format(RETURN_MESSAGE_FOR_DELETE, completedTask.displayAll());
 	}
 	
 	static String delete(int taskID) {
-		toDoList.delete(taskID);
-		return "success";
+		Task deletedTask = toDoList.delete(taskID);
+		return String.format(RETURN_MESSAGE_FOR_DELETE, deletedTask.displayAll());
 	}
 	
 	static String displayID(int taskID) {

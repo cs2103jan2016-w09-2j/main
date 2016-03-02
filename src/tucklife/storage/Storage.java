@@ -5,13 +5,17 @@ import tucklife.storage.TaskList;
 
 public class Storage {
 	
-	private static final String RETURN_MESSAGE_FOR_ADD = "{%1$s} was added to TuckLife's to-do list!";
-	private static final String RETURN_MESSAGE_FOR_EDIT = "{%1$s} whas been edited in TuckLife's to-do list!";
+	private static final String RETURN_MESSAGE_FOR_ADD = "{%1$s} has been added to TuckLife's to-do list!";
+	private static final String RETURN_MESSAGE_FOR_EDIT = "{%1$s} has been edited in TuckLife's to-do list!";
+	private static final String RETURN_MESSAGE_FOR_DELETE = "{%1$s} has been deleted from TuckLife's to-do list!";
+	private static final String RETURN_MESSAGE_FOR_NONEXISTENT_ID = "No task with id:{%1$s} in TuckLife's to-do list!";
+	private static final String RETURN_MESSAGE_FOR_COMPLETE = "{%1$s} has been moved to TuckLife's done list!";
 	
-	static TaskList toDoList = new TaskList();
-	static TaskList doneList = new TaskList();
 	
-	enum COMMAND_TYPE {
+	private static TaskList toDoList = new TaskList();
+	private static TaskList doneList = new TaskList();
+	
+	private enum COMMAND_TYPE {
 		ADD, DISPLAY, COMPLETE, DISPLAYDONE, DELETE, EDIT, INVALID
 	}
 	
@@ -33,7 +37,7 @@ public class Storage {
 		doneList = loadList[1];
 	}
 	
-	static COMMAND_TYPE determineCommandType(String commandTypeString) {
+	private static COMMAND_TYPE determineCommandType(String commandTypeString) {
 		if (commandTypeString.equalsIgnoreCase("add")) {
 			return COMMAND_TYPE.ADD;
 		} else if (commandTypeString.equalsIgnoreCase("complete")) {
@@ -58,7 +62,7 @@ public class Storage {
 		case COMPLETE :
 			return complete(pt.getId());
 		case DISPLAY :
-			return display();
+			return display(pt);
 		case DISPLAYDONE :
 			return displayDone();
 		case DELETE :
@@ -71,38 +75,54 @@ public class Storage {
 		}
 	}
 	
-	static String add(ProtoTask task) {
+	private static String add(ProtoTask task) {
 		Task newTask = new Task(task);
 		toDoList.add(newTask);
 		return String.format(RETURN_MESSAGE_FOR_ADD, newTask.displayAll());
 	}
 	
-	static String edit(int taskID, ProtoTask toEditTask) {
+	private static String edit(int taskID, ProtoTask toEditTask) {
 		toDoList.edit(taskID, toEditTask);
 		String editedTaskDetails = toDoList.displayID(taskID);
 		return String.format(RETURN_MESSAGE_FOR_EDIT, editedTaskDetails);
 	}
 	
-	static String complete(int taskID) {
-		Task completedTask = toDoList.delete(taskID);
-		doneList.add(completedTask);
-		return "success";
+	private static String complete(int taskID) {
+		if(toDoList.contains(taskID)){
+			Task completedTask = toDoList.delete(taskID);
+			doneList.add(completedTask);
+			return String.format(RETURN_MESSAGE_FOR_COMPLETE, completedTask.displayAll());
+		} else {
+			return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID, taskID);
+		}
 	}
 	
-	static String delete(int taskID) {
-		toDoList.delete(taskID);
-		return "success";
+	private static String delete(int taskID) {
+		if(toDoList.contains(taskID)){
+			Task deletedTask = toDoList.delete(taskID);
+			return String.format(RETURN_MESSAGE_FOR_DELETE, deletedTask.displayAll());
+		} else {
+			return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID, taskID);
+		}
 	}
 	
-	static String displayID(int taskID) {
-		return toDoList.displayID(taskID);
+	private static String displayID(int taskID) {
+		if(toDoList.contains(taskID)){
+			return toDoList.displayID(taskID);
+		} else {
+			return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID, taskID);
+		}
 	}
 	
-	static String display() {
-		return toDoList.display();
+	private static String display(ProtoTask pt) {
+		if(pt.getId() != -1) {
+			return displayID(pt.getId());
+		} else {
+			return toDoList.display();
+		}
 	}
 	
-	static String displayDone() {
+	private static String displayDone() {
 		return doneList.display();
 	}
 }

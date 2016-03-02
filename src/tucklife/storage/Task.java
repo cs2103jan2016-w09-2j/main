@@ -7,21 +7,25 @@ import tucklife.parser.ProtoTask;
 
 public class Task {
 	
-	String location;
-	int priority;
-	String category;
-	String additional;
-	String name;
+	private String location;
+	private int priority;
+	private String category;
+	private String additional;
+	private String name;
 	
 	
-	Calendar startDate; //if null, means that it is a task not event
-	Calendar endDate; //either deadline or end time for event. if null, means it is a floating task
+	private Calendar startDate; //if null, means that it is a task not event
+	private Calendar endDate; //either deadline or end time for event. if null, means it is a floating task
 	
-	boolean floating;
+	private boolean floating;
 	
-	static int globalID = 1;
+	private static int globalID = 1;
 
-	int id;
+	private int id;
+	
+	public int getId(){
+		return id;
+	}
 	
 	public Task(ProtoTask task){
 		//create the Task
@@ -37,7 +41,7 @@ public class Task {
 		globalID++;
 	}
 	
-	Task edit(ProtoTask task){
+	protected Task edit(ProtoTask task){
 		//edit task
 		this.location = task.getLocation() == null ? this.location : task.getLocation();
 		this.priority = task.getPriority() == -1 ? this.priority : task.getPriority();
@@ -51,7 +55,7 @@ public class Task {
 		return this;
 	}
 	
-	String display(){
+	protected String display(){
 		String displayString = "";
 		displayString += id + ". ";
 		displayString += name + " | ";
@@ -98,7 +102,7 @@ public class Task {
 		return displayString;
 	}
 	
-	String displayAll(){
+	protected String displayAll(){
 		String displayString = display();
 		if (additional != null) {
 			displayString += " | " + "additional information: " + additional;

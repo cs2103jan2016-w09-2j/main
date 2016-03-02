@@ -8,7 +8,9 @@ public class Storage {
 	private static final String RETURN_MESSAGE_FOR_ADD = "{%1$s} has been added to TuckLife's to-do list!";
 	private static final String RETURN_MESSAGE_FOR_EDIT = "{%1$s} has been edited in TuckLife's to-do list!";
 	private static final String RETURN_MESSAGE_FOR_DELETE = "{%1$s} has been deleted from TuckLife's to-do list!";
+	private static final String RETURN_MESSAGE_FOR_DELETE_ERROR = "No task with id:{%1$s} in TuckLife's to-do list!";
 	private static final String RETURN_MESSAGE_FOR_COMPLETE = "{%1$s} has been moved to TuckLife's done list!";
+	//private static final String RETURN_MESSAGE_FOR_COMPLETE_ERROR = "{%1$s} has been moved to TuckLife's done list!";
 	
 	
 	static TaskList toDoList = new TaskList();
@@ -87,14 +89,22 @@ public class Storage {
 	}
 	
 	static String complete(int taskID) {
-		Task completedTask = toDoList.delete(taskID);
-		doneList.add(completedTask);
-		return String.format(RETURN_MESSAGE_FOR_DELETE, completedTask.displayAll());
+		if(toDoList.contains(taskID)){
+			Task completedTask = toDoList.delete(taskID);
+			doneList.add(completedTask);
+			return String.format(RETURN_MESSAGE_FOR_COMPLETE, completedTask.displayAll());
+		} else {
+			return String.format(RETURN_MESSAGE_FOR_DELETE_ERROR, taskID);
+		}
 	}
 	
 	static String delete(int taskID) {
-		Task deletedTask = toDoList.delete(taskID);
-		return String.format(RETURN_MESSAGE_FOR_DELETE, deletedTask.displayAll());
+		if(toDoList.contains(taskID)){
+			Task deletedTask = toDoList.delete(taskID);
+			return String.format(RETURN_MESSAGE_FOR_DELETE, deletedTask.displayAll());
+		} else {
+			return String.format(RETURN_MESSAGE_FOR_DELETE_ERROR, taskID);
+		}
 	}
 	
 	static String displayID(int taskID) {

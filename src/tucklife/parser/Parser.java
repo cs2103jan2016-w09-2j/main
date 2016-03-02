@@ -85,6 +85,10 @@ public class Parser {
 					
 					if (!taskDesc.isEmpty()) {
 						pt.setTaskDesc(taskDesc);
+					} else if (commandType.equals("add")) {
+						pt = new ProtoTask("error");
+						pt.setErrorMessage("task description required");
+						break;
 					}
 					
 					String location = extractParameter("@", commandArg);
@@ -119,6 +123,15 @@ public class Parser {
 					
 					if (!date.isEmpty()) {
 						//TODO parse date
+						DateParser dp = new DateParser();
+						boolean isValidDate = dp.parseDate(date);
+						
+						if (isValidDate) {
+							pt.setEndDate(dp.getDate());
+						} else {
+							pt = new ProtoTask("error");
+							pt.setErrorMessage("invalid date format");
+						}
 					}
 					
 					if (!additional.isEmpty()) {
@@ -147,18 +160,23 @@ public class Parser {
 					pt.setDemoCommand(commandArg);
 				} else {
 					pt = new ProtoTask("error");
-					pt.setErrorMessage("'" + commandArg + "' is not a valid command");
+					
+					if (commandArg.isEmpty()) {
+						pt.setErrorMessage(commandType + " requires an argument");
+					} else {
+						pt.setErrorMessage("'" + commandArg + "' is not a valid command");
+					}
 				}
 				break;
-				
+
 			case "display" :
 				if (isPositiveInteger(commandArg)) {
 					pt.setId(Integer.parseInt(commandArg));
 					break;
 				}
-				
+
 				// No break, display and displaydone have similar parameters
-				
+
 			case "displaydone" :
 				//TODO: Check if sorting by valid parameter
 				String search = extractParameter("", commandArg);
@@ -235,7 +253,11 @@ public class Parser {
 		
 		int splitPoint = -1;
 		for (int i = 0; i < paramSymbols.length; i++) {
-			if (commandArg.contains(" " + paramSymbols[i])) {
+			if (commandArg.indexOf(paramSymbols[i]) == 0) {
+				// No description / search term
+				splitPoint = 0;
+				break;
+			} else if (commandArg.contains(" " + paramSymbols[i])) {
 				int index = commandArg.indexOf(" " + paramSymbols[i]);
 					
 				if (splitPoint == -1 || splitPoint > index) {

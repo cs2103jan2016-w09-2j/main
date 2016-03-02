@@ -18,7 +18,7 @@ public class TestParser {
 				System.exit(0);
 			} else {
 				ProtoTask pt = p.parse(command);
-
+				
 				System.out.println(pt.toString());
 			}
 		}

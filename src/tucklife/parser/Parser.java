@@ -3,13 +3,12 @@ package tucklife.parser;
 public class Parser {
 	
 	private String[] commandTypes = { "add", "complete", "delete", "demo", "display", "displaydone",
-									  "edit", "help", "save", "saveto" };
+									  "edit", "exit", "help", "load", "save", "saveto" };
 	private String[] paramSymbols = { "-", "+", "$", "#", "!", "&", "@" };
 	private ProtoTask pt;
 	private DateParser dp;
 	
 	public Parser() {
-		dp = new DateParser();
 	}
 	
 	public ProtoTask parse(String command) {
@@ -119,6 +118,7 @@ public class Parser {
 					}
 					
 					if (!time.isEmpty() || !date.isEmpty()) {
+						dp = new DateParser();
 						boolean isValidDate;
 						
 						if (time.isEmpty()) {
@@ -221,6 +221,8 @@ public class Parser {
 			// No parameters
 			case "help" :
 			case "save" :
+			case "load" :
+			case "exit" :
 				if (!commandArg.isEmpty()) {
 					pt = new ProtoTask("error");
 					pt.setErrorMessage("too many parameters");

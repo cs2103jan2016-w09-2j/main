@@ -6,9 +6,10 @@ public class Parser {
 									  "edit", "help", "save", "saveto" };
 	private String[] paramSymbols = { "-", "+", "$", "#", "!", "&", "@" };
 	private ProtoTask pt;
+	private DateParser dp;
 	
 	public Parser() {
-		
+		dp = new DateParser();
 	}
 	
 	public ProtoTask parse(String command) {
@@ -117,20 +118,22 @@ public class Parser {
 						pt.setCategory(cat);
 					}
 					
-					if (!time.isEmpty()) {
-						//TODO parse time
-					}
-					
-					if (!date.isEmpty()) {
-						//TODO parse date
-						DateParser dp = new DateParser();
-						boolean isValidDate = dp.parseDate(date);
+					if (!time.isEmpty() || !date.isEmpty()) {
+						boolean isValidDate;
+						
+						if (time.isEmpty()) {
+							isValidDate = dp.parseDate(date, "");
+						} else if (date.isEmpty()) {
+							isValidDate = dp.parseDate("", time);
+						} else {
+							isValidDate = dp.parseDate(date, time);
+						}
 						
 						if (isValidDate) {
 							pt.setEndDate(dp.getDate());
 						} else {
 							pt = new ProtoTask("error");
-							pt.setErrorMessage("invalid date format");
+							pt.setErrorMessage("invalid date/time");
 						}
 					}
 					

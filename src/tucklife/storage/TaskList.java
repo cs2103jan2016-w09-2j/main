@@ -7,13 +7,13 @@ import tucklife.parser.ProtoTask;
 
 public class TaskList {
 
-	ArrayList<Task> taskList;
+	private ArrayList<Task> taskList;
 	
 	public TaskList() {		
 		taskList = new ArrayList<Task>();
 	}
 	
-	boolean contains(int taskID) {
+	protected boolean contains(int taskID) {
 		boolean containsID = false;
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {
@@ -23,7 +23,7 @@ public class TaskList {
 		return containsID;
 	}
 	
-	String displayID(int taskID) {
+	protected String displayID(int taskID) {
 		String displayString = "";
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {
@@ -33,7 +33,7 @@ public class TaskList {
 		return displayString;
 	}
 	
-	String display() {
+	protected String display() {
 		StringBuilder sb = new StringBuilder();
 		for (Task task:taskList) {
 			sb.append(task.display());
@@ -42,16 +42,16 @@ public class TaskList {
 		return sb.toString();
 	}
 	
-	void add(ProtoTask task) {
+	protected void add(ProtoTask task) {
 		Task newTask = new Task(task);
 		taskList.add(newTask);
 	}
 	
-	void add(Task task) {
+	protected void add(Task task) {
 		taskList.add(task);
 	}
 	
-	Task delete(int taskID){
+	protected Task delete(int taskID){
 		Task removed = null; 
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {
@@ -63,9 +63,7 @@ public class TaskList {
 		return removed;
 	}
 	
-	//i think should be void. do checking external when receive command
-	boolean edit(int taskID, ProtoTask toEditTask) {
-		boolean edited = false;
+	protected void edit(int taskID, ProtoTask toEditTask) {
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {
 				int taskIndex = taskList.indexOf(task);
@@ -73,11 +71,10 @@ public class TaskList {
 				taskList.set(taskIndex, newTask);
 			}
 		}
-		return edited;
 	}
 
 	private boolean hasFoundID(int taskID, Task task) {
-		return task.id == taskID;
+		return task.getId() == taskID;
 	}
 	
 	public Iterator<Task> iterator(){

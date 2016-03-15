@@ -14,12 +14,15 @@ public class TaskList {
 		taskList = new ArrayList<Task>();
 	}
 	
-	protected boolean contains(int taskID) {
+	protected boolean contains(int taskID) throws IDNotFoundException{
 		boolean containsID = false;
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {
 				containsID = true;
 			}
+		}
+		if(!containsID) {
+			throw new IDNotFoundException(taskID);
 		}
 		return containsID;
 	}
@@ -52,12 +55,19 @@ public class TaskList {
 		taskList.add(task);
 	}
 	
+	protected void add(int taskID, Task task) {
+		taskList.add(taskID, task);
+	}
+	
+	protected int size() {
+		return taskList.size();
+	}
+	
 	protected Task delete(int taskID) {
 		Task removed = null; 
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {
 				removed = task;
-				//taskList.remove(task);
 			}
 		}
 		taskList.remove(removed);
@@ -72,6 +82,16 @@ public class TaskList {
 				taskList.set(taskIndex, newTask);
 			}
 		}
+	}
+	
+	protected Task get(int taskID) {
+		Task getTask = null; 
+		for (Task task:taskList) {
+			if (hasFoundID(taskID, task)) {
+				getTask = task;
+			}
+		}
+		return getTask;
 	}
 
 	private boolean hasFoundID(int taskID, Task task) {

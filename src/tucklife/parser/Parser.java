@@ -3,12 +3,12 @@ package tucklife.parser;
 public class Parser {
 	
 	private String[] commandTypes = { "add", "complete", "delete", "demo", "display", "displaydone",
-									  "edit", "help", "save", "saveto" };
+									  "edit", "exit", "help", "load", "save", "saveto" };
 	private String[] paramSymbols = { "-", "+", "$", "#", "!", "&", "@" };
 	private ProtoTask pt;
+	private DateParser dp;
 	
 	public Parser() {
-		
 	}
 	
 	public ProtoTask parse(String command) {
@@ -117,20 +117,23 @@ public class Parser {
 						pt.setCategory(cat);
 					}
 					
-					if (!time.isEmpty()) {
-						//TODO parse time
-					}
-					
-					if (!date.isEmpty()) {
-						//TODO parse date
-						DateParser dp = new DateParser();
-						boolean isValidDate = dp.parseDate(date);
+					if (!time.isEmpty() || !date.isEmpty()) {
+						dp = new DateParser();
+						boolean isValidDate;
+						
+						if (time.isEmpty()) {
+							isValidDate = dp.parseDate(date, "");
+						} else if (date.isEmpty()) {
+							isValidDate = dp.parseDate("", time);
+						} else {
+							isValidDate = dp.parseDate(date, time);
+						}
 						
 						if (isValidDate) {
 							pt.setEndDate(dp.getDate());
 						} else {
 							pt = new ProtoTask("error");
-							pt.setErrorMessage("invalid date format");
+							pt.setErrorMessage("invalid date/time");
 						}
 					}
 					
@@ -218,6 +221,8 @@ public class Parser {
 			// No parameters
 			case "help" :
 			case "save" :
+			case "load" :
+			case "exit" :
 				if (!commandArg.isEmpty()) {
 					pt = new ProtoTask("error");
 					pt.setErrorMessage("too many parameters");

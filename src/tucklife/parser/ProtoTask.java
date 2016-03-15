@@ -17,6 +17,7 @@ public class ProtoTask {
 	private int priority = -1;
 	private int id = -1;
 	private int sortOrder = -1;
+	private int limit = -1;
 	
 	private Calendar startDate;
 	private Calendar endDate;
@@ -87,6 +88,10 @@ public class ProtoTask {
 		return sortOrder;
 	}
 	
+	public int getLimit() {
+		return limit;
+	}
+	
 	public Calendar getStartDate() {
 		return startDate;
 	}
@@ -148,6 +153,10 @@ public class ProtoTask {
 	
 	public void setSortOrder(int so) {
 		sortOrder = so;
+	}
+	
+	public void setLimit(int l) {
+		limit = l;
 	}
 	
 	public void setStartDate(Calendar sd) {
@@ -216,6 +225,10 @@ public class ProtoTask {
 
 			if (sortOrder != -1) {
 				toDisplay += "Sort order: " + sortOrder + "\n";
+			}
+			
+			if (limit != -1) {
+				toDisplay += "Limit: " + limit + "\n";
 			}
 
 			if (startDate != null) {

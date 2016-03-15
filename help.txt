@@ -1,4 +1,4 @@
-NAME,FORMAT,DESCRIPTION
+NAME,FORMAT,DESCRIPTION,NO COMMAS PL0X!
 add,add <task desc> <--optional attributes-->,Adds task with given description and attributes
 display,display,View all tasks in default ordering (queue+chronological)
 displayid,display <id>,Displays all information about a task

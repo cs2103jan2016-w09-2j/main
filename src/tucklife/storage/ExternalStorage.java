@@ -4,8 +4,6 @@ public class ExternalStorage {
 	
 	public static final String FILENAME_TODO = "todo.txt";
 	public static final String FILENAME_DONE = "done.txt";
-	public static final String FILENAME_HELP = "help.txt";
-	public static final String FILENAME_DEMO = "demo.txt";
 	public static final String FILENAME_RECUR = "recur.txt";
 	public static final String FILENAME_PREFS = "prefs.txt";
 	public static final String FILENAME_PATH = "path.txt";

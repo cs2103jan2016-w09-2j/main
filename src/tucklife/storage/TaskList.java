@@ -1,6 +1,7 @@
 package tucklife.storage;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 
 import tucklife.parser.ProtoTask;
@@ -51,7 +52,7 @@ public class TaskList {
 		taskList.add(task);
 	}
 	
-	protected Task delete(int taskID){
+	protected Task delete(int taskID) {
 		Task removed = null; 
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {
@@ -77,8 +78,39 @@ public class TaskList {
 		return task.getId() == taskID;
 	}
 	
-	public Iterator<Task> iterator(){
+	public Iterator<Task> iterator() {
 		return taskList.iterator();
+	}
+	
+	protected void sort(String sortBy) {
+		if (sortBy != null) {
+			if (sortBy.equals("@")) {
+				Collections.sort(taskList,new taskComparators().new ComparatorLocation());
+			}
+			
+			if (sortBy.equals("!")) {
+				Collections.sort(taskList,new taskComparators().new ComparatorPriority());
+			}
+			
+			if (sortBy.equals("#")) {
+				Collections.sort(taskList,new taskComparators().new ComparatorCategory());
+			}
+			
+			if (sortBy.equals("$")) {
+				Collections.sort(taskList,new taskComparators().new ComparatorTime());
+			}
+			
+			if (sortBy.equals("+")) { //is there actually a point doing this?? Im setting it to time for now
+				Collections.sort(taskList,new taskComparators().new ComparatorTime());
+			}
+			
+			if (sortBy.equals("&")) {
+				Collections.sort(taskList,new taskComparators().new ComparatorAdditional());
+			}
+		}
+		else {
+			Collections.sort(taskList,new taskComparators().new ComparatorTime());
+		}
 	}
 	
 }

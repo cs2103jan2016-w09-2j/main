@@ -27,6 +27,42 @@ public class Task {
 		return id;
 	}
 	
+	public String getLocation() {
+		return location;
+	}
+
+	public int getPriority() {
+		return priority;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public String getAdditional() {
+		return additional;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public Calendar getStartDate() {
+		return startDate;
+	}
+
+	public Calendar getEndDate() {
+		return endDate;
+	}
+
+	public boolean isFloating() {
+		return floating;
+	}
+
+	public static int getGlobalID() {
+		return globalID;
+	}
+
 	public Task(ProtoTask task){
 		//create the Task
 		this.location = task.getLocation();

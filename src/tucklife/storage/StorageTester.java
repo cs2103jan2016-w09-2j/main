@@ -11,6 +11,9 @@ import org.junit.Test;
 
 public class StorageTester {
 
+	private ProtoTaskStubForStorage ptDisplay;
+	private ProtoTaskStubForStorage ptDisplayDone;
+	private ProtoTaskStubForStorage ptDisplayID;
 	private ProtoTaskStubForStorage ptEvent;
 	private ProtoTaskStubForStorage ptEventComplete;
 	private ProtoTaskStubForStorage ptEventCompleteFail;
@@ -47,6 +50,9 @@ public class StorageTester {
 		ptEventDeleteFail = new ProtoTaskStubForStorage("delete", null, null, null, null, failID, null, null);
 		ptEventComplete = new ProtoTaskStubForStorage("complete", null, null, null, null, 2, null, null);
 		ptEventCompleteFail = new ProtoTaskStubForStorage("complete", null, null, null, null, failID, null, null);
+		ptDisplay = new ProtoTaskStubForStorage("display", null, null, null, null, -1, null, null);
+		ptDisplayDone = new ProtoTaskStubForStorage("displaydone", null, null, null, null, -1, null, null);
+		ptDisplayID = new ProtoTaskStubForStorage("display", null, null, null, null, 2, null, null);
 	}
 
 	@Test
@@ -69,6 +75,40 @@ public class StorageTester {
 	}
 	
 	//do display, displaydone, displayID
+	
+	@Test
+	public void testDisplay() {
+		s = new Storage();
+		String deadline = String.format("1. walk the cat | deadline: %1$s | location: park | category: pet", sdf.format(tomorrow.getTime()));
+		String event = String.format("2. walk the dog | start: %1$s end:%2$s | location: park | category: dog", sdf.format(tomorrow.getTime()), sdf.format(endTime));
+		String displayString = deadline + "\n" + event;
+		s.parseCommand(ptDeadline);
+		s.parseCommand(ptEvent);
+		assertEquals("fail to display list of events",s.parseCommand(ptDisplay), displayString);
+	}
+	
+	@Test
+	public void testDisplayDone() {
+		s = new Storage();
+		String deadline = String.format("1. walk the cat | deadline: %1$s | location: park | category: pet", sdf.format(tomorrow.getTime()));
+		String event = String.format("2. walk the dog | start: %1$s end:%2$s | location: park | category: dog", sdf.format(tomorrow.getTime()), sdf.format(endTime));
+		String displayString = event;
+		s.parseCommand(ptDeadline);
+		s.parseCommand(ptEvent);
+		s.parseCommand(ptComplete);
+		assertEquals("fail to displaydone list of completed",s.parseCommand(ptDisplayDone), displayString);
+	}
+	
+	@Test
+	public void testDisplayID() {
+		s = new Storage();
+		String deadline = String.format("1. walk the cat | deadline: %1$s | location: park | category: pet", sdf.format(tomorrow.getTime()));
+		String event = String.format("2. walk the dog | start: %1$s end:%2$s | location: park | category: dog | additional: i love my dog", sdf.format(tomorrow.getTime()), sdf.format(endTime));
+		String displayString = event;
+		s.parseCommand(ptDeadline);
+		s.parseCommand(ptEvent);
+		assertEquals("fail to displayID",s.parseCommand(ptDisplayID), displayString);
+	}
 	
 	@Test
 	public void testDelete() {

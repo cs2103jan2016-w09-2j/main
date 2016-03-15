@@ -16,6 +16,8 @@ public class Storage {
 	private static TaskList toDoList = new TaskList();
 	private static TaskList doneList = new TaskList();
 	
+	private static TaskList queueList = new TaskList();
+	
 	private enum COMMAND_TYPE {
 		ADD, DISPLAY, COMPLETE, DISPLAYDONE, DELETE, EDIT, INVALID
 	}
@@ -120,7 +122,10 @@ public class Storage {
 			return displayID(pt.getId());
 		} else {
 			String sortBy = pt.getSortCrit();
-			toDoList.sort(sortBy);
+			assert sortBy.equals("@") || sortBy.equals("!") || sortBy.equals("#") || sortBy.equals("$") || sortBy.equals("&") || sortBy.equals("+") || sortBy == null;
+			int sortOrder = pt.getSortOrder();
+			assert ((sortOrder == 1 || sortOrder == 0) && sortBy != null) || (sortBy == null && sortOrder == -1);
+			toDoList.sort(sortBy,sortOrder);
 			return toDoList.display();
 		}
 	}

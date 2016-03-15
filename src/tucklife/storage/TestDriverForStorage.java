@@ -38,7 +38,7 @@ public class TestDriverForStorage {
 		Parser p = new Parser();
 		
 		ProtoTask pt1 = p.parse("add meeting @meeting room 7"); /*$13/12/16 to 14/12/16 +8am to 3pm*/
-		ProtoTask pt2 = p.parse("add staff retreat @botanic gardens $tomorrow");
+		ProtoTask pt2 = p.parse("add staff retreat @botanic gardens $tomorrow +0500");
 		ProtoTask pt3 = p.parse("add interview intern @mr5 $13/12/16");
 		
 		ProtoTask pt4 = p.parse("display ++");

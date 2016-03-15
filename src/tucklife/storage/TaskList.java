@@ -82,7 +82,7 @@ public class TaskList {
 		return taskList.iterator();
 	}
 	
-	protected void sort(String sortBy) {
+	protected void sort(String sortBy , int sortOrder) {
 		if (sortBy != null) {
 			if (sortBy.equals("@")) {
 				Collections.sort(taskList,new taskComparators().new ComparatorLocation());
@@ -106,6 +106,10 @@ public class TaskList {
 			
 			if (sortBy.equals("&")) {
 				Collections.sort(taskList,new taskComparators().new ComparatorAdditional());
+			}
+			
+			if (sortOrder == 0) {
+				Collections.reverse(taskList);
 			}
 		}
 		else {

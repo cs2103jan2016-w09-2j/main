@@ -1,5 +1,6 @@
 package tucklife.storage;
 
+
 import tucklife.parser.ProtoTask;
 import tucklife.storage.TaskList;
 
@@ -118,11 +119,19 @@ public class Storage {
 		if(pt.getId() != -1) {
 			return displayID(pt.getId());
 		} else {
+			String sortBy = pt.getSortCrit();
+			toDoList.sort(sortBy);
 			return toDoList.display();
 		}
 	}
 	
 	private static String displayDone() {
 		return doneList.display();
+	}
+	
+	//for testing purposes only
+	public static void clear(){
+		toDoList = new TaskList();
+		doneList = new TaskList();
 	}
 }

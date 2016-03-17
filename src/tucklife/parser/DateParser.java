@@ -59,10 +59,10 @@ public class DateParser {
 	private static final String DATE_DM_DASH = "[0-3]?\\d-[01]?\\d";
 	
 	// Format: hh:mm am/pm (12-hour)
-	private static final String TIME_12HM = "[01]?\\d:[0-5]\\d(\\h?)[aApP][mM]";
+	private static final String TIME_12HM = "[01]?\\d:[0-5]\\d\\s?[aApP][mM]";
 	
 	// Format: hh am/pm (12-hour)
-	private static final String TIME_12H = "[01]?\\d(\\h?)[aApP][mM]";
+	private static final String TIME_12H = "[01]?\\d\\s?[aApP][mM]";
 	
 	// Format: hh:mm (24-hour)
 	private static final String TIME_24H_COLON = "[0-2]?\\d:[0-5]\\d";

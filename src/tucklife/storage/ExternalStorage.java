@@ -33,9 +33,9 @@ public class ExternalStorage {
 		lists = new TaskList[2];
 
 		lists[0] = todo.getList();
-		lists[1] = done.getList();
+		lists[1] = done.getList();	
 		
-		return (todo.getLoadStatus() & done.getLoadStatus());
+		return (todo.getLoadStatus() & done.getLoadStatus() & help.load());
 	}
 	
 	public TaskList[] getLoadedLists(){

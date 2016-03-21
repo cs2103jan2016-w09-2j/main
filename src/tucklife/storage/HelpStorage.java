@@ -12,18 +12,25 @@ public class HelpStorage {
 	public static final String FILENAME_HELP = "help.txt";
 	public static final String FILENAME_DEMO = "demo.txt";
 	
+	public static final String DEMO_LINE1 = "Command: %1$s";
+	public static final String DEMO_LINE2 = "Result: %1$s";
+	
 	private Hashtable<String, ArrayList<String>> demoDirectory;
 	private ArrayList<String> helpDirectory;
 	
 	public HelpStorage(){
 		helpDirectory = new ArrayList<String>();
 		demoDirectory = new Hashtable<String, ArrayList<String>>();
-		
-		loadHelp();
-		loadDemo();
 	}
 	
-	private void loadHelp(){
+	public boolean load(){
+		boolean helpLoaded = loadHelp();
+		boolean demoLoaded = loadDemo();
+		
+		return helpLoaded && demoLoaded;
+	}
+	
+	private boolean loadHelp(){
 		
 		FileInputStream fis;
 		InputStreamReader isr;
@@ -48,10 +55,13 @@ public class HelpStorage {
 			
 		} catch(IOException ioe){
 			ioe.printStackTrace();
+			return false;
 		}
+		
+		return true;
 	}
 	
-	private void loadDemo(){
+	private boolean loadDemo(){
 		
 		FileInputStream fis;
 		InputStreamReader isr;
@@ -73,18 +83,18 @@ public class HelpStorage {
 				if(currCommand == null){
 					currCommand = nextLine[0];
 					exampleTable = new ArrayList<String>();
-					exampleTable.add(nextLine[1]);
-					exampleTable.add(nextLine[2]);
+					exampleTable.add(String.format(DEMO_LINE1, nextLine[1]));
+					exampleTable.add(String.format(DEMO_LINE2, nextLine[2]));
 					
 				} else if(currCommand.equals(nextLine[0])){
-					exampleTable.add(nextLine[1]);
-					exampleTable.add(nextLine[2]);
+					exampleTable.add(String.format(DEMO_LINE1, nextLine[1]));
+					exampleTable.add(String.format(DEMO_LINE2, nextLine[2]));
 				} else{
 					demoDirectory.put(currCommand, exampleTable);
 					currCommand = nextLine[0];
 					exampleTable = new ArrayList<String>();
-					exampleTable.add(nextLine[1]);
-					exampleTable.add(nextLine[2]);
+					exampleTable.add(String.format(DEMO_LINE1, nextLine[1]));
+					exampleTable.add(String.format(DEMO_LINE2, nextLine[2]));
 				}
 			}
 			
@@ -96,7 +106,10 @@ public class HelpStorage {
 			
 		} catch(IOException ioe){
 			ioe.printStackTrace();
+			return false;
 		}
+		
+		return true;
 	}
 	
 	protected String getHelp(){
@@ -116,10 +129,14 @@ public class HelpStorage {
 		StringBuilder demoString = new StringBuilder();
 		ArrayList<String> demoTable = demoDirectory.get(command);
 		
-		for(int i = 0; i < demoTable.size(); i++){
+		for(int i = 0; i < demoTable.size(); i += 2){
 			demoString.append(demoTable.get(i));
 			demoString.append("\n");
+			demoString.append(demoTable.get(i+1));
+			demoString.append("\n\n");
 		}
+		
+		demoString.deleteCharAt(demoString.length() - 1);
 		
 		return demoString.toString();
 	}

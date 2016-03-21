@@ -3,7 +3,8 @@ package tucklife.parser;
 public class Parser {
 	
 	private String[] commandTypes = { "add", "complete", "delete", "demo", "display", "displaydone",
-									  "edit", "exit", "help", "load", "queue", "save", "saveto", "setlimit" };
+									  "edit", "exit", "help", "load", "queue", "redo",
+									  "save", "saveto", "setlimit", "setdefault", "undo" };
 	private String[] paramSymbols = { "-", "+", "$", "#", "!", "&", "@" };
 	private ProtoTask pt;
 	private DateParser dp;
@@ -21,7 +22,7 @@ public class Parser {
 	private final String ERROR_PARAMS_DEMO = "Format: demo <command>";
 	private final String ERROR_PARAMS_LIMIT = "Format: setlimit <limit>";
 	private final String ERROR_PARAMS_SAVETO = "Format: saveto <file path>";
-	
+
 	public Parser() {
 	}
 	
@@ -176,10 +177,22 @@ public class Parser {
 				
 			// Parameter: id, position
 			case "queue" :
-				if (commandArg.isEmpty()) {
+				String[] splitParams = commandArg.split(" ");
+				if (splitParams.length != 1 && splitParams.length != 2) {
 					createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_QUEUE);
-				} else {
+				} else if (isInteger(splitParams[0]) && Integer.parseInt(splitParams[0]) > 0) {
+					if (splitParams.length == 2) {
+						if (isInteger(splitParams[1]) && Integer.parseInt(splitParams[1]) > 0) {
+							pt.setPosition(Integer.parseInt(splitParams[1]));
+						} else {
+							createErrorTask("position must be a non-negative integer");
+							break;
+						}
+					}
 					
+					pt.setId(Integer.parseInt(splitParams[0]));
+				} else {
+					createErrorTask("id must be a non-negative integer");
 				}
 				break;
 				
@@ -211,29 +224,36 @@ public class Parser {
 					pt.setSearchKey(search);
 				}
 				
-				int sortOrder = -1;
+				boolean hasSortOrder = false;
+				boolean isAscending = false;
 				String sortBy = extractParameter("+", commandArg);
 				
 				if (!sortBy.isEmpty()) {
-					sortOrder = 1;
+					isAscending = true;
+					hasSortOrder = true;
 				} else {
 					sortBy = extractParameter("-", commandArg);
 					
 					if (!sortBy.isEmpty()) {
-						sortOrder = 0;
+						isAscending = false;
+						hasSortOrder = true;
 					}
 				}
 				
-				if (sortOrder != -1) {
-					pt.setSortOrder(sortOrder);
+				if (hasSortOrder) {
+					pt.setHasSortOrder(true);
+					pt.setIsAscending(isAscending);
 					pt.setSortCrit(sortBy);
 				}
 				
 				break;
 				
+			case "setdefault" :
+				// TODO: setdefault
+				break;
+				
 			// Parameter: file path
 			case "saveto" :
-				//TODO: Check if file path is valid
 				if (commandArg.isEmpty()) {
 					createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_SAVETO);
 				} else {
@@ -242,6 +262,8 @@ public class Parser {
 				break;
 				
 			// No parameters
+			case "undo" :
+			case "redo" :
 			case "help" :
 			case "save" :
 			case "load" :

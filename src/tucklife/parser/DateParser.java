@@ -101,7 +101,7 @@ public class DateParser {
 				timeMin = Integer.parseInt(rawTime.substring(colonPos + 1, colonPos + 3));
 				is12Hour = true;
 			} else if (rawTime.matches(TIME_12H)) {
-				timeHour = Integer.parseInt(rawTime.split("\\h?[aApP]")[0]);
+				timeHour = Integer.parseInt(rawTime.split("\\s?[aApP]")[0]);
 				timeMin = 0;
 				is12Hour = true;
 			} else if (rawTime.matches(TIME_24H_COLON)) {

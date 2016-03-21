@@ -45,6 +45,9 @@ public class Interaction {
 	            	System.out.println(es.getHelp());
             	} else if(pt.getCommand().equals("demo")){
             		System.out.println(es.getDemo(pt));
+            	} else if (pt.getCommand().equals("exit")) {
+            		System.out.println(es.save(s.save()));
+            		System.exit(0);
             	} else{
             		System.out.println(s.parseCommand(pt));
             	}

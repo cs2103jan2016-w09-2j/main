@@ -40,7 +40,9 @@ public class taskComparators {
      public int compare(Task t1, Task t2) {
             String cat1 = t1.getCategory();
             String cat2 = t2.getCategory();
-
+            if (cat1.compareTo(cat2) == 0) {
+            	return new ComparatorName().compare(t1, t2);
+            }
             return cat1.compareTo(cat2);
          }
     }
@@ -66,6 +68,22 @@ public class taskComparators {
             String name2 = t2.getName();
 
             return name1.compareTo(name2);
+         }
+    }
+	
+	class ComparatorDefault implements Comparator<Task>
+    {
+
+     @Override
+     public int compare(Task t1, Task t2) {
+            int qid1 = t1.getQueueID();
+            int qid2 = t2.getQueueID();
+            if(qid1 == qid2) {
+            	return new ComparatorTime().compare(t1, t2);
+            }
+            else{
+            	return qid1 - qid2;
+            }
          }
     }
 	
@@ -107,5 +125,4 @@ public class taskComparators {
             }
          }
     }
-
 }

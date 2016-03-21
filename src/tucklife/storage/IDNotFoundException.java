@@ -8,3 +8,10 @@ public class IDNotFoundException extends Exception {
 		this.errorID = errorID;
 	}
 }
+
+class overloadException extends Exception {
+	public int limit;
+	public overloadException(int limit) {
+		this.limit = limit;
+	}
+}

@@ -1,6 +1,9 @@
 package tucklife.storage;
 
 
+import java.text.SimpleDateFormat;
+import java.util.Iterator;
+
 import tucklife.parser.ProtoTask;
 import tucklife.storage.TaskList;
 
@@ -10,8 +13,12 @@ public class Storage {
 	private static final String RETURN_MESSAGE_FOR_EDIT = "{%1$s} has been edited in TuckLife's to-do list!";
 	private static final String RETURN_MESSAGE_FOR_DELETE = "{%1$s} has been deleted from TuckLife's to-do list!";
 	private static final String RETURN_MESSAGE_FOR_QUEUE = "{%1$s} has been added to TuckLife's queue at position {%2$s}!";
-	private static final String RETURN_MESSAGE_FOR_NONEXISTENT_ID = "No task with id:%1$s in TuckLife's to-do list!";
+	private static final String RETURN_MESSAGE_FOR_SETLIMIT = "Limit has been set to %1$s in TuckLife's to-do list!";
 	private static final String RETURN_MESSAGE_FOR_COMPLETE = "{%1$s} has been moved to TuckLife's done list!";
+	
+	private static final String RETURN_MESSAGE_FOR_NONEXISTENT_ID = "No task with id:%1$s in TuckLife's to-do list!";
+	private static final String RETURN_MESSAGE_FOR_OVERLOAD = "That day has been filled with %1$s tasks! It hit the limit! You should reschedule the task to another day. "
+			+ "Alternatively, you can either change the overload limit or turn it off.";
 	
 	
 	private static TaskList toDoList = new TaskList();
@@ -19,8 +26,10 @@ public class Storage {
 	
 	private static TaskList queueList = new TaskList();
 	
+	private static PreferenceList pf = new PreferenceList();
+	
 	private enum COMMAND_TYPE {
-		ADD, DISPLAY, COMPLETE, DISPLAYDONE, DELETE, EDIT, INVALID, QUEUE
+		ADD, DISPLAY, COMPLETE, DISPLAYDONE, DELETE, EDIT, INVALID, QUEUE, SETLIMIT
 	}
 	
 	public String parseCommand(ProtoTask pt) {
@@ -56,6 +65,8 @@ public class Storage {
 			return COMMAND_TYPE.EDIT;
 		} else if (commandTypeString.equalsIgnoreCase("queue")) {
 			return COMMAND_TYPE.QUEUE;
+		} else if (commandTypeString.equalsIgnoreCase("setlimit")) {
+			return COMMAND_TYPE.SETLIMIT;
 		} else {
 			return COMMAND_TYPE.INVALID;
 		}
@@ -64,7 +75,11 @@ public class Storage {
 	private static String parseCommand(ProtoTask pt, COMMAND_TYPE commandType) throws Error {
 		switch (commandType) {
 		case ADD :
-			return add(pt);
+			try {
+				return add(pt);
+			} catch (overloadException e) {
+				return String.format(RETURN_MESSAGE_FOR_OVERLOAD, e.limit);
+			}
 		case COMPLETE :
 			try {
 				return complete(pt.getId());
@@ -86,22 +101,77 @@ public class Storage {
 				return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID, e.errorID);
 			}
 		case EDIT :
-			return edit(pt.getId(), pt);
+			try {
+				return edit(pt.getId(), pt);
+			} catch (overloadException e) {
+				return String.format(RETURN_MESSAGE_FOR_OVERLOAD, e.limit);
+			}
 		case QUEUE :
 			return "";//queue(pt.getId(), pt.getPosition());
+		case SETLIMIT :
+			return setLimit(pt.getLimit());
 		default:
 			//throw an error if the command is not recognized
 			throw new Error("Unrecognized command type");
 		}
 	}
 	
-	private static String add(ProtoTask task) {
+	private static String add(ProtoTask task) throws overloadException{
 		Task newTask = new Task(task);
+		if (newTask.isFloating()) {
+			toDoList.add(newTask);
+			return String.format(RETURN_MESSAGE_FOR_ADD, newTask.displayAll());
+		}
+		toDoList.sort("$",1);
+		if(isOverloaded(newTask)) {
+			throw new overloadException(new PreferenceList().getLimit());
+		}
+		
 		toDoList.add(newTask);
 		return String.format(RETURN_MESSAGE_FOR_ADD, newTask.displayAll());
 	}
+
+	private static boolean isOverloaded(Task newTask) {
+		boolean hitLimit = false;
+		int count = 0;
+		int limit = pf.getLimit();
+		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy");
+		String newTaskDateString = sdf.format(newTask.getEndDate().getTime());
+		boolean flag = true;
+		String oldDateString = null;
+		Iterator<Task> taskListIter = toDoList.iterator();
+		
+		while(taskListIter.hasNext()){
+			Task t = taskListIter.next();
+			if(t.isFloating()) {
+				continue;
+			}
+			String taskDateString = sdf.format(t.getEndDate().getTime());
+			if(taskDateString.equals(oldDateString)) {
+				count += 1;
+			} else {
+				oldDateString = taskDateString;
+				count = 1;
+			}
+			if(flag) {
+				if(taskDateString.equals(newTaskDateString)) {
+					count +=1;
+					flag = false;
+				}
+			}
+			if(count == limit) {
+				hitLimit = true;
+				break;
+			}
+		}
+		return hitLimit;
+	}
 	
-	private static String edit(int taskID, ProtoTask toEditTask) {
+	private static String edit(int taskID, ProtoTask toEditTask) throws overloadException {
+		Task newTask = new Task(toEditTask);
+		if(isOverloaded(newTask)) {
+			throw new overloadException(new PreferenceList().getLimit());
+		}
 		toDoList.edit(taskID, toEditTask);
 		String editedTaskDetails = toDoList.displayID(taskID);
 		return String.format(RETURN_MESSAGE_FOR_EDIT, editedTaskDetails);
@@ -114,6 +184,14 @@ public class Storage {
 			return String.format(RETURN_MESSAGE_FOR_COMPLETE, completedTask.displayAll());
 		} else {
 			return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID, taskID);
+		}
+	}
+	
+	private static void uncomplete(int taskID) {
+		Task undoTask = doneList.remove(doneList.size()-1); //remove most recent entered.
+		toDoList.add(undoTask);
+		if(undoTask.getQueueID()!=-1) {//check if undoTask is in queue,
+			queueList.add(undoTask.getQueueID(), undoTask);
 		}
 	}
 	
@@ -165,12 +243,19 @@ public class Storage {
 				pos = pos - 1;
 				queueList.add(pos, qTask);
 			}
+			qTask.setQueueID(taskID);
 				
 			return String.format(RETURN_MESSAGE_FOR_QUEUE, qTask.displayAll(), pos);
 		} else {
 			return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID, taskID);
 		}
 		//return doneList.display();
+	}
+	
+	private static String setLimit(int limit) {
+		assert limit >= 0;
+		PreferenceList.setLimit(limit);
+		return String.format(RETURN_MESSAGE_FOR_SETLIMIT, limit);
 	}
 	
 	//for testing purposes only

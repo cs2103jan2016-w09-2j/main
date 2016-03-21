@@ -74,6 +74,10 @@ public class TaskList {
 		return removed;
 	}
 	
+	protected Task remove(int index) {
+		return taskList.remove(index);
+	}
+	
 	protected void edit(int taskID, ProtoTask toEditTask) {
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {
@@ -133,7 +137,7 @@ public class TaskList {
 			}
 		}
 		else {
-			Collections.sort(taskList,new taskComparators().new ComparatorTime());
+			Collections.sort(taskList,new taskComparators().new ComparatorDefault());
 		}
 	}
 	

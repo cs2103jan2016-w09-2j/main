@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class HelpStorage {
@@ -11,12 +12,12 @@ public class HelpStorage {
 	public static final String FILENAME_HELP = "help.txt";
 	public static final String FILENAME_DEMO = "demo.txt";
 	
-	private Hashtable<String, Hashtable<String, String>> demoDirectory;
-	private Hashtable<String, String> helpDirectory;
+	private Hashtable<String, ArrayList<String>> demoDirectory;
+	private ArrayList<String> helpDirectory;
 	
 	public HelpStorage(){
-		helpDirectory = new Hashtable<String, String>();
-		demoDirectory = new Hashtable<String, Hashtable<String, String>>();
+		helpDirectory = new ArrayList<String>();
+		demoDirectory = new Hashtable<String, ArrayList<String>>();
 		
 		loadHelp();
 		loadDemo();
@@ -37,7 +38,8 @@ public class HelpStorage {
 			
 			while(br.ready()){
 				String[] nextLine = br.readLine().split(",");
-				helpDirectory.put(nextLine[1], nextLine[2]);
+				helpDirectory.add(nextLine[1] + ": ");
+				helpDirectory.add(nextLine[2]);
 			}
 			
 			br.close();
@@ -63,23 +65,26 @@ public class HelpStorage {
 			br.readLine(); // removes first line
 			
 			String currCommand = null;
-			Hashtable<String, String> exampleTable = new Hashtable<String, String>();
+			ArrayList<String> exampleTable = new ArrayList<String>();
 			
 			while(br.ready()){
 				String[] nextLine = br.readLine().split(",");
 				
 				if(currCommand == null){
 					currCommand = nextLine[0];
-					exampleTable = new Hashtable<String, String>();
-					exampleTable.put(nextLine[1], nextLine[2]);
+					exampleTable = new ArrayList<String>();
+					exampleTable.add(nextLine[1]);
+					exampleTable.add(nextLine[2]);
 					
 				} else if(currCommand.equals(nextLine[0])){
-					exampleTable.put(nextLine[1], nextLine[2]);
+					exampleTable.add(nextLine[1]);
+					exampleTable.add(nextLine[2]);
 				} else{
 					demoDirectory.put(currCommand, exampleTable);
 					currCommand = nextLine[0];
-					exampleTable = new Hashtable<String, String>();
-					exampleTable.put(nextLine[1], nextLine[2]);
+					exampleTable = new ArrayList<String>();
+					exampleTable.add(nextLine[1]);
+					exampleTable.add(nextLine[2]);
 				}
 			}
 			
@@ -98,6 +103,24 @@ public class HelpStorage {
 		
 		StringBuilder helpString = new StringBuilder();
 		
-		helpDirectory.
+		for(int i = 0; i < helpDirectory.size(); i += 2){
+			helpString.append(helpDirectory.get(i) + helpDirectory.get(i+1));
+			helpString.append("\n");
+		}
+		
+		return helpString.toString();
+	}
+	
+	protected String getDemo(String command){
+		
+		StringBuilder demoString = new StringBuilder();
+		ArrayList<String> demoTable = demoDirectory.get(command);
+		
+		for(int i = 0; i < demoTable.size(); i++){
+			demoString.append(demoTable.get(i));
+			demoString.append("\n");
+		}
+		
+		return demoString.toString();
 	}
 }

@@ -1,5 +1,7 @@
 package tucklife.storage;
 
+import tucklife.parser.ProtoTask;
+
 public class ExternalStorage {
 	
 	public static final String FILENAME_TODO = "todo.txt";
@@ -17,12 +19,14 @@ public class ExternalStorage {
 	private String targetFolder;
 	private TaskList[] lists;
 	private ListStorage todo, done;
+	private HelpStorage help;
 	
 	public ExternalStorage(){
 		// load save-to path - assumption now is that file is in same directory as TuckLife.
 		targetFolder = "";
 		todo = new ListStorage(targetFolder + FILENAME_TODO);
 		done = new ListStorage(targetFolder + FILENAME_DONE);
+		help = new HelpStorage();
 	}
 	
 	public boolean load(){		
@@ -50,10 +54,12 @@ public class ExternalStorage {
 		return MSG_SAVE_COMPLETE;
 	}
 	
-	// meant for testing in a folder with some test cases
-	protected void testSetup(){
-		targetFolder = "C:\\Users\\Ryan\\Desktop\\Holding Area\\";
-		todo = new ListStorage(targetFolder + FILENAME_TODO);
-		done = new ListStorage(targetFolder + FILENAME_DONE);
+	public String getHelp(){
+		return help.getHelp();
+	}
+	
+	public String getDemo(ProtoTask pt){
+		String command = pt.getDemoCommand();
+		return help.getDemo(command);
 	}
 }

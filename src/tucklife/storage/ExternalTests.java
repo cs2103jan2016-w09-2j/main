@@ -13,7 +13,6 @@ public class ExternalTests {
 	@Before
 	public void setUp() throws Exception {
 		es = new ExternalStorage();
-		es.testSetup();
 	}
 
 	@Test

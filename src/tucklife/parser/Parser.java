@@ -1,9 +1,12 @@
 package tucklife.parser;
 
+import java.util.Calendar;
+
 public class Parser {
 	
 	private String[] commandTypes = { "add", "complete", "delete", "demo", "display", "displaydone",
-									  "edit", "exit", "help", "load", "queue", "save", "saveto", "setlimit" };
+									  "edit", "exit", "help", "queue", "redo",
+									  "save", "saveto", "setlimit", "setdefault", "undo" };
 	private String[] paramSymbols = { "-", "+", "$", "#", "!", "&", "@" };
 	private ProtoTask pt;
 	private DateParser dp;
@@ -21,7 +24,7 @@ public class Parser {
 	private final String ERROR_PARAMS_DEMO = "Format: demo <command>";
 	private final String ERROR_PARAMS_LIMIT = "Format: setlimit <limit>";
 	private final String ERROR_PARAMS_SAVETO = "Format: saveto <file path>";
-	
+
 	public Parser() {
 	}
 	
@@ -127,20 +130,20 @@ public class Parser {
 					
 					if (!time.isEmpty() || !date.isEmpty()) {
 						dp = new DateParser();
-						boolean isValidDate;
+						Calendar endDate;
 						
-						if (time.isEmpty()) {
-							isValidDate = dp.parseDate(date, "");
-						} else if (date.isEmpty()) {
-							isValidDate = dp.parseDate("", time);
-						} else {
-							isValidDate = dp.parseDate(date, time);
-						}
-						
-						if (isValidDate) {
-							pt.setEndDate(dp.getDate());
-						} else {
-							createErrorTask("invalid date/time");
+						try {
+							if (time.isEmpty()) {
+								endDate = dp.parseDate(date, "");
+							} else if (date.isEmpty()) {
+								endDate = dp.parseDate("", time);
+							} else {
+								endDate = dp.parseDate(date, time);
+							}
+							
+							pt.setEndDate(endDate);
+						} catch (InvalidDateException e) {
+							createErrorTask(e.getMessage());
 							break;
 						}
 					}
@@ -176,10 +179,22 @@ public class Parser {
 				
 			// Parameter: id, position
 			case "queue" :
-				if (commandArg.isEmpty()) {
+				String[] splitParams = commandArg.split(" ");
+				if (splitParams.length != 1 && splitParams.length != 2) {
 					createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_QUEUE);
-				} else {
+				} else if (isInteger(splitParams[0]) && Integer.parseInt(splitParams[0]) > 0) {
+					if (splitParams.length == 2) {
+						if (isInteger(splitParams[1]) && Integer.parseInt(splitParams[1]) > 0) {
+							pt.setPosition(Integer.parseInt(splitParams[1]));
+						} else {
+							createErrorTask("position must be a non-negative integer");
+							break;
+						}
+					}
 					
+					pt.setId(Integer.parseInt(splitParams[0]));
+				} else {
+					createErrorTask("id must be a non-negative integer");
 				}
 				break;
 				
@@ -205,35 +220,45 @@ public class Parser {
 				// No break, display and displaydone have similar parameters
 
 			case "displaydone" :
-				//TODO: Check if sorting by valid parameter
 				String search = extractParameter("", commandArg);
 				if (!search.isEmpty()) {
 					pt.setSearchKey(search);
 				}
 				
-				int sortOrder = -1;
+				boolean hasSortOrder = false;
+				boolean isAscending = false;
 				String sortBy = extractParameter("+", commandArg);
 				
 				if (!sortBy.isEmpty()) {
-					sortOrder = 1;
+					isAscending = true;
+					hasSortOrder = true;
 				} else {
 					sortBy = extractParameter("-", commandArg);
 					
 					if (!sortBy.isEmpty()) {
-						sortOrder = 0;
+						isAscending = false;
+						hasSortOrder = true;
 					}
 				}
 				
-				if (sortOrder != -1) {
-					pt.setSortOrder(sortOrder);
-					pt.setSortCrit(sortBy);
+				if (hasSortOrder) {
+					if (isValidSortCrit(sortBy)) {
+						pt.setHasSortOrder(true);
+						pt.setIsAscending(isAscending);
+						pt.setSortCrit(sortBy);
+					} else {
+						createErrorTask("invalid sort parameters");
+					}
 				}
 				
 				break;
 				
+			case "setdefault" :
+				// TODO: setdefault
+				break;
+				
 			// Parameter: file path
 			case "saveto" :
-				//TODO: Check if file path is valid
 				if (commandArg.isEmpty()) {
 					createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_SAVETO);
 				} else {
@@ -242,9 +267,10 @@ public class Parser {
 				break;
 				
 			// No parameters
+			case "undo" :
+			case "redo" :
 			case "help" :
 			case "save" :
-			case "load" :
 			case "exit" :
 				if (!commandArg.isEmpty()) {
 					createErrorTask(ERROR_WRONG_PARAMS + "\n"
@@ -279,8 +305,13 @@ public class Parser {
 		int splitPoint = -1;
 		for (int i = 0; i < paramSymbols.length; i++) {
 			if (commandArg.indexOf(paramSymbols[i]) == 0) {
-				// No description / search term
-				splitPoint = 0;
+				if (symbol.isEmpty()) {
+					// No description
+					splitPoint = 0;
+				} else if (commandArg.length() == 1){
+					// For sorting
+					splitPoint = 1;
+				}
 				break;
 			} else if (commandArg.contains(" " + paramSymbols[i])) {
 				int index = commandArg.indexOf(" " + paramSymbols[i]);
@@ -325,5 +356,18 @@ public class Parser {
 	private void createErrorTask(String errorMsg) {
 		pt = new ProtoTask("error");
 		pt.setErrorMessage(errorMsg);
+	}
+	
+	private boolean isValidSortCrit(String sortParam) {
+		boolean isValidSort = false;
+		
+		for (int i = 1; i < paramSymbols.length; i++) {
+			if (sortParam.equals(paramSymbols[i])) {
+				isValidSort = true;
+				break;
+			}
+		}
+		
+		return isValidSort;
 	}
 }

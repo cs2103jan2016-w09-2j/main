@@ -1,8 +1,8 @@
 FUNCTION,DEMO,RESULT,NO COMMAS PL0X!
-add,add read a book,Add the task “read a book” to TuckLife with no parameters
-add,add read a book $2 May,Add the task “read a book” to TuckLife with parameters: date: 2 May | time: 11:59pm
-add,add walk the dog !low #pet +4pm,Add the task “walk the dog” to TuckLife with parameters: date: today’s date | time: 4:00pm | priority: low | category: pet
-add,add walk the dog @park !low #pet $11 May +4pm to 6pm &walk 1km,Add the task “walk the dog” to TuckLife with parameters: date: 11 May | time: 4:00pm to 6:00pm | location: park | priority: low | category: pet | additional information: walk 1km
+add,add read a book,Adds the task "read a book" to TuckLife with no parameters
+add,add read a book $2 May,Adds the task "read a book" to TuckLife with parameters: date: 2 May | time: 11:59pm
+add,add walk the dog !low #pet +4pm,Adds the task "walk the dog" to TuckLife with parameters: date: today's date | time: 4:00pm | priority: low | category: pet
+add,add walk the dog @park !low #pet $11 May +4pm to 6pm &walk 1km,Adds the task "walk the dog" to TuckLife with parameters: date: 11 May | time: 4:00pm to 6:00pm | location: park | priority: low | category: pet | additional information: walk 1km
 display,display,Shows all tasks sorted in default order (Queue then chronological order)
 display,display +priority,Shows all tasks sorted by priority in ascending order
 display,display -location,Shows all tasks sorted by location in descending order
@@ -31,7 +31,7 @@ delrecur,delrecur 3,Deletes the recurring task with id: 3. Also removes all inst
 queue,queue 13,Adds the task with id: 13 to the back of the queue
 queue,queue 11 5,Adds the tasks with id: 11 to the 5th position of the queue
 setdefault,setdefault @meeting room 4,Sets the default location to "meeting room 4"
-setdefault,setdefault #sales project !high $10 dec,Sets the default category to ‘sales project’, the default priority to ‘high’ and the default deadline to the 10th of December
+setdefault,setdefault #sales project !high $10 dec,Sets the default category to ‘sales project', the default priority to ‘high' and the default deadline to the 10th of December
 setlimit,setlimit 60,Task overload warning will now be triggered when there are 60 outstanding tasks
 setlimit,setlimit 0,Turns off the task overload warning
 saveto,saveto C:/Desktop/Random Folder/TuckLife Folder/,Save the files that TuckLife uses to C:/Desktop/Random Folder/TuckLife Folder/

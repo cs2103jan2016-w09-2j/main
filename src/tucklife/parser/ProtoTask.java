@@ -16,8 +16,11 @@ public class ProtoTask {
 	
 	private int priority = -1;
 	private int id = -1;
-	private int sortOrder = -1;
 	private int limit = -1;
+	private int position = -1;
+	
+	private boolean hasSortOrder = false;
+	private boolean isAscending = false;
 	
 	private Calendar startDate;
 	private Calendar endDate;
@@ -84,12 +87,20 @@ public class ProtoTask {
 		return id;
 	}
 	
-	public int getSortOrder() {
-		return sortOrder;
-	}
-	
 	public int getLimit() {
 		return limit;
+	}
+	
+	public int getPosition() {
+		return position;
+	}
+	
+	public boolean getHasSortOrder() {
+		return hasSortOrder;
+	}
+	
+	public boolean getIsAscending() {
+		return isAscending;
 	}
 	
 	public Calendar getStartDate() {
@@ -151,12 +162,20 @@ public class ProtoTask {
 		id = i;
 	}
 	
-	public void setSortOrder(int so) {
-		sortOrder = so;
-	}
-	
 	public void setLimit(int l) {
 		limit = l;
+	}
+	
+	public void setPosition(int p) {
+		position = p;
+	}
+	
+	public void setHasSortOrder(boolean s) {
+		hasSortOrder = s;
+	}
+	
+	public void setIsAscending(boolean a) {
+		isAscending = a;
 	}
 	
 	public void setStartDate(Calendar sd) {
@@ -222,13 +241,21 @@ public class ProtoTask {
 			if (id != -1) {
 				toDisplay += "ID: " + id + "\n";
 			}
-
-			if (sortOrder != -1) {
-				toDisplay += "Sort order: " + sortOrder + "\n";
-			}
 			
 			if (limit != -1) {
 				toDisplay += "Limit: " + limit + "\n";
+			}
+			
+			if (position != -1) {
+				toDisplay += "Position: " + position + "\n";
+			}
+			
+			if (hasSortOrder) {
+				if (isAscending) {
+					toDisplay += "Sort order: ascending\n";
+				} else {
+					toDisplay += "Sort order: descending\n";
+				}
 			}
 
 			if (startDate != null) {

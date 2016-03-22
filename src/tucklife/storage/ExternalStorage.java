@@ -1,154 +1,116 @@
 package tucklife.storage;
 
 import tucklife.parser.ProtoTask;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Iterator;
 
 public class ExternalStorage {
 	
-	public static final String FILENAME_TODO = "todo.txt";
-	public static final String FILENAME_DONE = "done.txt";
-	public static final String FILENAME_RECUR = "recur.txt";
-	public static final String FILENAME_PREFS = "prefs.txt";
+	private static final String FILENAME_TODO = "todo.txt";
+	private static final String FILENAME_DONE = "done.txt";
+	private static final String FILENAME_RECUR = "recur.txt";
 	
-	public static final String MSG_LOAD_COMPLETE = "Data loaded successfully.";
-	public static final String MSG_SAVE_COMPLETE = "Data saved successfully.";
+	private static final String MSG_LOAD_COMPLETE = "Data loaded successfully.";
+	private static final String MSG_SAVE_COMPLETE = "Data saved successfully.";
 	
-	public static final String ERROR_LOAD = "Error loading files from %1$s. New todo list has been created.";
-	public static final String ERROR_SAVE = "Error saving files to %1$s. Files have been saved to default location.";
+	private static final String ERROR_LOAD = "Error loading files. New todo list has been created.";
+	private static final String ERROR_SAVE = "Error saving files. Files have been saved to default location.";
+	private static final String ERROR_SAVETO = "Error saving files to new location. Files have been saved to previous location.";
 	
 	private String targetFolder;
-	private boolean hasLoaded;
 	private TaskList[] lists;
+	private ListStorage todo, done;
+	private HelpStorage help;
+	private PrefsStorage prefs;
 	
 	public ExternalStorage(){
-		// load save-to path - assumption now is that file is in same directory as TuckLife.
-		targetFolder = "";
-		hasLoaded = true;
+		prefs = new PrefsStorage();
+		
+		prefs.loadPreferences();
+		targetFolder = prefs.getSavePath();
+		
+		todo = new ListStorage(targetFolder + FILENAME_TODO);
+		done = new ListStorage(targetFolder + FILENAME_DONE);
+		help = new HelpStorage();
+		
 	}
 	
-	public boolean load(){
+	public boolean load(){		
 		lists = new TaskList[2];
-		TaskList todo = loadList(targetFolder + FILENAME_TODO);
-		TaskList done = loadList(targetFolder + FILENAME_DONE);
+
+		lists[0] = todo.getList();
+		lists[1] = done.getList();	
 		
-		lists[0] = todo;
-		lists[1] = done;
-		
-		return hasLoaded;
+		return (todo.getLoadStatus() & done.getLoadStatus() & help.load());
 	}
 	
+	// old load function - to be replaced by getLoadedData
 	public TaskList[] getLoadedLists(){
 		return lists;
 	}
 	
-	private TaskList loadList(String directory){
-		
-		FileInputStream fis;
-		InputStreamReader isr;
-		BufferedReader br;
-		
-		TaskList list = new TaskList();
-		
-		try{
-			fis = new FileInputStream(directory);
-			isr = new InputStreamReader(fis);
-			br = new BufferedReader(isr);
-			
-			while(br.ready()){
-				String nextTask = br.readLine();
-				ProtoTask pt = new ProtoTask("add");
-				
-				String[] taskDetails = nextTask.split("|");
-				
-				pt.setTaskDesc(taskDetails[1].trim());
-				
-				for(int i = 2; i < taskDetails.length; i++){
-					String field = taskDetails[i].trim();
-					String[] fieldDetails = field.split(" ");
-					String fieldHeader = fieldDetails[0];
-					
-					if(fieldHeader.equalsIgnoreCase("category:")){
-						pt.setCategory(field.substring(10));
-					} else if(fieldHeader.equalsIgnoreCase("priority:")){
-						int p = Integer.parseInt(fieldDetails[1]);
-						pt.setPriority(p);
-					} else if(fieldHeader.equalsIgnoreCase("location:")){
-						pt.setLocation(field.substring(10));
-					} else if(fieldHeader.equalsIgnoreCase("additional")){
-						pt.setAdditional(field.substring(24));
-					} else if(fieldHeader.equalsIgnoreCase("deadline:")){
-						// date loading TBC
-						
-					} else if(fieldHeader.equalsIgnoreCase("start:")){
-						// date loading TBC
-						
-					}						
-				}
-				
-				list.add(pt);
-			}
-			
-			br.close();
-			isr.close();
-			fis.close();
-			
-			return list;
-			
-		} catch(IOException ioe){
-			hasLoaded = false;
-			return new TaskList();
-		}
-		
+	// new load that uses a DataBox
+	public DataBox getLoadedData(){
+		DataBox db = new DataBox(lists, prefs);
+		return db;
 	}
-
-	public String save(TaskList[] lists){		
-		boolean todoStatus = saveList(lists[0], targetFolder + FILENAME_TODO);
-		boolean doneStatus = saveList(lists[1], targetFolder + FILENAME_DONE);
+	
+	// old save function - to be replaced by saveData
+	public String save(TaskList[] listsToSave){		
 		
-		if(!todoStatus){
-			saveList(lists[0], FILENAME_TODO);
-			return String.format(ERROR_SAVE, targetFolder);
-		}
+		boolean savedTodo = todo.normalSave(listsToSave[0]);
+		boolean savedDone = done.normalSave(listsToSave[1]);
 		
-		if(!doneStatus){
-			saveList(lists[1], FILENAME_TODO);
-			return String.format(ERROR_SAVE, targetFolder);
+		if(!savedTodo | !savedDone){
+			return ERROR_SAVE;
 		}
 		
 		return MSG_SAVE_COMPLETE;
 	}
 	
-	private boolean saveList(TaskList list, String fileName){
+	// new save that uses a DataBox
+	public String saveData(DataBox db){
+		TaskList[] listsToSave = db.getLists();
+		prefs = db.getPrefs();
 		
-		FileOutputStream fos;
-		BufferedOutputStream bos;
+		boolean savedTodo = todo.normalSave(listsToSave[0]);
+		boolean savedDone = done.normalSave(listsToSave[1]);
 		
-		try{
-			fos = new FileOutputStream(fileName);
-			bos = new BufferedOutputStream(fos);
-			
-			Iterator<Task> tasks = list.iterator();
-			
-			while(tasks.hasNext()){
-				Task t = tasks.next();
-				
-				bos.write(t.displayAll().getBytes());
-			}
-			
-			bos.flush();
-			bos.close();
-			fos.close();
-			
-			return true;
-			
-		} catch(IOException ioe){
-			return false;
+		boolean savedPrefs = prefs.savePreferences();
+		
+		if(!savedTodo | !savedDone | !savedPrefs){
+			return ERROR_SAVE;
 		}
+		
+		return MSG_SAVE_COMPLETE;
+	}
+	
+	public String saveTo(DataBox db, String newPath){
+		
+		TaskList[] listsToSave = db.getLists();
+		prefs = db.getPrefs();
+		
+		boolean savedTodo = todo.pathSave(newPath + FILENAME_TODO, listsToSave[0]);
+		boolean savedDone = done.pathSave(newPath + FILENAME_DONE, listsToSave[1]);
+		
+		// saving in new place is successful
+		if(savedDone && savedTodo){
+			prefs.setSavePath(newPath);
+			prefs.savePreferences();
+			return MSG_SAVE_COMPLETE;
+		
+		// saving unsuccessful 
+		} else{
+			todo.pathSave(targetFolder + FILENAME_TODO, listsToSave[0]);
+			done.pathSave(targetFolder + FILENAME_DONE, listsToSave[1]);
+			return ERROR_SAVETO;
+		}
+	}
+	
+	public String getHelp(){
+		return help.getHelp();
+	}
+	
+	public String getDemo(ProtoTask pt){
+		String command = pt.getDemoCommand();
+		return help.getDemo(command);
 	}
 }

@@ -1,27 +1,27 @@
-NAME:FORMAT:DESCRIPTION
-add:add <task desc> <--optional attributes-->:Adds task with given description and attributes
-display:display:View all tasks in default ordering (queue+chronological)
-displayid:display <id>:Displays all information about a task
-displaysortasc:display +<category>:View all tasks in ascending order of <category>
-displaysortdesc:display -<category>:View all tasks in descending order of <category>
-displaysearch:display <keywords>:View all tasks containing <keywords>
-edit:edit <id> <new task desc> <--optional attributes-->:Edits task to contain new attributes
-complete:complete <id>:Marks task as completed
-delete:del <id>:Permanently deletes task
-displaydone:displaydone:Displays all completed tasks, can be sorted and searched, refer to display
-undo:undo:Undoes the most recent add/edit/delete/complete
-redo:redo:Redoes the most recent undo
-save:save:Manual save
-exit:exit:Saves files and shuts down TuckLife
-remindertoggle:reminder:Toggles reminders on/off
-statussummary:status:Shows an overview of current tasks
-help:help:You're looking at it now, duh
-demo:demo <command>:Get an example of how to use <command>
-recur:recur <id> <period>:Makes the task recur every <period>
-showrecur:showrecur:Shows all recurring tasks, can be sorted and searched, refer to display
-editrecur:editrecur <id> <--optional attributes-->:Edits a recurring task
-delrecur:delrecur <id>:Deletes a recurring task
-queue:queue <id> <pos>:Adds task to position <pos> of queue, the back of the queue if <pos> is 0
-setdefault:setdeafult <--desired defaults-->:Sets default values for optional attributes
-setlimit:setlimit <limit>:Task overload warning will trigger at <limit> tasks outstanding
-saveto:saveto <path>:Saves TuckLife's files in the folder specified
+NAME,FORMAT,DESCRIPTION,NO COMMAS PL0X!
+add,add <task desc> <--optional attributes-->,Adds task with given description and attributes
+display,display,View all tasks in default ordering (queue+chronological)
+displayid,display <id>,Displays all information about a task
+displaysortasc,display +<category>,View all tasks in ascending order of <category>
+displaysortdesc,display -<category>,View all tasks in descending order of <category>
+displaysearch,display <keywords>,View all tasks containing <keywords>
+edit,edit <id> <new task desc> <--optional attributes-->,Edits task to contain new attributes
+complete,complete <id>,Marks task as completed
+delete,del <id>,Permanently deletes task
+displaydone,displaydone,Displays all completed tasks - can be sorted and searched - refer to display
+undo,undo,Undoes the most recent add/edit/delete/complete
+redo,redo,Redoes the most recent undo
+save,save,Manual save
+exit,exit,Saves files and shuts down TuckLife
+remindertoggle,reminder,Toggles reminders on/off
+statussummary,status,Shows an overview of current tasks
+help,help,You're looking at it now - duh
+demo,demo <command>,Get an example of how to use <command>
+recur,recur <id> <period>,Makes the task recur every <period>
+showrecur,showrecur,Shows all recurring tasks - can be sorted and searched - refer to display
+editrecur,editrecur <id> <--optional attributes-->,Edits a recurring task
+delrecur,delrecur <id>,Deletes a recurring task
+queue,queue <id> <pos>,Adds task to position <pos> of queue - the back of the queue if <pos> is 0
+setdefault,setdeafult <--desired defaults-->,Sets default values for optional attributes
+setlimit,setlimit <limit>,Task overload warning will trigger at <limit> tasks outstanding
+saveto,saveto <path>,Saves TuckLife's files in the folder specified

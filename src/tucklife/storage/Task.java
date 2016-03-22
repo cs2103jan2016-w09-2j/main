@@ -23,10 +23,56 @@ public class Task {
 
 	private int id;
 	
+	private int queueID;
+	
 	public int getId(){
 		return id;
 	}
 	
+	public String getLocation() {
+		return location;
+	}
+
+	public int getPriority() {
+		return priority;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public String getAdditional() {
+		return additional;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public Calendar getStartDate() {
+		return startDate;
+	}
+
+	public Calendar getEndDate() {
+		return endDate;
+	}
+
+	public boolean isFloating() {
+		return floating;
+	}
+
+	public static int getGlobalID() {
+		return globalID;
+	}
+	
+	public int getQueueID(){
+		return queueID;
+	}
+	
+	public void setQueueID(int id){
+		this.queueID = id;
+	}
+
 	public Task(ProtoTask task){
 		//create the Task
 		this.location = task.getLocation();
@@ -38,8 +84,24 @@ public class Task {
 		this.endDate = task.getEndDate();
 		this.floating = startDate == null && endDate == null; //task.isFloating();
 		this.id = globalID;	
+		this.queueID = -1;
 		globalID++;
 	}
+	
+	/* unsure if needed
+	public Task(Task task){
+		//create the Task
+		this.location = task.getLocation();
+		this.priority = task.getPriority();
+		this.category = task.getCategory();
+		this.additional = task.getAdditional();
+		this.name = task.getName();
+		this.startDate = task.getStartDate();
+		this.endDate = task.getEndDate();
+		this.floating = startDate == null && endDate == null; //task.isFloating();
+		this.id = task.getId();	
+		this.queueID = task.getQueueID();
+	}*/
 	
 	protected Task edit(ProtoTask task){
 		//edit task

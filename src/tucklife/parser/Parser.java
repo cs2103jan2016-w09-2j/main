@@ -1,13 +1,30 @@
 package tucklife.parser;
 
+import java.util.Calendar;
+
 public class Parser {
 	
 	private String[] commandTypes = { "add", "complete", "delete", "demo", "display", "displaydone",
-									  "edit", "exit", "help", "load", "save", "saveto" };
+									  "edit", "exit", "help", "queue", "redo",
+									  "save", "saveto", "setlimit", "setdefault", "undo" };
 	private String[] paramSymbols = { "-", "+", "$", "#", "!", "&", "@" };
 	private ProtoTask pt;
 	private DateParser dp;
 	
+	// Error messages:
+	private final String ERROR_WRONG_PARAMS = "Incorrect number of parameters";
+	private final String ERROR_PARAMS_NONE = "Format: %1$s";
+	private final String ERROR_PARAMS_ID = "Format: %1$s <id>";
+	private final String ERROR_PARAMS_ADD = "Format: add <task description> (optional: $<date> "
+										  + "+<time> #<category> !<priority> @<location> &<additional>)";
+	private final String ERROR_PARAMS_EDIT = "Format: edit <id> (optional: <task description> "
+										   + "$<date> +<time> #<category> !<priority> @<location> &<additional>)";
+	private final String ERROR_PARAMS_DISPLAY = "Format: display (optional: <search term> +/-<sort order>";
+	private final String ERROR_PARAMS_QUEUE = "Format: queue <id> <pos>";
+	private final String ERROR_PARAMS_DEMO = "Format: demo <command>";
+	private final String ERROR_PARAMS_LIMIT = "Format: setlimit <limit>";
+	private final String ERROR_PARAMS_SAVETO = "Format: saveto <file path>";
+
 	public Parser() {
 	}
 	
@@ -17,20 +34,15 @@ public class Parser {
 		
 		if (isValidCommandType(commandType)) {
 			pt = new ProtoTask(commandType.toLowerCase());
-			
-			String message = splitParameters(commandType, commandArgument);
-			if (!message.isEmpty()) {
-				pt.setErrorMessage(message);
-			}
+			splitParameters(commandType, commandArgument);
 		} else {
-			pt = new ProtoTask("error");
-			pt.setErrorMessage("'" + commandType + "' is not a valid command");
+			createErrorTask("'" + commandType + "' is not a valid command");
 		}
 		
 		return pt;
 	}
 	
-	public String getFirstWord(String command) {
+	private String getFirstWord(String command) {
 		int i = command.indexOf(" ");
 		
 		if (i == -1) {
@@ -40,7 +52,7 @@ public class Parser {
 		}
 	}
 	
-	public String getRemainingArgument(String command) {
+	private String getRemainingArgument(String command) {
 		int i = command.indexOf(" ");
 		
 		if (i == -1) {
@@ -50,7 +62,7 @@ public class Parser {
 		}
 	}
 	
-	public boolean isValidCommandType(String type) {
+	private boolean isValidCommandType(String type) {
 		for (int i = 0; i < commandTypes.length; i++) {
 			if (type.equalsIgnoreCase(commandTypes[i])) {
 				return true;
@@ -60,15 +72,15 @@ public class Parser {
 		return false;
 	}
 	
-	public String splitParameters(String commandType, String commandArg) {
+	private void splitParameters(String commandType, String commandArg) {
 		switch (commandType) {
 			case "edit" :
 				if (commandArg.isEmpty() || getRemainingArgument(commandArg).isEmpty()) {
-					pt = new ProtoTask("error");
-					pt.setErrorMessage("too little parameters");
-				} else if (!isPositiveInteger(getFirstWord(commandArg))) {
-					pt = new ProtoTask("error");
-					pt.setErrorMessage("'id' must be a positive integer");
+					createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_EDIT);
+					break;
+				} else if (!isInteger(getFirstWord(commandArg)) || Integer.parseInt(getFirstWord(commandArg)) <= 0) {
+					createErrorTask("<id> must be greater than 0\n" + ERROR_PARAMS_EDIT);
+					break;
 				} else {
 					pt.setId(Integer.parseInt(getFirstWord(commandArg)));
 					commandArg = getRemainingArgument(commandArg);
@@ -78,16 +90,14 @@ public class Parser {
 				
 			case "add" :
 				if (commandArg.isEmpty()) {
-					pt = new ProtoTask("error");
-					pt.setErrorMessage("too little parameters");
+					createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_ADD);
 				} else {
 					String taskDesc = extractParameter("", commandArg);
 					
 					if (!taskDesc.isEmpty()) {
 						pt.setTaskDesc(taskDesc);
 					} else if (commandType.equals("add")) {
-						pt = new ProtoTask("error");
-						pt.setErrorMessage("task description required");
+						createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_ADD);
 						break;
 					}
 					
@@ -106,7 +116,8 @@ public class Parser {
 						int priorityRank = convertPriority(priority);
 						
 						if (priorityRank == -1) {
-							pt.setErrorMessage("invalid priority");
+							createErrorTask("invalid priority");
+							break;
 						} else {
 							pt.setPriority(priorityRank);
 						}
@@ -119,21 +130,21 @@ public class Parser {
 					
 					if (!time.isEmpty() || !date.isEmpty()) {
 						dp = new DateParser();
-						boolean isValidDate;
+						Calendar endDate;
 						
-						if (time.isEmpty()) {
-							isValidDate = dp.parseDate(date, "");
-						} else if (date.isEmpty()) {
-							isValidDate = dp.parseDate("", time);
-						} else {
-							isValidDate = dp.parseDate(date, time);
-						}
-						
-						if (isValidDate) {
-							pt.setEndDate(dp.getDate());
-						} else {
-							pt = new ProtoTask("error");
-							pt.setErrorMessage("invalid date/time");
+						try {
+							if (time.isEmpty()) {
+								endDate = dp.parseDate(date, "");
+							} else if (date.isEmpty()) {
+								endDate = dp.parseDate("", time);
+							} else {
+								endDate = dp.parseDate(date, time);
+							}
+							
+							pt.setEndDate(endDate);
+						} catch (InvalidDateException e) {
+							createErrorTask(e.getMessage());
+							break;
 						}
 					}
 					
@@ -147,13 +158,43 @@ public class Parser {
 			case "complete" :
 			case "delete" :
 				if (commandArg.isEmpty()) {
-					pt = new ProtoTask("error");
-					pt.setErrorMessage("'id' required");
-				} else if (!isPositiveInteger(commandArg)) {
-					pt = new ProtoTask("error");
-					pt.setErrorMessage("'id' must be a positive integer");
+					createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_ID);
+				} else if (!isInteger(commandArg) || Integer.parseInt(commandArg) <= 0) {
+					createErrorTask("'id' must be a positive integer");
 				} else {
 					pt.setId(Integer.parseInt(commandArg));
+				}
+				break;
+				
+			// Parameter: task limit
+			case "setlimit" :
+				if (commandArg.isEmpty()) {
+					createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_LIMIT);
+				} else if (!isInteger(commandArg) || Integer.parseInt(commandArg) < 0) {
+					createErrorTask("limit must be a non-negative integer");
+				} else {
+					pt.setLimit(Integer.parseInt(commandArg));
+				}
+				break;
+				
+			// Parameter: id, position
+			case "queue" :
+				String[] splitParams = commandArg.split(" ");
+				if (splitParams.length != 1 && splitParams.length != 2) {
+					createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_QUEUE);
+				} else if (isInteger(splitParams[0]) && Integer.parseInt(splitParams[0]) > 0) {
+					if (splitParams.length == 2) {
+						if (isInteger(splitParams[1]) && Integer.parseInt(splitParams[1]) > 0) {
+							pt.setPosition(Integer.parseInt(splitParams[1]));
+						} else {
+							createErrorTask("position must be a non-negative integer");
+							break;
+						}
+					}
+					
+					pt.setId(Integer.parseInt(splitParams[0]));
+				} else {
+					createErrorTask("id must be a non-negative integer");
 				}
 				break;
 				
@@ -162,18 +203,16 @@ public class Parser {
 				if (isValidCommandType(commandArg)) {
 					pt.setDemoCommand(commandArg);
 				} else {
-					pt = new ProtoTask("error");
-					
 					if (commandArg.isEmpty()) {
-						pt.setErrorMessage(commandType + " requires an argument");
+						createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_DEMO);
 					} else {
-						pt.setErrorMessage("'" + commandArg + "' is not a valid command");
+						createErrorTask("'" + commandArg + "' is not a valid command");
 					}
 				}
 				break;
 
 			case "display" :
-				if (isPositiveInteger(commandArg)) {
+				if (isInteger(commandArg) && Integer.parseInt(commandArg) > 0) {
 					pt.setId(Integer.parseInt(commandArg));
 					break;
 				}
@@ -181,60 +220,67 @@ public class Parser {
 				// No break, display and displaydone have similar parameters
 
 			case "displaydone" :
-				//TODO: Check if sorting by valid parameter
 				String search = extractParameter("", commandArg);
 				if (!search.isEmpty()) {
 					pt.setSearchKey(search);
 				}
 				
-				int sortOrder = -1;
+				boolean hasSortOrder = false;
+				boolean isAscending = false;
 				String sortBy = extractParameter("+", commandArg);
 				
 				if (!sortBy.isEmpty()) {
-					sortOrder = 1;
+					isAscending = true;
+					hasSortOrder = true;
 				} else {
 					sortBy = extractParameter("-", commandArg);
 					
 					if (!sortBy.isEmpty()) {
-						sortOrder = 0;
+						isAscending = false;
+						hasSortOrder = true;
 					}
 				}
 				
-				if (sortOrder != -1) {
-					pt.setSortOrder(sortOrder);
-					pt.setSortCrit(sortBy);
+				if (hasSortOrder) {
+					if (isValidSortCrit(sortBy)) {
+						pt.setHasSortOrder(true);
+						pt.setIsAscending(isAscending);
+						pt.setSortCrit(sortBy);
+					} else {
+						createErrorTask("invalid sort parameters");
+					}
 				}
 				
 				break;
 				
+			case "setdefault" :
+				// TODO: setdefault
+				break;
+				
 			// Parameter: file path
 			case "saveto" :
-				//TODO: Check if file path is valid
 				if (commandArg.isEmpty()) {
-					pt = new ProtoTask("error");
-					pt.setErrorMessage("file path required");
+					createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_SAVETO);
 				} else {
 					pt.setPath(commandArg);
 				}
 				break;
 				
 			// No parameters
+			case "undo" :
+			case "redo" :
 			case "help" :
 			case "save" :
-			case "load" :
 			case "exit" :
 				if (!commandArg.isEmpty()) {
-					pt = new ProtoTask("error");
-					pt.setErrorMessage("too many parameters");
+					createErrorTask(ERROR_WRONG_PARAMS + "\n"
+				                    + String.format(ERROR_PARAMS_NONE, commandType));
 				}
 				break;
 		}
-		
-		// Split successful
-		return "";
 	}
 	
-	public String extractParameter(String symbol, String commandArg) {
+	private String extractParameter(String symbol, String commandArg) {
 		/* Parameter symbol must be at the start of command argument
 		 * or have a space preceding it to be valid
 		 */
@@ -259,8 +305,13 @@ public class Parser {
 		int splitPoint = -1;
 		for (int i = 0; i < paramSymbols.length; i++) {
 			if (commandArg.indexOf(paramSymbols[i]) == 0) {
-				// No description / search term
-				splitPoint = 0;
+				if (symbol.isEmpty()) {
+					// No description
+					splitPoint = 0;
+				} else if (commandArg.length() == 1){
+					// For sorting
+					splitPoint = 1;
+				}
 				break;
 			} else if (commandArg.contains(" " + paramSymbols[i])) {
 				int index = commandArg.indexOf(" " + paramSymbols[i]);
@@ -278,14 +329,11 @@ public class Parser {
 		}
 	}
 	
-	public boolean isPositiveInteger(String s) {
+	private boolean isInteger(String s) {
 		boolean isInt = true;
 		
 		try {
-			int i = Integer.parseInt(s);
-			if (i <= 0) {
-				 isInt = false;
-			}
+			Integer.parseInt(s);
 		} catch (NumberFormatException nfe) {
 			isInt = false;
 		}
@@ -293,7 +341,7 @@ public class Parser {
 		return isInt;
 	}
 	
-	public int convertPriority(String priority) {
+	private int convertPriority(String priority) {
 		if (priority.equalsIgnoreCase("high")) {
 			return 1;
 		} else if (priority.equalsIgnoreCase("medium")) {
@@ -303,5 +351,23 @@ public class Parser {
 		} else {
 			return -1;
 		}
+	}
+	
+	private void createErrorTask(String errorMsg) {
+		pt = new ProtoTask("error");
+		pt.setErrorMessage(errorMsg);
+	}
+	
+	private boolean isValidSortCrit(String sortParam) {
+		boolean isValidSort = false;
+		
+		for (int i = 1; i < paramSymbols.length; i++) {
+			if (sortParam.equals(paramSymbols[i])) {
+				isValidSort = true;
+				break;
+			}
+		}
+		
+		return isValidSort;
 	}
 }

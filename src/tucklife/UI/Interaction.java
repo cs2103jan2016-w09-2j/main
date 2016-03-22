@@ -21,6 +21,10 @@ public class Interaction {
 		//initialisation
 		System.out.println(MESSAGE_WELCOME);
 		
+		// temporary loading code - aylward to send a load command on startup
+		es.load();
+    	s.load(es.getLoadedLists());
+		
 		//program loop
 		while (true) {
             System.out.println(MESSAGE_COMMAND_PROMPT);
@@ -34,15 +38,18 @@ public class Interaction {
             else{
             	if(pt.getCommand().equals("save")){
             		System.out.println(es.save(s.save()));
-            	}
-            	else{
-	            	if(pt.getCommand().equals("load")){
-	            		es.load();
-	            		s.load(es.getLoadedLists());
-	            	}
-	            	else{
-	            		System.out.println(s.parseCommand(pt));
-	            	}
+            	} else if(pt.getCommand().equals("load")){
+	            	es.load();
+	            	s.load(es.getLoadedLists());
+	            } else if(pt.getCommand().equals("help")){
+	            	System.out.println(es.getHelp());
+            	} else if(pt.getCommand().equals("demo")){
+            		System.out.println(es.getDemo(pt));
+            	} else if (pt.getCommand().equals("exit")) {
+            		System.out.println(es.save(s.save()));
+            		System.exit(0);
+            	} else{
+            		System.out.println(s.parseCommand(pt));
             	}
             }
             

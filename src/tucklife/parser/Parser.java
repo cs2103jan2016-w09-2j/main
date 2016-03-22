@@ -1,9 +1,11 @@
 package tucklife.parser;
 
+import java.util.Calendar;
+
 public class Parser {
 	
 	private String[] commandTypes = { "add", "complete", "delete", "demo", "display", "displaydone",
-									  "edit", "exit", "help", "load", "queue", "redo",
+									  "edit", "exit", "help", "queue", "redo",
 									  "save", "saveto", "setlimit", "setdefault", "undo" };
 	private String[] paramSymbols = { "-", "+", "$", "#", "!", "&", "@" };
 	private ProtoTask pt;
@@ -128,20 +130,20 @@ public class Parser {
 					
 					if (!time.isEmpty() || !date.isEmpty()) {
 						dp = new DateParser();
-						boolean isValidDate;
+						Calendar endDate;
 						
-						if (time.isEmpty()) {
-							isValidDate = dp.parseDate(date, "");
-						} else if (date.isEmpty()) {
-							isValidDate = dp.parseDate("", time);
-						} else {
-							isValidDate = dp.parseDate(date, time);
-						}
-						
-						if (isValidDate) {
-							pt.setEndDate(dp.getDate());
-						} else {
-							createErrorTask("invalid date/time");
+						try {
+							if (time.isEmpty()) {
+								endDate = dp.parseDate(date, "");
+							} else if (date.isEmpty()) {
+								endDate = dp.parseDate("", time);
+							} else {
+								endDate = dp.parseDate(date, time);
+							}
+							
+							pt.setEndDate(endDate);
+						} catch (InvalidDateException e) {
+							createErrorTask(e.getMessage());
 							break;
 						}
 					}
@@ -266,7 +268,6 @@ public class Parser {
 			case "redo" :
 			case "help" :
 			case "save" :
-			case "load" :
 			case "exit" :
 				if (!commandArg.isEmpty()) {
 					createErrorTask(ERROR_WRONG_PARAMS + "\n"

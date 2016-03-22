@@ -32,11 +32,20 @@ public class ListStorageTest {
 	// loading for various task types 
 	@Test
 	public void taskTest(){
-		// todo list should have four tasks as test file has four tasks
-		assertEquals(todoList.contains(1), true);
-		assertEquals(todoList.contains(2), true);
-		assertEquals(todoList.contains(3), true);
-		assertEquals(todoList.contains(4), true);
+		try{
+			// todo list should have four tasks as test file has four tasks
+			assertEquals(todoList.contains(1), true);
+			assertEquals(todoList.contains(2), true);
+			assertEquals(todoList.contains(3), true);
+			assertEquals(todoList.contains(4), true);
+			
+			// done list should have two tasks
+			assertEquals(doneList.contains(5), true);
+			assertEquals(doneList.contains(6), true);
+		} catch(IDNotFoundException IDnfe){
+			// failed the task check
+			assertEquals(false, true);
+		}
 		
 		// first task - no parameters
 		String task = todoList.displayID(1);
@@ -53,10 +62,6 @@ public class ListStorageTest {
 		// fourth task - additional info
 		task = todoList.displayID(4);
 		assertEquals(task, "4. task7 |  | additional information: testing");
-		
-		// done list should have two tasks
-		assertEquals(doneList.contains(5), true);
-		assertEquals(doneList.contains(6), true);
 		
 		// fifth task - priority parameter
 		task = doneList.displayID(5);

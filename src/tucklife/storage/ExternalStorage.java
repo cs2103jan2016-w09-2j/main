@@ -59,6 +59,22 @@ public class ExternalStorage {
 		return MSG_SAVE_COMPLETE;
 	}
 	
+	public String saveData(DataBox db){
+		TaskList[] listsToSave = db.getLists();
+		prefs = db.getPrefs();
+		
+		boolean savedTodo = todo.normalSave(listsToSave[0]);
+		boolean savedDone = done.normalSave(listsToSave[1]);
+		
+		boolean savedPrefs = prefs.savePreferences();
+		
+		if(!savedTodo | !savedDone | !savedPrefs){
+			return ERROR_SAVE;
+		}
+		
+		return MSG_SAVE_COMPLETE;
+	}
+	
 	public String getHelp(){
 		return help.getHelp();
 	}

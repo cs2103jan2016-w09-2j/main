@@ -43,9 +43,9 @@ public class Storage {
 		return returnMessage;
 	}
 
-	private static void storeSaveState(ArrayList<TaskList> saveState) {
+	private static void storeUndoSaveState() {
 		
-		saveState = new ArrayList<TaskList>();
+		undoSaveState = new ArrayList<TaskList>();
 		TaskList oldToDoList = new TaskList();
 		TaskList oldQueueList = new TaskList();
 		Iterator<Task> taskListIter = toDoList.iterator();
@@ -53,12 +53,18 @@ public class Storage {
 		while(taskListIter.hasNext()){
 			Task t = taskListIter.next();
 			oldToDoList.add(t);
+		}
+		oldToDoList.sort(null, true);
+		taskListIter = oldToDoList.iterator();
+		while(taskListIter.hasNext()){
+			Task t = taskListIter.next();
 			if(t.getQueueID()!=-1) {
-				oldQueueList.add(t.getQueueID(),t);
+				oldQueueList.add(t.getQueueID() - 1,t);
 			}
 		}
-		saveState.add(oldToDoList);
-		saveState.add(oldQueueList);
+		
+		undoSaveState.add(oldToDoList);
+		undoSaveState.add(oldQueueList);
 		
 		TaskList oldDoneList = new TaskList();
 		taskListIter = doneList.iterator();
@@ -66,14 +72,45 @@ public class Storage {
 			Task t = taskListIter.next();
 			oldDoneList.add(t);
 		}
-		saveState.add(oldDoneList);
+		undoSaveState.add(oldDoneList);
+	}
+	
+	private static void storeRedoSaveState() {
+		
+		redoSaveState = new ArrayList<TaskList>();
+		TaskList oldToDoList = new TaskList();
+		TaskList oldQueueList = new TaskList();
+		Iterator<Task> taskListIter = toDoList.iterator();
+		
+		while(taskListIter.hasNext()){
+			Task t = taskListIter.next();
+			oldToDoList.add(t);
+		}
+		oldToDoList.sort(null, true);
+		taskListIter = oldToDoList.iterator();
+		while(taskListIter.hasNext()){
+			Task t = taskListIter.next();
+			if(t.getQueueID()!=-1) {
+				oldQueueList.add(t.getQueueID() - 1,t);
+			}
+		}
+		redoSaveState.add(oldToDoList);
+		redoSaveState.add(oldQueueList);
+		
+		TaskList oldDoneList = new TaskList();
+		taskListIter = doneList.iterator();
+		while(taskListIter.hasNext()){
+			Task t = taskListIter.next();
+			oldDoneList.add(t);
+		}
+		redoSaveState.add(oldDoneList);
 	}
 	
 	private static String undo() throws nothingToUndoException{
 		if (undoSaveState == null) {
 			throw new nothingToUndoException();
 		}
-		storeSaveState(redoSaveState);
+		storeRedoSaveState();
 		
 		restoreSaveState(undoSaveState);
 		undoSaveState = null;
@@ -90,23 +127,35 @@ public class Storage {
 		if (redoSaveState == null) {
 			throw new nothingToRedoException();
 		}
-		storeSaveState(undoSaveState);
+		storeUndoSaveState();
 		
 		restoreSaveState(redoSaveState);
 		redoSaveState = null;
 		return "redone";
 	}
 	
-	public TaskList[] save() {
+	public DataBox save() {
+		
 		TaskList[] saveList = new TaskList[2];
 		saveList[0] = toDoList;
 		saveList[1] = doneList;
-		return saveList;
+		DataBox db = new DataBox(saveList, new PrefsStorage());
+		return db;
 	}
 	
-	public void load(TaskList[] loadList) {
+	public void load(DataBox db) {
+		TaskList[] loadList = db.getLists();
 		toDoList = loadList[0];
 		doneList = loadList[1];
+		toDoList.sort(null, true);
+		Iterator<Task> iter = toDoList.iterator();
+		while(iter.hasNext()){
+			Task t = iter.next();
+			if(t.getQueueID()!=-1){
+				queueList.add(t);
+			}
+		}
+		new PreferenceList().setLimit(db.getPrefs().getOverloadLimit());
 	}
 	
 	private static COMMAND_TYPE determineCommandType(String commandTypeString) {
@@ -175,7 +224,11 @@ public class Storage {
 			}
 		case QUEUE :
 			prepareForUndo();
-			return "";//queue(pt.getId(), pt.getPosition());
+			try {
+				return queue(pt.getId(), pt.getPosition());
+			} catch (IDNotFoundException e) {
+				return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID, e.errorID);
+			}
 		case SETLIMIT :
 			return setLimit(pt.getLimit());
 		case UNDO :
@@ -197,7 +250,7 @@ public class Storage {
 	}
 
 	private static void prepareForUndo() {
-		storeSaveState(undoSaveState);
+		storeUndoSaveState();
 		redoSaveState = null;
 	}
 	
@@ -207,7 +260,7 @@ public class Storage {
 			toDoList.add(newTask);
 			return String.format(RETURN_MESSAGE_FOR_ADD, newTask.displayAll());
 		}
-		toDoList.sort("$",1);
+		toDoList.sort("$",true);
 		if(isOverloaded(newTask)) {
 			throw new overloadException(new PreferenceList().getLimit());
 		}
@@ -221,7 +274,7 @@ public class Storage {
 		int count = 0;
 		int limit = pf.getLimit();
 		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy");
-		String newTaskDateString = sdf.format(newTask.getEndDate().getTime());
+		String newTaskDateString = newTask.isFloating() ? null : sdf.format(newTask.getEndDate().getTime());
 		boolean flag = true;
 		String oldDateString = null;
 		Iterator<Task> taskListIter = toDoList.iterator();
@@ -244,7 +297,7 @@ public class Storage {
 					flag = false;
 				}
 			}
-			if(count == limit) {
+			if(count == limit+1) {
 				hitLimit = true;
 				break;
 			}
@@ -298,9 +351,9 @@ public class Storage {
 		} else {
 			String sortBy = pt.getSortCrit();
 			assert sortBy.equals("@") || sortBy.equals("!") || sortBy.equals("#") || sortBy.equals("$") || sortBy.equals("&") || sortBy.equals("+") || sortBy == null;
-			int sortOrder = pt.getSortOrder();
-			assert ((sortOrder == 1 || sortOrder == 0) && sortBy != null) || (sortBy == null && sortOrder == -1);
-			toDoList.sort(sortBy,sortOrder);
+			boolean isAscending = pt.getIsAscending();
+			//assert ((sortOrder == 1 || sortOrder == 0) && sortBy != null) || (sortBy == null && sortOrder == -1);
+			toDoList.sort(sortBy,isAscending);
 			return toDoList.display();
 		}
 	}
@@ -310,6 +363,36 @@ public class Storage {
 	}
 	
 	private static String queue(int taskID, int pos) throws IDNotFoundException {
+		/*
+		Iterator<Task> qIter1 = queueList.iterator();
+		Task gg = null;
+		while(qIter1.hasNext()) {
+			Task t = qIter1.next();
+			if(t.getId() == taskID) {
+				gg = t;
+			}
+		}
+		if(gg!=null) {
+			if(gg.getQueueID()>pos) {
+				queueList.remove(gg.getQueueID() - 1);
+				queueList.add(pos,gg);
+			}
+			else {
+				queueList.add(pos-1,gg);
+				queueList.remove(gg.getQueueID() - 1);
+			}
+			qIter1 = queueList.iterator();
+			int count1 = 1;
+			while(qIter1.hasNext()) {
+				Task t = qIter1.next();
+				t.setQueueID(count1);
+				count1++;
+			}
+				
+			return String.format(RETURN_MESSAGE_FOR_QUEUE, gg.displayAll(), pos);
+			
+		}
+		*/
 		if(toDoList.contains(taskID)){
 			Task qTask = toDoList.get(taskID);
 			if (pos == -1) {
@@ -320,7 +403,13 @@ public class Storage {
 				pos = pos - 1;
 				queueList.add(pos, qTask);
 			}
-			qTask.setQueueID(taskID);
+			Iterator<Task> qIter = queueList.iterator();
+			int count = 1;
+			while(qIter.hasNext()) {
+				Task t = qIter.next();
+				t.setQueueID(count);
+				count++;
+			}
 				
 			return String.format(RETURN_MESSAGE_FOR_QUEUE, qTask.displayAll(), pos);
 		} else {

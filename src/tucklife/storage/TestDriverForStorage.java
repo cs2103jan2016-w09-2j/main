@@ -54,4 +54,15 @@ public class TestDriverForStorage {
 		
 		System.out.println(s.parseCommand(pt5));
 	}
+	
+	private static void testOverload() {
+		Storage s = new Storage();
+		Storage.clear();
+		Parser p = new Parser();
+		
+		ProtoTask pt1 = p.parse("add meeting @meeting room 7"); /*$13/12/16 to 14/12/16 +8am to 3pm*/
+		ProtoTask pt2 = p.parse("add staff retreat @botanic gardens $tomorrow +0500");
+		ProtoTask pt3 = p.parse("add interview intern @mr5 $13/12/16");
+		
+	}
 }

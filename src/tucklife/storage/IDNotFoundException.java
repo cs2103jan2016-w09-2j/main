@@ -15,3 +15,11 @@ class overloadException extends Exception {
 		this.limit = limit;
 	}
 }
+
+class nothingToUndoException extends Exception {
+	
+}
+
+class nothingToRedoException extends Exception {
+	
+}

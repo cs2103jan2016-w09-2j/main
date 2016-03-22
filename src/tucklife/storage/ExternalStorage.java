@@ -4,22 +4,21 @@ import tucklife.parser.ProtoTask;
 
 public class ExternalStorage {
 	
-	public static final String FILENAME_TODO = "todo.txt";
-	public static final String FILENAME_DONE = "done.txt";
-	public static final String FILENAME_RECUR = "recur.txt";
-	public static final String FILENAME_PREFS = "prefs.txt";
-	public static final String FILENAME_PATH = "path.txt";
+	private static final String FILENAME_TODO = "todo.txt";
+	private static final String FILENAME_DONE = "done.txt";
+	private static final String FILENAME_RECUR = "recur.txt";
 	
-	public static final String MSG_LOAD_COMPLETE = "Data loaded successfully.";
-	public static final String MSG_SAVE_COMPLETE = "Data saved successfully.";
+	private static final String MSG_LOAD_COMPLETE = "Data loaded successfully.";
+	private static final String MSG_SAVE_COMPLETE = "Data saved successfully.";
 	
-	public static final String ERROR_LOAD = "Error loading files. New todo list has been created.";
-	public static final String ERROR_SAVE = "Error saving files. Files have been saved to default location.";
+	private static final String ERROR_LOAD = "Error loading files. New todo list has been created.";
+	private static final String ERROR_SAVE = "Error saving files. Files have been saved to default location.";
 	
 	private String targetFolder;
 	private TaskList[] lists;
 	private ListStorage todo, done;
 	private HelpStorage help;
+	private PrefsStorage prefs;
 	
 	public ExternalStorage(){
 		// load save-to path - assumption now is that file is in same directory as TuckLife.
@@ -27,6 +26,7 @@ public class ExternalStorage {
 		todo = new ListStorage(targetFolder + FILENAME_TODO);
 		done = new ListStorage(targetFolder + FILENAME_DONE);
 		help = new HelpStorage();
+		prefs = new PrefsStorage();
 	}
 	
 	public boolean load(){		
@@ -35,11 +35,16 @@ public class ExternalStorage {
 		lists[0] = todo.getList();
 		lists[1] = done.getList();	
 		
-		return (todo.getLoadStatus() & done.getLoadStatus() & help.load());
+		return (todo.getLoadStatus() & done.getLoadStatus() & help.load() & prefs.loadPreferences());
 	}
 	
 	public TaskList[] getLoadedLists(){
 		return lists;
+	}
+	
+	public DataBox getLoadedData(){
+		DataBox db = new DataBox(lists, prefs);
+		return db;
 	}
 
 	public String save(TaskList[] listsToSave){		

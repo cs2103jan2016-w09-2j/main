@@ -189,6 +189,8 @@ public class DateParser {
 			} else if (rawTime.matches(TIME_24H)) {
 				timeHour = Integer.parseInt(rawTime.substring(0, 2));
 				timeMin = Integer.parseInt(rawTime.substring(2, rawTime.length()));
+				
+			// Unrecognised time
 			} else {
 				throw new InvalidDateException("invalid time");
 			}

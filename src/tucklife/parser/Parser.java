@@ -220,7 +220,6 @@ public class Parser {
 				// No break, display and displaydone have similar parameters
 
 			case "displaydone" :
-				//TODO: Check if sorting by valid parameter
 				String search = extractParameter("", commandArg);
 				if (!search.isEmpty()) {
 					pt.setSearchKey(search);
@@ -243,9 +242,13 @@ public class Parser {
 				}
 				
 				if (hasSortOrder) {
-					pt.setHasSortOrder(true);
-					pt.setIsAscending(isAscending);
-					pt.setSortCrit(sortBy);
+					if (isValidSortCrit(sortBy)) {
+						pt.setHasSortOrder(true);
+						pt.setIsAscending(isAscending);
+						pt.setSortCrit(sortBy);
+					} else {
+						createErrorTask("invalid sort parameters");
+					}
 				}
 				
 				break;
@@ -302,8 +305,13 @@ public class Parser {
 		int splitPoint = -1;
 		for (int i = 0; i < paramSymbols.length; i++) {
 			if (commandArg.indexOf(paramSymbols[i]) == 0) {
-				// No description / search term
-				splitPoint = 0;
+				if (symbol.isEmpty()) {
+					// No description
+					splitPoint = 0;
+				} else if (commandArg.length() == 1){
+					// For sorting
+					splitPoint = 1;
+				}
 				break;
 			} else if (commandArg.contains(" " + paramSymbols[i])) {
 				int index = commandArg.indexOf(" " + paramSymbols[i]);
@@ -348,5 +356,18 @@ public class Parser {
 	private void createErrorTask(String errorMsg) {
 		pt = new ProtoTask("error");
 		pt.setErrorMessage(errorMsg);
+	}
+	
+	private boolean isValidSortCrit(String sortParam) {
+		boolean isValidSort = false;
+		
+		for (int i = 1; i < paramSymbols.length; i++) {
+			if (sortParam.equals(paramSymbols[i])) {
+				isValidSort = true;
+				break;
+			}
+		}
+		
+		return isValidSort;
 	}
 }

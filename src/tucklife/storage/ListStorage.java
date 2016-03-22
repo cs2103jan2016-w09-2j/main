@@ -6,6 +6,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Iterator;
 
 import tucklife.parser.ProtoTask;
@@ -81,10 +84,19 @@ public class ListStorage {
 			} else if(fieldHeader.equalsIgnoreCase("additional")){
 				pt.setAdditional(field.substring(24));
 			} else if(fieldHeader.equalsIgnoreCase("deadline:")){
-				// date loading TBC
+				try{
+					SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM HH:mm");
+					Calendar c = Calendar.getInstance();
+					c.setTime(sdf.parse(field.substring(10)));
+					pt.setEndDate(c);
+				
+				// date is wrong - ignore it	
+				} catch(ParseException pe){
+					// do nothing - wrong date is the same as no date
+				}
 				
 			} else if(fieldHeader.equalsIgnoreCase("start:")){
-				// date loading TBC
+				// event date loading TBC
 				
 			}						
 		}

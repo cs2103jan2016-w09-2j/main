@@ -3,10 +3,15 @@ package tucklife.parser;
 import java.util.Scanner;
 
 public class TestParser {
+	
+	private static Parser p;
+	private static DateParser dp;
 
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		boolean isParsingDate;
+		dp = new DateParser();
+		p = new Parser();
 		
 		while (true) {
 			System.out.print("Testing for date parser? ");
@@ -34,7 +39,6 @@ public class TestParser {
 				System.out.print("Time? ");
 				String time = sc.nextLine();
 				
-				DateParser dp = new DateParser();
 				boolean isValidDate = dp.parseDate(date, time);
 				
 				if (isValidDate) {
@@ -53,7 +57,6 @@ public class TestParser {
 					System.exit(0);
 				}
 				
-				Parser p = new Parser();
 				ProtoTask pt = p.parse(command);
 
 				System.out.println(pt.toString());

@@ -21,13 +21,15 @@ public class ListStorageTest {
 		todoList = todo.getList();
 		doneList = done.getList();
 	}
-
+	
+	// test for file access/load
 	@Test
 	public void loadTest() {		
 		assertEquals(todo.getLoadStatus(), true);
 		assertEquals(done.getLoadStatus(), true);
 	}
 	
+	// loading for various task types 
 	@Test
 	public void taskTest(){
 		// todo list should have four tasks as test file has four tasks
@@ -60,7 +62,10 @@ public class ListStorageTest {
 		task = doneList.displayID(5);
 		assertEquals(task, "5. task5 | priority: 2 | ");
 		
-		//to add: time and date parameter
+		// sixth task - deadline parameter
+		task = doneList.displayID(6);
+		assertEquals(task, "6. task8 | deadline: Wed, 23 Mar 17:00 | ");
+		
 	}
 	
 	// to add: save tests

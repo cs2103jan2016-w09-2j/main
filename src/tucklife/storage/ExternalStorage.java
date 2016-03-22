@@ -42,6 +42,7 @@ public class ExternalStorage {
 		return (todo.getLoadStatus() & done.getLoadStatus() & help.load());
 	}
 	
+	// old load function - to be replaced by getLoadedData
 	public TaskList[] getLoadedLists(){
 		return lists;
 	}
@@ -51,7 +52,8 @@ public class ExternalStorage {
 		DataBox db = new DataBox(lists, prefs);
 		return db;
 	}
-
+	
+	// old save function - to be replaced by saveData
 	public String save(TaskList[] listsToSave){		
 		
 		boolean savedTodo = todo.normalSave(listsToSave[0]);

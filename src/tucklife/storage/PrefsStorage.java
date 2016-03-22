@@ -211,7 +211,11 @@ public class PrefsStorage {
 	protected void setDefAdditional(String defAdditional) {
 		this.defAdditional = defAdditional;
 	}
-
+		
+	protected String getSavePath(){
+		return savePath;
+	}
+	
 	protected int getOverloadLimit(){
 		return overloadLimit;
 	}

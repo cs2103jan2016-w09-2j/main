@@ -90,9 +90,9 @@ public class ListStorage {
 					c.setTime(sdf.parse(field.substring(10)));
 					pt.setEndDate(c);
 				
-				// date is wrong - ignore it for now	
+				// date is wrong - ignore it	
 				} catch(ParseException pe){
-					// whatever - wrong date is the same as no date
+					// do nothing - wrong date is the same as no date
 				}
 				
 			} else if(fieldHeader.equalsIgnoreCase("start:")){

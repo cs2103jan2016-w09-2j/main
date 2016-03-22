@@ -13,6 +13,7 @@ public class ExternalStorage {
 	
 	private static final String ERROR_LOAD = "Error loading files. New todo list has been created.";
 	private static final String ERROR_SAVE = "Error saving files. Files have been saved to default location.";
+	private static final String ERROR_SAVETO = "Error saving files to new location. Files have been saved to previous location.";
 	
 	private String targetFolder;
 	private TaskList[] lists;
@@ -21,12 +22,15 @@ public class ExternalStorage {
 	private PrefsStorage prefs;
 	
 	public ExternalStorage(){
-		// load save-to path - assumption now is that file is in same directory as TuckLife.
-		targetFolder = "";
+		prefs = new PrefsStorage();
+		
+		prefs.loadPreferences();
+		targetFolder = prefs.getSavePath();
+		
 		todo = new ListStorage(targetFolder + FILENAME_TODO);
 		done = new ListStorage(targetFolder + FILENAME_DONE);
 		help = new HelpStorage();
-		prefs = new PrefsStorage();
+		
 	}
 	
 	public boolean load(){		
@@ -35,13 +39,14 @@ public class ExternalStorage {
 		lists[0] = todo.getList();
 		lists[1] = done.getList();	
 		
-		return (todo.getLoadStatus() & done.getLoadStatus() & help.load() & prefs.loadPreferences());
+		return (todo.getLoadStatus() & done.getLoadStatus() & help.load());
 	}
 	
 	public TaskList[] getLoadedLists(){
 		return lists;
 	}
 	
+	// new load that uses a DataBox
 	public DataBox getLoadedData(){
 		DataBox db = new DataBox(lists, prefs);
 		return db;
@@ -59,6 +64,7 @@ public class ExternalStorage {
 		return MSG_SAVE_COMPLETE;
 	}
 	
+	// new save that uses a DataBox
 	public String saveData(DataBox db){
 		TaskList[] listsToSave = db.getLists();
 		prefs = db.getPrefs();
@@ -73,6 +79,28 @@ public class ExternalStorage {
 		}
 		
 		return MSG_SAVE_COMPLETE;
+	}
+	
+	public String saveTo(DataBox db, String newPath){
+		
+		TaskList[] listsToSave = db.getLists();
+		prefs = db.getPrefs();
+		
+		boolean savedTodo = todo.pathSave(newPath + FILENAME_TODO, listsToSave[0]);
+		boolean savedDone = done.pathSave(newPath + FILENAME_DONE, listsToSave[1]);
+		
+		// saving in new place is successful
+		if(savedDone && savedTodo){
+			prefs.setSavePath(newPath);
+			prefs.savePreferences();
+			return MSG_SAVE_COMPLETE;
+		
+		// saving unsuccessful 
+		} else{
+			todo.pathSave(targetFolder + FILENAME_TODO, listsToSave[0]);
+			done.pathSave(targetFolder + FILENAME_DONE, listsToSave[1]);
+			return ERROR_SAVETO;
+		}
 	}
 	
 	public String getHelp(){

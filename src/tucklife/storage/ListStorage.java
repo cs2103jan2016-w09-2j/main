@@ -85,7 +85,7 @@ public class ListStorage {
 				pt.setAdditional(field.substring(24));
 			} else if(fieldHeader.equalsIgnoreCase("deadline:")){
 				try{
-					SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM HH:mm");
+					SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
 					Calendar c = Calendar.getInstance();
 					c.setTime(sdf.parse(field.substring(10)));
 					pt.setEndDate(c);

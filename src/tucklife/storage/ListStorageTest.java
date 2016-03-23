@@ -69,7 +69,7 @@ public class ListStorageTest {
 		
 		// sixth task - deadline parameter
 		task = doneList.displayID(6);
-		assertEquals(task, "6. task8 | deadline: Wed, 23 Mar 17:00 | ");
+		assertEquals(task, "6. task11 | deadline: Thu, 24 Mar 2016 18:00 | ");
 		
 	}
 	

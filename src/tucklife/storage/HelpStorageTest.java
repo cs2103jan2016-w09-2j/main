@@ -46,7 +46,7 @@ public class HelpStorageTest {
 				+ "Result: Adds the task \"walk the dog\" to TuckLife with parameters: date: 11 May | time: 4:00pm to 6:00pm | location: park | priority: low | category: pet | additional information: walk 1km\n");
 	}
 	
-	// test for help file loading
+	// test for help file loading - visual inspection due to long file
 	@Test
 	public void helpTest() {
 		hs.load();

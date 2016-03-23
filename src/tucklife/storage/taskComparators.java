@@ -82,6 +82,13 @@ public class taskComparators {
             	return new ComparatorTime().compare(t1, t2);
             }
             else{
+            	if(qid1 == -1) {
+            		return -qid1;
+            	}
+            	
+            	if(qid2 == -1) {
+            		return qid2;
+            	}
             	return qid1 - qid2;
             }
          }
@@ -116,10 +123,10 @@ public class taskComparators {
             	return new ComparatorPriority().compare(t1, t2);
             } else {
             	if(d1 == null) {
-            		return -1;
+            		return 1;
             	}
             	if(d2 == null) {
-            		return 1;
+            		return -1;
             	}
             	return d1.compareTo(d2);
             }

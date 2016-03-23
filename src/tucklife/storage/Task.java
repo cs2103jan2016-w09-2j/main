@@ -135,7 +135,7 @@ public class Task {
 
 	private String addAdditionalToDisplayString(String displayString) {
 		if (category != null) {
-			displayString += "category: " + category + " | ";
+			displayString += "category: " + category;
 		}
 		return displayString;
 	}
@@ -159,7 +159,7 @@ public class Task {
 		if (endDate != null && startDate == null) {
 			displayString += "deadline: " + sdf.format(endDate.getTime()) + " | ";
 		} else if (endDate != null && startDate != null) {
-			displayString += "start: " + sdf.format(startDate.getTime()) + " | end: " + sdf.format(endDate.getTime()) + " | ";
+			displayString += "start: " + sdf.format(startDate.getTime()) + "end:" + sdf.format(endDate.getTime()) + " | ";
 		}
 		return displayString;
 	}
@@ -167,7 +167,7 @@ public class Task {
 	protected String displayAll(){
 		String displayString = display();
 		if (additional != null) {
-			displayString += "additional information: " + additional;
+			displayString += " | " + "additional information: " + additional;
 		}
 		return displayString;
 	}

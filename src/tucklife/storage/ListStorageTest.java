@@ -21,20 +21,31 @@ public class ListStorageTest {
 		todoList = todo.getList();
 		doneList = done.getList();
 	}
-
+	
+	// test for file access/load
 	@Test
 	public void loadTest() {		
 		assertEquals(todo.getLoadStatus(), true);
 		assertEquals(done.getLoadStatus(), true);
 	}
 	
+	// loading for various task types 
 	@Test
 	public void taskTest(){
-		// todo list should have four tasks as test file has four tasks
-		assertEquals(todoList.contains(1), true);
-		assertEquals(todoList.contains(2), true);
-		assertEquals(todoList.contains(3), true);
-		assertEquals(todoList.contains(4), true);
+		try{
+			// todo list should have four tasks as test file has four tasks
+			assertEquals(todoList.contains(1), true);
+			assertEquals(todoList.contains(2), true);
+			assertEquals(todoList.contains(3), true);
+			assertEquals(todoList.contains(4), true);
+			
+			// done list should have two tasks
+			assertEquals(doneList.contains(5), true);
+			assertEquals(doneList.contains(6), true);
+		} catch(IDNotFoundException IDnfe){
+			// failed the task check
+			assertEquals(false, true);
+		}
 		
 		// first task - no parameters
 		String task = todoList.displayID(1);
@@ -52,15 +63,14 @@ public class ListStorageTest {
 		task = todoList.displayID(4);
 		assertEquals(task, "4. task7 |  | additional information: testing");
 		
-		// done list should have two tasks
-		assertEquals(doneList.contains(5), true);
-		assertEquals(doneList.contains(6), true);
-		
 		// fifth task - priority parameter
 		task = doneList.displayID(5);
 		assertEquals(task, "5. task5 | priority: 2 | ");
 		
-		//to add: time and date parameter
+		// sixth task - deadline parameter
+		task = doneList.displayID(6);
+		assertEquals(task, "6. task8 | deadline: Wed, 23 Mar 17:00 | ");
+		
 	}
 	
 	// to add: save tests

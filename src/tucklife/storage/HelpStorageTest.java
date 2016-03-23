@@ -13,12 +13,14 @@ public class HelpStorageTest {
 	public void setUp() throws Exception {
 		hs = new HelpStorage();
 	}
-
+	
+	// test for file access/read
 	@Test
 	public void loadTest() {
 		assertEquals(hs.load(), true);
 	}
 	
+	// Partition: functions with only demo command
 	@Test
 	public void singleDemoTest() {
 		hs.load();
@@ -26,6 +28,7 @@ public class HelpStorageTest {
 		assertEquals(demo, "Command: save\nResult: Saves any changes you have made in TuckLife\n");
 	}
 	
+	// Partition: functions with multiple demo commands
 	@Test
 	public void multipleDemoTest() {
 		hs.load();
@@ -43,6 +46,7 @@ public class HelpStorageTest {
 				+ "Result: Adds the task \"walk the dog\" to TuckLife with parameters: date: 11 May | time: 4:00pm to 6:00pm | location: park | priority: low | category: pet | additional information: walk 1km\n");
 	}
 	
+	// test for help file loading
 	@Test
 	public void helpTest() {
 		hs.load();

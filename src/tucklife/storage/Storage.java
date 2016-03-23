@@ -273,6 +273,11 @@ public class Storage {
 		boolean hitLimit = false;
 		int count = 0;
 		int limit = pf.getLimit();
+		
+		if (limit == 0) {
+			return false;
+		}
+		
 		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy");
 		String newTaskDateString = newTask.isFloating() ? null : sdf.format(newTask.getEndDate().getTime());
 		boolean flag = true;

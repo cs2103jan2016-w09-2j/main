@@ -153,6 +153,9 @@ public class DateParser {
 	}
 	
 	public Calendar parseDate(String rawDate, String rawTime) throws InvalidDateException {
+		calendar = Calendar.getInstance();
+		is12Hour = false;
+		
 		if (rawTime.isEmpty()) {
 			timeHour = 23;
 			timeMin = 59;

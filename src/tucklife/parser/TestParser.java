@@ -39,12 +39,10 @@ public class TestParser {
 				System.out.print("Time? ");
 				String time = sc.nextLine();
 				
-				boolean isValidDate = dp.parseDate(date, time);
-				
-				if (isValidDate) {
-					System.out.println(dp.getDate().getTime());
-				} else {
-					System.out.println("error: invalid date/time");
+				try {
+					System.out.println(dp.parseDate(date, time).getTime());
+				} catch (InvalidDateException e) {
+					System.out.println("error: " + e.getMessage());
 				}
 				
 				System.out.println();

@@ -74,9 +74,10 @@ public class ExternalStorage {
 		boolean savedTodo = todo.normalSave(listsToSave[0]);
 		boolean savedDone = done.normalSave(listsToSave[1]);
 		
-		boolean savedPrefs = prefs.savePreferences();
+		//boolean savedPrefs = prefs.savePreferences();
 		
-		if(!savedTodo | !savedDone | !savedPrefs){
+		//if(!savedTodo | !savedDone | !savedPrefs){
+		if(!savedTodo | !savedDone){
 			return ERROR_SAVE;
 		}
 		

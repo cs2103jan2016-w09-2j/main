@@ -39,9 +39,11 @@ public class ListStorageTest {
 			assertEquals(todoList.contains(3), true);
 			assertEquals(todoList.contains(4), true);
 			
-			// done list should have two tasks
+			// done list should have three tasks
 			assertEquals(doneList.contains(5), true);
 			assertEquals(doneList.contains(6), true);
+			assertEquals(doneList.contains(7), true);
+			
 		} catch(IDNotFoundException IDnfe){
 			// failed the task check
 			assertEquals(false, true);
@@ -70,6 +72,10 @@ public class ListStorageTest {
 		// sixth task - deadline parameter
 		task = doneList.displayID(6);
 		assertEquals(task, "6. task11 | deadline: Thu, 24 Mar 2016 18:00 | ");
+		
+		// seventh task - start and end parameter
+		task = doneList.displayID(7);
+		assertEquals(task, "7. task12 | start: Thu, 5 Jan 2017 08:30 end: Sun, 8 Jan 2017 19:30 | ");
 		
 	}
 	

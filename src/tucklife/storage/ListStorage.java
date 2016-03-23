@@ -85,7 +85,7 @@ public class ListStorage {
 				pt.setAdditional(field.substring(24));
 			} else if(fieldHeader.equalsIgnoreCase("deadline:")){
 				try{
-					SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM HH:mm");
+					SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
 					Calendar c = Calendar.getInstance();
 					c.setTime(sdf.parse(field.substring(10)));
 					pt.setEndDate(c);
@@ -96,7 +96,34 @@ public class ListStorage {
 				}
 				
 			} else if(fieldHeader.equalsIgnoreCase("start:")){
-				// event date loading TBC
+				
+				StringBuilder startDate = new StringBuilder();
+				StringBuilder endDate = new StringBuilder();
+				
+				for(int j = 1; j <= 5; j++){
+					startDate.append(fieldDetails[j] + " ");
+				}
+				
+				for(int j = 7; j <= 11; j++){
+					endDate.append(fieldDetails[j] + " ");
+				}
+				
+				String sDate = startDate.toString();
+				String eDate = endDate.toString();
+				
+				try{
+					SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
+					Calendar cStart = Calendar.getInstance();
+					Calendar cEnd = Calendar.getInstance();
+					cStart.setTime(sdf.parse(sDate));
+					cEnd.setTime(sdf.parse(eDate));
+					pt.setStartDate(cStart);
+					pt.setEndDate(cEnd);
+				
+				// dates is wrong - ignore them	
+				} catch(ParseException pe){
+					// do nothing - wrong date is the same as no date
+				}
 				
 			}						
 		}

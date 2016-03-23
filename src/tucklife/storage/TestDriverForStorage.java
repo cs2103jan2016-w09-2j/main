@@ -5,7 +5,6 @@ import tucklife.parser.Parser;
 
 public class TestDriverForStorage {
 	public static void main(String[] args){
-		
 		testSortLocation();
 		/*
 		testSortTime();

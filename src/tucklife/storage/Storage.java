@@ -15,6 +15,9 @@ public class Storage {
 	private static final String RETURN_MESSAGE_FOR_DELETE = "{%1$s} has been deleted from TuckLife's to-do list!";
 	private static final String RETURN_MESSAGE_FOR_QUEUE = "{%1$s} has been added to TuckLife's queue at position {%2$s}!";
 	private static final String RETURN_MESSAGE_FOR_SETLIMIT = "Limit has been set to %1$s in TuckLife's to-do list!";
+	private static final String RETURN_MESSAGE_FOR_SETLIMIT_WHEN_ABOVE_LIMIT = RETURN_MESSAGE_FOR_SETLIMIT
+			+ "but warning: there are some days with number of tasks above limit!";
+	private static final String RETURN_MESSAGE_FOR_SETLIMIT_OFF = "Limit has been turned off in TuckLife's to-do list!";
 	private static final String RETURN_MESSAGE_FOR_COMPLETE = "{%1$s} has been moved to TuckLife's done list!";
 	
 	private static final String RETURN_MESSAGE_FOR_NONEXISTENT_ID = "No task with id:%1$s in TuckLife's to-do list!";
@@ -270,12 +273,18 @@ public class Storage {
 	}
 
 	private static boolean isOverloaded(Task newTask) {
-		boolean hitLimit = false;
-		int count = 0;
+		
 		int limit = pf.getLimit();
 		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy");
 		String newTaskDateString = newTask.isFloating() ? null : sdf.format(newTask.getEndDate().getTime());
+		return checkIsOverloaded(limit, newTaskDateString);
+	}
+
+	private static boolean checkIsOverloaded(int limit, String newTaskDateString) {
+		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy");
 		boolean flag = true;
+		boolean hitLimit = false;
+		int count = 0;
 		String oldDateString = null;
 		Iterator<Task> taskListIter = toDoList.iterator();
 		
@@ -421,7 +430,14 @@ public class Storage {
 	private static String setLimit(int limit) {
 		assert limit >= 0;
 		PreferenceList.setLimit(limit);
-		return String.format(RETURN_MESSAGE_FOR_SETLIMIT, limit);
+		if(limit == 0) {
+			PreferenceList.setLimit(-1);
+			return RETURN_MESSAGE_FOR_SETLIMIT_OFF;
+		} else if(checkIsOverloaded(limit, null)) {
+			return String.format(RETURN_MESSAGE_FOR_SETLIMIT_WHEN_ABOVE_LIMIT, limit);
+		} else {
+			return String.format(RETURN_MESSAGE_FOR_SETLIMIT, limit);
+		}
 	}
 	
 	

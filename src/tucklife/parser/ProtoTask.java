@@ -1,5 +1,6 @@
 package tucklife.parser;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class ProtoTask {
@@ -24,6 +25,7 @@ public class ProtoTask {
 	
 	private Calendar startDate;
 	private Calendar endDate;
+	private SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy, HH:mm");
 	
 	private boolean isError;
 	private String errorMessage;
@@ -199,7 +201,7 @@ public class ProtoTask {
 			return "Error: " + errorMessage + "\n";
 		} else {
 			String toDisplay = "Command type: " + command + "\n";
-			toDisplay += "Parameters: \n";
+			toDisplay += "Parameters:\n";
 
 			if (taskDesc != null) {
 				toDisplay += "Task description: " + taskDesc + "\n";
@@ -259,11 +261,11 @@ public class ProtoTask {
 			}
 
 			if (startDate != null) {
-				toDisplay += "Start date: " + startDate.getTime() + "\n";
+				toDisplay += "Start date: " + sdf.format(startDate.getTime()) + "\n";
 			}
 
 			if (endDate != null) {
-				toDisplay += "End date: " + endDate.getTime() + "\n";
+				toDisplay += "End date: " + sdf.format(endDate.getTime()) + "\n";
 			}
 
 			return toDisplay;

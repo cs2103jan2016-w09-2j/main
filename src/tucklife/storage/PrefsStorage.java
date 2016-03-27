@@ -24,8 +24,21 @@ public class PrefsStorage {
 	private String defTime;
 	private String defAdditional;
 	
-	protected boolean loadPreferences(){
+	protected PrefsStorage(){
+		// default values
+		savePath = "";
+		overloadLimit = 50;
+		reminderOn = true;
 		
+		defLocation = "";
+		defPriority = -1;
+		defCategory = "";
+		defTime = "";
+		defAdditional = "";
+	}
+	
+	protected boolean loadPreferences(){
+			
 		// check for existence of prefs file.
 		try{
 			boolean loaded = loadPrefs();

@@ -130,17 +130,65 @@ public class Parser {
 					
 					if (!time.isEmpty() || !date.isEmpty()) {
 						dp = new DateParser();
+						Calendar startDate = null;
 						Calendar endDate;
+						String[] times, dates;
 						
 						try {
 							if (time.isEmpty()) {
-								endDate = dp.parseDate(date, "");
+								dates = splitEventDate(date);
+								
+								if (dates.length == 1) {
+									endDate = dp.parseDate(date, "");
+								} else if (dates.length == 2) {
+									startDate = dp.parseDate(dates[0], "");
+									endDate = dp.parseDate(dates[1], "");
+								} else {
+									createErrorTask("invalid date");
+									break;
+								}
 							} else if (date.isEmpty()) {
-								endDate = dp.parseDate("", time);
+								times = splitEventDate(time);
+								
+								if (times.length == 1) {
+									endDate = dp.parseDate("", time);
+								} else if (times.length == 2) {
+									startDate = dp.parseDate("", times[0]);
+									endDate = dp.parseDate("", times[1]);
+								} else {
+									createErrorTask("invalid time");
+									break;
+								}
 							} else {
-								endDate = dp.parseDate(date, time);
+								dates = splitEventDate(date);
+								times = splitEventDate(time);
+								
+								if (dates.length == times.length) {
+									if (dates.length == 1) {
+										endDate = dp.parseDate(date, time);
+									} else if (dates.length == 2) {
+										startDate = dp.parseDate(dates[0], times[0]);
+										endDate = dp.parseDate(dates[1], times[1]);
+									} else {
+										createErrorTask("invalid event format");
+										break;
+									}
+								} else if (dates.length == 1 && times.length == 2) {
+									startDate = dp.parseDate(date, times[0]);
+									endDate = dp.parseDate(date, times[1]);
+								} else {
+									createErrorTask("invalid event format");
+									break;
+								}
 							}
 							
+							if (startDate != null) {
+								if (startDate.before(endDate)) {
+									pt.setStartDate(startDate);
+								} else {
+									createErrorTask("start date is later than end date");
+								}
+							}
 							pt.setEndDate(endDate);
 						} catch (InvalidDateException e) {
 							createErrorTask(e.getMessage());
@@ -314,10 +362,20 @@ public class Parser {
 				}
 				break;
 			} else if (commandArg.contains(" " + paramSymbols[i])) {
-				int index = commandArg.indexOf(" " + paramSymbols[i]);
-					
-				if (splitPoint == -1 || splitPoint > index) {
-					splitPoint = index;
+				if (i == 0) {
+					if (symbol.equals("-")) {
+						int index = commandArg.indexOf(" " + paramSymbols[i]);
+
+						if (splitPoint == -1 || splitPoint > index) {
+							splitPoint = index;
+						}
+					}
+				} else {
+					int index = commandArg.indexOf(" " + paramSymbols[i]);
+
+					if (splitPoint == -1 || splitPoint > index) {
+						splitPoint = index;
+					}
 				}
 			}
 		}
@@ -369,5 +427,16 @@ public class Parser {
 		}
 		
 		return isValidSort;
+	}
+	
+	private String[] splitEventDate(String s) {
+		if (s.contains(" - ")) {
+			return s.split("\\s-\\s");
+		} else if (s.contains(" to ")) {
+			return s.split("\\sto\\s");
+		} else {
+			String[] result = {s};
+			return result;
+		}
 	}
 }

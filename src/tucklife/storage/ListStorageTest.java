@@ -10,7 +10,7 @@ public class ListStorageTest {
 	private ListStorage todo, done;
 	private TaskList todoList, doneList;
 	
-	private static final String TEST_PATH = "C:\\Users\\Ryan\\Desktop\\Holding Area\\";
+	private static final String TEST_PATH = "C:\\Users\\Ryan\\Desktop\\Holding Area\\test\\";
 	public static final String FILENAME_TODO = "todo.txt";
 	public static final String FILENAME_DONE = "done.txt";
 	

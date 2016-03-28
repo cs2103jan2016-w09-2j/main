@@ -3,6 +3,7 @@ package tucklife.storage;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,6 +19,17 @@ public class ListStorage {
 	private String targetFile;
 	private TaskList list;
 	private boolean hasLoadedCorrectly, hasSavedCorrectly;
+	
+	private static final String HEADER_LOCATION = "Location:";
+	private static final String HEADER_CATEGORY = "Category:";
+	private static final String HEADER_PRIORITY = "Priority:";
+	private static final String HEADER_DEADLINE = "By:";
+	private static final String HEADER_ADDITIONAL = "Additional:";
+	private static final String HEADER_EVENT_START = "From:";
+	
+	private static final String PRIORITY_HIGH = "High";
+	private static final String PRIORITY_MEDIUM = "Med";
+	private static final String PRIORITY_LOW = "Low";
 	
 	protected ListStorage(String fileName){
 		targetFile = fileName;
@@ -53,7 +65,11 @@ public class ListStorage {
 			fis.close();
 			
 			hasLoadedCorrectly = true;
-			
+		
+		// either file not created yet or TuckLife was moved
+		// ignore as new files will be created on save
+		} catch(FileNotFoundException fnfe){
+			hasLoadedCorrectly = true;
 		} catch(IOException ioe){
 			hasLoadedCorrectly = false;
 		}
@@ -74,20 +90,30 @@ public class ListStorage {
 			String[] fieldDetails = field.split(" ");
 			String fieldHeader = fieldDetails[0];
 			
-			if(fieldHeader.equalsIgnoreCase("category:")){
-				pt.setCategory(field.substring(10));
-			} else if(fieldHeader.equalsIgnoreCase("priority:")){
-				int p = Integer.parseInt(fieldDetails[1]);
-				pt.setPriority(p);
-			} else if(fieldHeader.equalsIgnoreCase("location:")){
-				pt.setLocation(field.substring(10));
-			} else if(fieldHeader.equalsIgnoreCase("additional")){
-				pt.setAdditional(field.substring(24));
-			} else if(fieldHeader.equalsIgnoreCase("deadline:")){
+			if(fieldHeader.equalsIgnoreCase(HEADER_CATEGORY)){
+				pt.setCategory(removeFirstWord(field));
+				
+			} else if(fieldHeader.equalsIgnoreCase(HEADER_PRIORITY)){
+				String p = fieldDetails[1];
+				if(p.equalsIgnoreCase(PRIORITY_HIGH)){
+					pt.setPriority(1);
+				} else if(p.equalsIgnoreCase(PRIORITY_MEDIUM)){
+					pt.setPriority(2);
+				} else if(p.equalsIgnoreCase(PRIORITY_LOW)){
+					pt.setPriority(3);
+				}
+				
+			} else if(fieldHeader.equalsIgnoreCase(HEADER_LOCATION)){
+				pt.setLocation(removeFirstWord(field));
+				
+			} else if(fieldHeader.equalsIgnoreCase(HEADER_ADDITIONAL)){
+				pt.setAdditional(removeFirstWord(field));
+				
+			} else if(fieldHeader.equalsIgnoreCase(HEADER_DEADLINE)){
 				try{
 					SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
 					Calendar c = Calendar.getInstance();
-					c.setTime(sdf.parse(field.substring(10)));
+					c.setTime(sdf.parse(removeFirstWord(field)));
 					pt.setEndDate(c);
 				
 				// date is wrong - ignore it	
@@ -95,7 +121,7 @@ public class ListStorage {
 					// do nothing - wrong date is the same as no date
 				}
 				
-			} else if(fieldHeader.equalsIgnoreCase("start:")){
+			} else if(fieldHeader.equalsIgnoreCase(HEADER_EVENT_START)){
 				
 				StringBuilder startDate = new StringBuilder();
 				StringBuilder endDate = new StringBuilder();
@@ -129,6 +155,15 @@ public class ListStorage {
 		}
 		
 		return pt;
+	}
+	
+	private String removeFirstWord(String s){
+		for(int i = 0; i < s.length(); i++){
+			if(s.charAt(i) == ' '){
+				return s.substring(i+1);
+			}
+		}	
+		return s;
 	}
 	
 	// for use by main ExternalStorage

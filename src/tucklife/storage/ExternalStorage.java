@@ -8,10 +8,8 @@ public class ExternalStorage {
 	private static final String FILENAME_DONE = "done.txt";
 	private static final String FILENAME_RECUR = "recur.txt";
 	
-	private static final String MSG_LOAD_COMPLETE = "Data loaded successfully.";
 	private static final String MSG_SAVE_COMPLETE = "Data saved successfully.";
 	
-	private static final String ERROR_LOAD = "Error loading files. New todo list has been created.";
 	private static final String ERROR_SAVE = "Error saving files. Files have been saved to default location.";
 	private static final String ERROR_SAVETO = "Error saving files to new location. Files have been saved to previous location.";
 	
@@ -42,28 +40,10 @@ public class ExternalStorage {
 		return (todo.getLoadStatus() & done.getLoadStatus() & help.load());
 	}
 	
-	// old load function - to be replaced by getLoadedData
-	public TaskList[] getLoadedLists(){
-		return lists;
-	}
-	
 	// new load that uses a DataBox
 	public DataBox getLoadedData(){
 		DataBox db = new DataBox(lists, prefs);
 		return db;
-	}
-	
-	// old save function - to be replaced by saveData
-	public String save(TaskList[] listsToSave){		
-		
-		boolean savedTodo = todo.normalSave(listsToSave[0]);
-		boolean savedDone = done.normalSave(listsToSave[1]);
-		
-		if(!savedTodo | !savedDone){
-			return ERROR_SAVE;
-		}
-		
-		return MSG_SAVE_COMPLETE;
 	}
 	
 	// new save that uses a DataBox

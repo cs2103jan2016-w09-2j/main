@@ -67,13 +67,13 @@ public class DateParser {
 	 ****************/
 	
 	// Format: dd/mm/yy or dd/mm/yyyy
-	private static final String DATE_DMY_SLASH = "[0-3]?\\d/[01]?\\d/(\\d{2}|\\d{4})";
+	private static final String DATE_DMY_SLASH = "[0-3]?\\d/[01]?\\d/\\d{2}(\\d{2})?";
 	
 	// Format: dd.mm.yy or dd.mm.yyyy
-	private static final String DATE_DMY_DOT = "[0-3]?\\d\\.[01]?\\d\\.(\\d{2}|\\d{4})";
+	private static final String DATE_DMY_DOT = "[0-3]?\\d\\.[01]?\\d\\.\\d{2}(\\d{2})?";
 	
 	// Format: dd-mm-yy or dd-mm-yyyy
-	private static final String DATE_DMY_DASH = "[0-3]?\\d-[01]?\\d-(\\d{2}|\\d{4})";
+	private static final String DATE_DMY_DASH = "[0-3]?\\d-[01]?\\d-\\d{2}(\\d{2})?";
 	
 	// Format: dd/mm
 	private static final String DATE_DM_SLASH = "[0-3]?\\d/[01]?\\d";
@@ -85,13 +85,13 @@ public class DateParser {
 	private static final String DATE_DM_DASH = "[0-3]?\\d-[01]?\\d";
 	
 	// Format: ddmmmyy (short month)
-	private static final String DATE_SHORT_DMY = "[0-3]?\\d[a-zA-Z]{3}(\\d{2}|\\d{4})";
+	private static final String DATE_SHORT_DMY = "[0-3]?\\d[a-zA-Z]{3}\\d{2}(\\d{2})?";
 	
 	// Format: dd mmm yy (short month)
-	private static final String DATE_SHORT_DMY_SPACE = "[0-3]?\\d\\s[a-zA-Z]{3}\\s(\\d{2}|\\d{4})";
+	private static final String DATE_SHORT_DMY_SPACE = "[0-3]?\\d\\s[a-zA-Z]{3}\\s\\d{2}(\\d{2})?";
 	
 	// Format: dd-mmm (short month)
-	private static final String DATE_SHORT_DMY_DASH = "[0-3]?\\d-[a-zA-Z]{3}-(\\d{2}|\\d{4})";
+	private static final String DATE_SHORT_DMY_DASH = "[0-3]?\\d-[a-zA-Z]{3}-\\d{2}(\\d{2})?";
 	
 	// Format: ddmmm (short month)
 	private static final String DATE_SHORT_DM = "[0-3]?\\d[a-zA-Z]{3}";
@@ -103,13 +103,13 @@ public class DateParser {
 	private static final String DATE_SHORT_DM_DASH = "[0-3]?\\d-[a-zA-Z]{3}";
 	
 	// Format: ddmmmm (full month)
-	private static final String DATE_FULL_DMY = "[0-3]?\\d[a-zA-Z]{4,9}(\\d{2}|\\d{4})";
+	private static final String DATE_FULL_DMY = "[0-3]?\\d[a-zA-Z]{4,9}\\d{2}(\\d{2})?";
 
 	// Format: dd mmmm (full month)
-	private static final String DATE_FULL_DMY_SPACE = "[0-3]?\\d\\s[a-zA-Z]{4,9}\\s(\\d{2}|\\d{4})";
+	private static final String DATE_FULL_DMY_SPACE = "[0-3]?\\d\\s[a-zA-Z]{4,9}\\s\\d{2}(\\d{2})?";
 
 	// Format: dd-mmmm (full month)
-	private static final String DATE_FULL_DMY_DASH = "[0-3]?\\d-[a-zA-Z]{4,9}-(\\d{2}|\\d{4})";
+	private static final String DATE_FULL_DMY_DASH = "[0-3]?\\d-[a-zA-Z]{4,9}-\\d{2}(\\d{2})?";
 
 	// Format: ddmmmm (full month)
 	private static final String DATE_FULL_DM = "[0-3]?\\d[a-zA-Z]{4,9}";
@@ -153,6 +153,9 @@ public class DateParser {
 	}
 	
 	public Calendar parseDate(String rawDate, String rawTime) throws InvalidDateException {
+		calendar = Calendar.getInstance();
+		is12Hour = false;
+		
 		if (rawTime.isEmpty()) {
 			timeHour = 23;
 			timeMin = 59;

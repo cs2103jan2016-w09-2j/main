@@ -155,11 +155,11 @@ public class Task {
 	}
 
 	private String addDateToDisplayString(String displayString) {
-		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM HH:mm");	
+		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm");	
 		if (endDate != null && startDate == null) {
 			displayString += "deadline: " + sdf.format(endDate.getTime()) + " | ";
 		} else if (endDate != null && startDate != null) {
-			displayString += "start: " + sdf.format(startDate.getTime()) + "end:" + sdf.format(endDate.getTime()) + " | ";
+			displayString += "start: " + sdf.format(startDate.getTime()) + " end: " + sdf.format(endDate.getTime()) + " | ";
 		}
 		return displayString;
 	}

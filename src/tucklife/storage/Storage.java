@@ -47,7 +47,6 @@ public class Storage {
 	}
 
 	private static void storeUndoSaveState() {
-		
 		undoSaveState = new ArrayList<TaskList>();
 		TaskList oldToDoList = new TaskList();
 		TaskList oldQueueList = new TaskList();
@@ -79,7 +78,6 @@ public class Storage {
 	}
 	
 	private static void storeRedoSaveState() {
-		
 		redoSaveState = new ArrayList<TaskList>();
 		TaskList oldToDoList = new TaskList();
 		TaskList oldQueueList = new TaskList();
@@ -138,7 +136,6 @@ public class Storage {
 	}
 	
 	public DataBox save() {
-		
 		TaskList[] saveList = new TaskList[2];
 		saveList[0] = toDoList;
 		saveList[1] = doneList;
@@ -158,7 +155,7 @@ public class Storage {
 				queueList.add(t);
 			}
 		}
-		new PreferenceList().setLimit(db.getPrefs().getOverloadLimit());
+		pf.setLimit(db.getPrefs().getOverloadLimit());
 	}
 	
 	private static COMMAND_TYPE determineCommandType(String commandTypeString) {
@@ -197,27 +194,15 @@ public class Storage {
 				return String.format(RETURN_MESSAGE_FOR_OVERLOAD, e.limit);
 			}
 		case COMPLETE :
-			try {
-				prepareForUndo();
-				return complete(pt.getId());
-			} catch (IDNotFoundException e) {
-				return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID, e.errorID);
-			}
+			prepareForUndo();
+			return complete(pt.getId());
 		case DISPLAY :
-			try {
-				return display(pt);
-			} catch (IDNotFoundException e) {
-				return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID, e.errorID);
-			}
+			return display(pt);
 		case DISPLAYDONE :
 			return displayDone();
 		case DELETE :
-			try {
-				prepareForUndo();
-				return delete(pt.getId());
-			} catch (IDNotFoundException e) {
-				return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID, e.errorID);
-			}
+			prepareForUndo();
+			return delete(pt.getId());
 		case EDIT :
 			try {
 				prepareForUndo();
@@ -227,11 +212,7 @@ public class Storage {
 			}
 		case QUEUE :
 			prepareForUndo();
-			try {
-				return queue(pt.getId(), pt.getPosition());
-			} catch (IDNotFoundException e) {
-				return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID, e.errorID);
-			}
+			return queue(pt.getId(), pt.getPosition());
 		case SETLIMIT :
 			return setLimit(pt.getLimit());
 		case UNDO :
@@ -324,7 +305,7 @@ public class Storage {
 		return String.format(RETURN_MESSAGE_FOR_EDIT, editedTaskDetails);
 	}
 	
-	private static String complete(int taskID) throws IDNotFoundException {
+	private static String complete(int taskID) {
 		if(toDoList.contains(taskID)){
 			Task completedTask = toDoList.delete(taskID);
 			doneList.add(completedTask);
@@ -334,7 +315,7 @@ public class Storage {
 		}
 	}
 	
-	private static String delete(int taskID) throws IDNotFoundException {
+	private static String delete(int taskID) {
 		if(toDoList.contains(taskID)){
 			Task deletedTask = toDoList.delete(taskID);
 			if(queueList.contains(taskID)) {
@@ -346,7 +327,7 @@ public class Storage {
 		}
 	}
 	
-	private static String displayID(int taskID) throws IDNotFoundException {
+	private static String displayID(int taskID) {
 		if(toDoList.contains(taskID)){
 			return toDoList.displayID(taskID);
 		} else {
@@ -354,7 +335,7 @@ public class Storage {
 		}
 	}
 	
-	private static String display(ProtoTask pt) throws IDNotFoundException {
+	private static String display(ProtoTask pt) {
 		if(pt.getId() != -1) {
 			return displayID(pt.getId());
 		} else {
@@ -371,52 +352,40 @@ public class Storage {
 		return doneList.display();
 	}
 	
-	private static String queue(int taskID, int pos) throws IDNotFoundException {
-		/*
-		Iterator<Task> qIter1 = queueList.iterator();
-		Task gg = null;
-		while(qIter1.hasNext()) {
-			Task t = qIter1.next();
-			if(t.getId() == taskID) {
-				gg = t;
-			}
-		}
-		if(gg!=null) {
-			if(gg.getQueueID()>pos) {
-				queueList.remove(gg.getQueueID() - 1);
-				queueList.add(pos,gg);
-			}
-			else {
-				queueList.add(pos-1,gg);
-				queueList.remove(gg.getQueueID() - 1);
-			}
-			qIter1 = queueList.iterator();
-			int count1 = 1;
-			while(qIter1.hasNext()) {
-				Task t = qIter1.next();
-				t.setQueueID(count1);
-				count1++;
-			}
-				
-			return String.format(RETURN_MESSAGE_FOR_QUEUE, gg.displayAll(), pos);
-			
-		}
-		*/
+	private static String queue(int taskID, int pos) {
 		if(toDoList.contains(taskID)){
+			boolean flag = false;
 			Task qTask = toDoList.get(taskID);
-			if (pos == -1) {
-				queueList.add(qTask);
+			if(pos == -1 || pos>queueList.size()) {
 				pos = queueList.size();
-			} else {
-				assert pos > 0;
-				pos = pos - 1;
-				queueList.add(pos, qTask);
+				flag = true;
 			}
+			if(queueList.contains(taskID)) {
+				int qID = queueList.get(taskID).getQueueID();
+				if(qID>=pos) {
+					queueList.delete(taskID);
+					queueList.add(pos-1,qTask);
+				} else {
+					queueList.delete(taskID);
+					queueList.add(pos-2,qTask);
+				}
+				
+			} else {
+				if(flag) {
+					queueList.add(pos,qTask);
+				} else {
+					queueList.add(pos-1,qTask);
+				}
+			}
+			
 			Iterator<Task> qIter = queueList.iterator();
 			int count = 1;
 			while(qIter.hasNext()) {
 				Task t = qIter.next();
 				t.setQueueID(count);
+				if(t.getId() == taskID) {
+					pos = t.getQueueID();
+				}
 				count++;
 			}
 				
@@ -424,7 +393,6 @@ public class Storage {
 		} else {
 			return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID, taskID);
 		}
-		//return doneList.display();
 	}
 	
 	private static String setLimit(int limit) {

@@ -14,15 +14,12 @@ public class TaskList {
 		taskList = new ArrayList<Task>();
 	}
 	
-	protected boolean contains(int taskID) throws IDNotFoundException{
+	protected boolean contains(int taskID){
 		boolean containsID = false;
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {
 				containsID = true;
 			}
-		}
-		if(!containsID) {
-			throw new IDNotFoundException(taskID);
 		}
 		return containsID;
 	}
@@ -55,8 +52,8 @@ public class TaskList {
 		taskList.add(task);
 	}
 	
-	protected void add(int taskID, Task task) {
-		taskList.add(taskID, task);
+	protected void add(int index, Task task) {
+		taskList.add(index, task);
 	}
 	
 	protected int size() {

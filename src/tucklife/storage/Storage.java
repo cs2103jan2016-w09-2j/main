@@ -155,7 +155,7 @@ public class Storage {
 				queueList.add(t);
 			}
 		}
-		new PreferenceList().setLimit(db.getPrefs().getOverloadLimit());
+		pf.setLimit(db.getPrefs().getOverloadLimit());
 	}
 	
 	private static COMMAND_TYPE determineCommandType(String commandTypeString) {

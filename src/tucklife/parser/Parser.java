@@ -1,18 +1,19 @@
 package tucklife.parser;
 
 import java.util.Calendar;
+import java.util.Hashtable;
 
 public class Parser {
 	
-	private String[] commandTypes = { "add", "complete", "delete", "demo", "display", "displaydone",
+	private String[] commandTypes = { "add", "change", "complete", "delete", "demo", "display", "displaydone",
 									  "edit", "exit", "help", "queue", "redo",
 									  "save", "saveto", "setlimit", "setdefault", "undo" };
 	private String[] paramSymbols = { "-", "+", "$", "#", "!", "&", "@" };
 	private ProtoTask pt;
 	private DateParser dp;
+	private Hashtable<String, String> commandTable;
 	
 	// Error messages:
-	private final String ERROR_WRONG_PARAMS = "Incorrect number of parameters";
 	private final String ERROR_PARAMS_NONE = "Format: %1$s";
 	private final String ERROR_PARAMS_ID = "Format: %1$s <id>";
 	private final String ERROR_PARAMS_ADD = "Format: add <task description> (optional: $<date> "
@@ -24,24 +25,45 @@ public class Parser {
 	private final String ERROR_PARAMS_DEMO = "Format: demo <command>";
 	private final String ERROR_PARAMS_LIMIT = "Format: setlimit <limit>";
 	private final String ERROR_PARAMS_SAVETO = "Format: saveto <file path>";
+	private final String ERROR_PARAMS_CHANGE = "Format: change <old command> <new command>";
+	
+	private final String ERROR_INVALID_PARAMS = "Incorrect number of parameters";
+	private final String ERROR_INVALID_COMMAND = "'%1$s' is not a valid command";
 
 	public Parser() {
 	}
 	
+	/**
+	 * This method takes in a user input command and parses it into a ProtoTask object
+	 * 
+	 * @param command User input command.
+	 * @return ProtoTask with the relevant parameters.
+	 */
 	public ProtoTask parse(String command) {
-		String commandType = getFirstWord(command);
+		String commandAlias = getFirstWord(command).toLowerCase();
 		String commandArgument = getRemainingArgument(command);
 		
-		if (isValidCommandType(commandType)) {
-			pt = new ProtoTask(commandType.toLowerCase());
-			splitParameters(commandType, commandArgument);
+		if (isValidCommandAlias(commandAlias)) {
+			// Convert from custom alias to standard command type
+			String commandType = getCommandType(commandAlias);
+			
+			pt = new ProtoTask(commandType);
+			parseParameters(commandType, commandArgument);
 		} else {
-			createErrorTask("'" + commandType + "' is not a valid command");
+			// Unrecognized command type
+			createErrorTask(String.format(ERROR_INVALID_COMMAND, commandAlias));
 		}
 		
 		return pt;
 	}
 	
+	/**
+	 * This method extracts the first word (space delimited) from the user command.
+	 * It returns the entire command if the command is a single word.
+	 * 
+	 * @param command User input command.
+	 * @return First word in the command.
+	 */
 	private String getFirstWord(String command) {
 		int i = command.indexOf(" ");
 		
@@ -52,6 +74,13 @@ public class Parser {
 		}
 	}
 	
+	/**
+	 * This method extracts the remainder of the user command without the first word.
+	 * It returns an empty string if the command is a single word.
+	 * 
+	 * @param command User input command.
+	 * @return Command without the first word.
+	 */
 	private String getRemainingArgument(String command) {
 		int i = command.indexOf(" ");
 		
@@ -62,9 +91,29 @@ public class Parser {
 		}
 	}
 	
-	private boolean isValidCommandType(String type) {
-		for (int i = 0; i < commandTypes.length; i++) {
-			if (type.equalsIgnoreCase(commandTypes[i])) {
+	/**
+	 * This method checks whether the command alias refers to a valid command.
+	 * 
+	 * @param alias Command alias.
+	 * @return True if alias is valid, false otherwise.
+	 */
+	private boolean isValidCommandAlias(String alias) {
+		if (commandTable.contains(alias)) {
+			return true;
+		} else {
+			return isValidCommandType(alias);
+		}
+	}
+	
+	/**
+	 * This method checks whether the type of command is valid.
+	 * 
+	 * @param commandType Type of command.
+	 * @return True if command type is valid, false otherwise.
+	 */
+	private boolean isValidCommandType(String commandType) {
+		for (String type:commandTypes) {
+			if (commandType.equals(type)) {
 				return true;
 			}
 		}
@@ -72,11 +121,36 @@ public class Parser {
 		return false;
 	}
 	
-	private void splitParameters(String commandType, String commandArg) {
+	/**
+	 * This method converts a command alias into the standard command type.
+	 * 
+	 * @param alias Command alias.
+	 * @return Type of command if alias is found, "error" otherwise (should not happen).
+	 */
+	private String getCommandType(String alias) {
+		for (String key:commandTypes) {
+			if (alias.equals(key) || alias.equals(commandTable.get(key))) {
+				return key;
+			}
+		}
+		
+		// Should not be reachable
+		return "error";
+	}
+	
+	/**
+	 * This method parses the parameters based on the command type and
+	 * adds the parameters into a ProtoTask object. If any of the parameters are
+	 * invalid, it creates an error ProtoTask.
+	 * 
+	 * @param commandType Type of command.
+	 * @param commandArg String of all the parameters for the command.
+	 */
+	private void parseParameters(String commandType, String commandArg) {
 		switch (commandType) {
 			case "edit" :
 				if (commandArg.isEmpty() || getRemainingArgument(commandArg).isEmpty()) {
-					createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_EDIT);
+					createErrorTask(ERROR_INVALID_PARAMS + "\n" + ERROR_PARAMS_EDIT);
 					break;
 				} else if (!isInteger(getFirstWord(commandArg)) || Integer.parseInt(getFirstWord(commandArg)) <= 0) {
 					createErrorTask("<id> must be greater than 0\n" + ERROR_PARAMS_EDIT);
@@ -90,14 +164,14 @@ public class Parser {
 				
 			case "add" :
 				if (commandArg.isEmpty()) {
-					createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_ADD);
+					createErrorTask(ERROR_INVALID_PARAMS + "\n" + ERROR_PARAMS_ADD);
 				} else {
 					String taskDesc = extractParameter("", commandArg);
 					
 					if (!taskDesc.isEmpty()) {
 						pt.setTaskDesc(taskDesc);
 					} else if (commandType.equals("add")) {
-						createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_ADD);
+						createErrorTask(ERROR_INVALID_PARAMS + "\n" + ERROR_PARAMS_ADD);
 						break;
 					}
 					
@@ -206,7 +280,7 @@ public class Parser {
 			case "complete" :
 			case "delete" :
 				if (commandArg.isEmpty()) {
-					createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_ID);
+					createErrorTask(ERROR_INVALID_PARAMS + "\n" + ERROR_PARAMS_ID);
 				} else if (!isInteger(commandArg) || Integer.parseInt(commandArg) <= 0) {
 					createErrorTask("'id' must be a positive integer");
 				} else {
@@ -217,7 +291,7 @@ public class Parser {
 			// Parameter: task limit
 			case "setlimit" :
 				if (commandArg.isEmpty()) {
-					createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_LIMIT);
+					createErrorTask(ERROR_INVALID_PARAMS + "\n" + ERROR_PARAMS_LIMIT);
 				} else if (!isInteger(commandArg) || Integer.parseInt(commandArg) < 0) {
 					createErrorTask("limit must be a non-negative integer");
 				} else {
@@ -229,7 +303,7 @@ public class Parser {
 			case "queue" :
 				String[] splitParams = commandArg.split(" ");
 				if (splitParams.length != 1 && splitParams.length != 2) {
-					createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_QUEUE);
+					createErrorTask(ERROR_INVALID_PARAMS + "\n" + ERROR_PARAMS_QUEUE);
 				} else if (isInteger(splitParams[0]) && Integer.parseInt(splitParams[0]) > 0) {
 					if (splitParams.length == 2) {
 						if (isInteger(splitParams[1]) && Integer.parseInt(splitParams[1]) > 0) {
@@ -248,13 +322,36 @@ public class Parser {
 				
 			// Parameter: command
 			case "demo" :
-				if (isValidCommandType(commandArg)) {
+				if (isValidCommandAlias(commandArg)) {
 					pt.setDemoCommand(commandArg);
 				} else {
 					if (commandArg.isEmpty()) {
-						createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_DEMO);
+						createErrorTask(ERROR_INVALID_PARAMS + "\n" + ERROR_PARAMS_DEMO);
 					} else {
 						createErrorTask("'" + commandArg + "' is not a valid command");
+					}
+				}
+				break;
+			
+			// Parameter: old command, new command
+			case "change" :
+				String[] commands = commandArg.split(" ");
+				if (commands.length != 2) {
+					createErrorTask(ERROR_INVALID_PARAMS + "\n" + ERROR_PARAMS_CHANGE);
+				} else {
+					String oldCommand = commands[0];
+					String newCommand = commands[1];
+					
+					if (isValidCommandAlias(oldCommand)) {
+						if (isValidCommandAlias(newCommand)) {
+							createErrorTask("'" + newCommand + "' is a reserved command alias / type");
+						} else {
+							String type = getCommandType(oldCommand);
+							commandTable.put(type, newCommand);
+							pt.setChangeMessage("'" + type + "' has been changed to '" + newCommand + "'!");
+						}
+					} else {
+						createErrorTask("'" + oldCommand + "' is not a valid command");
 					}
 				}
 				break;
@@ -308,7 +405,7 @@ public class Parser {
 			// Parameter: file path
 			case "saveto" :
 				if (commandArg.isEmpty()) {
-					createErrorTask(ERROR_WRONG_PARAMS + "\n" + ERROR_PARAMS_SAVETO);
+					createErrorTask(ERROR_INVALID_PARAMS + "\n" + ERROR_PARAMS_SAVETO);
 				} else {
 					pt.setPath(commandArg);
 				}
@@ -321,7 +418,7 @@ public class Parser {
 			case "save" :
 			case "exit" :
 				if (!commandArg.isEmpty()) {
-					createErrorTask(ERROR_WRONG_PARAMS + "\n"
+					createErrorTask(ERROR_INVALID_PARAMS + "\n"
 				                    + String.format(ERROR_PARAMS_NONE, commandType));
 				}
 				break;
@@ -438,5 +535,20 @@ public class Parser {
 			String[] result = {s};
 			return result;
 		}
+	}
+	
+	private void parseCommandWithoutParam(String command, String arg) {
+		if (!arg.isEmpty()) {
+			createErrorTask(ERROR_INVALID_PARAMS + "\n"
+		                    + String.format(ERROR_PARAMS_NONE, command));
+		}
+	}
+	
+	public Hashtable<String, String> getCommands() {
+		return commandTable;
+	}
+	
+	public void loadCommands(Hashtable<String, String> ht) {
+		commandTable = ht;
 	}
 }

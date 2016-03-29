@@ -62,6 +62,8 @@ public class DateParser {
 	private int timeHour;
 	private int timeMin;
 	
+	private final String MESSAGE_DATE_PASSED = "date has passed. You can't travel back in time!";
+	
 	/* ***************
 	 * Date formats *
 	 ****************/
@@ -199,24 +201,26 @@ public class DateParser {
 			}
 			
 			if (is12Hour) {
-				if (timeHour == 12) {
-					timeHour = 0;
+				// Check if time is valid
+				if (timeHour == 0) {
+					throw new InvalidDateException("invalid time");
 				}
 				
-				// Check if time is valid
-				if (timeHour > 12 || timeHour == 0) {
-					throw new InvalidDateException("invalid time");
-				}
-
 				// Conversion to 24-hour time
 				if (isPm(rawTime)) {
-					timeHour += 12;
+					if (timeHour != 12) {
+						timeHour += 12;
+					}
+				} else {
+					if (timeHour == 12) {
+						timeHour = 0;
+					}
 				}
-			} else {
-				// Check if time is valid
-				if (timeHour > 23) {
-					throw new InvalidDateException("invalid time");
-				}
+			}
+			
+			// Check if time is valid
+			if (timeHour > 23) {
+				throw new InvalidDateException("invalid time");
 			}
 		}
 		
@@ -227,15 +231,29 @@ public class DateParser {
 				calendar.add(Calendar.DATE, 1);
 			}
 
-			return calendar;
+			if (hasDatePassed()) {
+				throw new InvalidDateException(MESSAGE_DATE_PASSED);
+			} else {
+				return calendar;
+			}
 		} else {
 			if (rawDate.equalsIgnoreCase("today")) {
 				setTime();
-				return calendar;
+				
+				if (hasDatePassed()) {
+					throw new InvalidDateException(MESSAGE_DATE_PASSED);
+				} else {
+					return calendar;
+				}
 			} else if (rawDate.equalsIgnoreCase("tomorrow") || rawDate.equalsIgnoreCase("tmr")) {
 				calendar.add(Calendar.DATE, 1);
 				setTime();
-				return calendar;
+				
+				if (hasDatePassed()) {
+					throw new InvalidDateException(MESSAGE_DATE_PASSED);
+				} else {
+					return calendar;
+				}
 			} else {
 				SimpleDateFormat sdf;
 				
@@ -335,7 +353,11 @@ public class DateParser {
 					// Set time
 					setTime();
 					
-					return calendar;
+					if (hasDatePassed()) {
+						throw new InvalidDateException(MESSAGE_DATE_PASSED);
+					} else {
+						return calendar;
+					}
 				} catch (ParseException e) {
 					throw new InvalidDateException("invalid date");
 				}				
@@ -362,8 +384,14 @@ public class DateParser {
 		return timeOfDay.equalsIgnoreCase("pm");
 	}
 	
+	// Set the time for calendar
 	private void setTime() {
 		calendar.set(Calendar.HOUR_OF_DAY, timeHour);
 		calendar.set(Calendar.MINUTE, timeMin);
+	}
+	
+	private boolean hasDatePassed() {
+		Calendar c = Calendar.getInstance();
+		return calendar.before(c);
 	}
 }

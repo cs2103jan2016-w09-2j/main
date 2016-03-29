@@ -11,8 +11,7 @@ public class Task {
 	private int priority;
 	private String category;
 	private String additional;
-	private String name;
-	
+	private String name;	
 	
 	private Calendar startDate; //if null, means that it is a task not event
 	private Calendar endDate; //either deadline or end time for event. if null, means it is a floating task
@@ -24,6 +23,18 @@ public class Task {
 	private int id;
 	
 	private int queueID;
+	
+	private static final String HEADER_LOCATION = "Location: ";
+	private static final String HEADER_CATEGORY = "Category: ";
+	private static final String HEADER_PRIORITY = "Priority: ";
+	private static final String HEADER_DEADLINE = "By: ";
+	private static final String HEADER_ADDITIONAL = "Additional: ";
+	private static final String HEADER_EVENT_START = "From: ";
+	private static final String HEADER_EVENT_END = " To: ";
+	
+	private static final String PRIORITY_HIGH = "High";
+	private static final String PRIORITY_MEDIUM = "Med";
+	private static final String PRIORITY_LOW = "Low";
 	
 	public int getId(){
 		return id;
@@ -72,7 +83,7 @@ public class Task {
 	public void setQueueID(int id){
 		this.queueID = id;
 	}
-
+	
 	public Task(ProtoTask task){
 		//create the Task
 		this.location = task.getLocation();
@@ -118,60 +129,101 @@ public class Task {
 	}
 	
 	protected String display(){
-		String displayString = "";
-		displayString += id + ". ";
-		displayString += name + " | ";
-		displayString = addDateToDisplayString(displayString);
-		displayString = addLocationToDisplayString(displayString);
-		displayString = addPriorityToDisplayString(displayString);
-		displayString = addCategoryToDisplayString(displayString);
-		return displayString;
-	}
-
-	private String addCategoryToDisplayString(String displayString) {
-		displayString = addAdditionalToDisplayString(displayString);
-		return displayString;
-	}
-
-	private String addAdditionalToDisplayString(String displayString) {
-		if (category != null) {
-			displayString += "category: " + category;
+		StringBuilder displayString = new StringBuilder();
+		
+		// display order:
+		// id. name | date | location | priority | category
+		
+		displayString.append(idField());
+		displayString.append(" ");
+		displayString.append(name);
+		
+		String[] fields = new String[4];
+		
+		fields[0] = dateField();
+		fields[1] = locationField();
+		fields[2] = priorityField();
+		fields[3] = categoryField();
+		
+		for(int i = 0; i < 4; i++){
+			if(fields[i] != null){
+				displayString.append(" | ");
+				displayString.append(fields[i]);
+			}
 		}
-		return displayString;
+		
+		return displayString.toString();
 	}
-
-	private String addPriorityToDisplayString(String displayString) {
-		if (priority != -1) {
-			displayString += "priority: " + priority + " | ";
-		}
-		return displayString;
+	
+	private String idField(){
+		return Integer.toString(id) + ".";
 	}
-
-	private String addLocationToDisplayString(String displayString) {
-		if (location != null) {
-			displayString += "location: " + location + " | ";
-		}
-		return displayString;
-	}
-
-	private String addDateToDisplayString(String displayString) {
-		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm");	
-		if (endDate != null && startDate == null) {
-			displayString += "deadline: " + sdf.format(endDate.getTime()) + " | ";
+	
+	private String dateField(){
+		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
+		if(endDate == null){
+			return null;
+			
+		} else if (endDate != null && startDate == null) {
+			return HEADER_DEADLINE + sdf.format(endDate.getTime());
+			
 		} else if (endDate != null && startDate != null) {
-			displayString += "start: " + sdf.format(startDate.getTime()) + " end: " + sdf.format(endDate.getTime()) + " | ";
+			return HEADER_EVENT_START + sdf.format(startDate.getTime()) + HEADER_EVENT_END + sdf.format(endDate.getTime());
 		}
-		return displayString;
+		
+		// shouldn't happen if task is correct
+		return null;
+	}
+	
+	private String locationField(){
+		if (location == null) {
+			return null;
+		} else{
+			return HEADER_LOCATION + location;
+		}
+	}
+	
+	private String priorityField(){
+		if(priority == -1){
+			return null;
+		} else{
+			switch(priority){
+			case 1:
+				return HEADER_PRIORITY + PRIORITY_HIGH;
+			case 2:
+				return HEADER_PRIORITY + PRIORITY_MEDIUM;
+			case 3:
+				return HEADER_PRIORITY + PRIORITY_LOW;
+			
+			// shouldn't happen if task is correct
+			default:
+				return null;
+			}
+		}
+	}
+	
+	private String categoryField(){
+		if (category == null) {
+			return null;
+		} else{
+			return HEADER_CATEGORY + category;
+		}
+	}
+	
+	private String additionalField(){
+		if(additional == null){
+			return null;
+		} else{
+			return HEADER_ADDITIONAL + additional;
+		}
 	}
 	
 	protected String displayAll(){
 		String displayString = display();
 		if (additional != null) {
-			displayString += " | " + "additional information: " + additional;
+			displayString += " | " + additionalField();
 		}
 		return displayString;
-	}
-	
-	
+	}	
 	
 }

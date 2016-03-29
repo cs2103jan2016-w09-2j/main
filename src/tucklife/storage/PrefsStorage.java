@@ -125,7 +125,7 @@ public class PrefsStorage {
 			bos.close();
 			fos.close();
 		
-		// should not happen under any circumstance
+		// should not happen under normal circumstances
 		} catch(FileNotFoundException fnfe){
 			return false;
 			

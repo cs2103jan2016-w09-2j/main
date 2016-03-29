@@ -11,17 +11,11 @@ public class Interaction {
 
 	private static Scanner sc = new Scanner(System.in);
 	private static FlowController fc = new FlowController();
-	private static Storage s = new Storage();
-	private static ExternalStorage es = new ExternalStorage();
 
 	public static void main(String[] args) {
 
 		//initialisation
 		System.out.println(MESSAGE_WELCOME);
-
-		// temporary loading code - aylward to send a load command on startup
-		es.load();
-		s.load(es.getLoadedData());
 
 		//program loop
 		while (true) {

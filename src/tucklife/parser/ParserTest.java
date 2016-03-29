@@ -2,6 +2,9 @@ package tucklife.parser;
 
 import static org.junit.Assert.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -72,8 +75,16 @@ public class ParserTest {
 		assertTrue(p.parse("add task $not a date").isError());
 		
 		// Time - +
-		assertEquals("Command type: add\nParameters:\nTask description: evening run\n"
-					 + "End date: Wed, 23 Mar 2016, 17:00\n",
+		// Getting the correct date based on current date
+		Calendar c = Calendar.getInstance();
+		if (c.get(Calendar.HOUR_OF_DAY) > 16) {
+			c.add(Calendar.DATE, 1);
+		}
+		c.set(Calendar.HOUR_OF_DAY, 17);
+		c.set(Calendar.MINUTE, 0);
+		
+		assertEquals("Command type: add\nParameters:\nTask description: evening run\nEnd date: "
+					 + new SimpleDateFormat("EEE, dd MMM yyyy, HH:mm").format(c.getTime()) + "\n",
 					 p.parse("add evening run +5pm").toString());
 		
 		// Invalid times
@@ -90,7 +101,7 @@ public class ParserTest {
 		// Some parameters
 		assertEquals("Command type: add\nParameters:\nTask description: buy office supplies\n"
 					 + "Category: misc\nPriority: 2\nEnd date: Thu, 24 Mar 2016, 23:59\n",
-					 p.parse("add buy office supplies $tmr #misc !medium").toString());
+					 p.parse("add buy office supplies $24 mar 16 #misc !medium").toString());
 	}
 	
 	@Test
@@ -244,7 +255,16 @@ public class ParserTest {
 		assertTrue(p.parse("edit 15 $not a date").isError());
 
 		// Time - +
-		assertEquals("Command type: edit\nParameters:\nID: 15\nEnd date: Wed, 23 Mar 2016, 17:00\n",
+		// Getting the correct date based on current date
+		Calendar c = Calendar.getInstance();
+		if (c.get(Calendar.HOUR_OF_DAY) > 16) {
+			c.add(Calendar.DATE, 1);
+		}
+		c.set(Calendar.HOUR_OF_DAY, 17);
+		c.set(Calendar.MINUTE, 0);
+				
+		assertEquals("Command type: edit\nParameters:\nID: 15\nEnd date: "
+					 + new SimpleDateFormat("EEE, dd MMM yyyy, HH:mm").format(c.getTime()) + "\n",
 				p.parse("edit 15 +5pm").toString());
 
 		// Invalid times
@@ -261,7 +281,7 @@ public class ParserTest {
 		// Some parameters
 		assertEquals("Command type: edit\nParameters:\nCategory: misc\n"
 				+ "Priority: 2\nID: 15\nEnd date: Thu, 24 Mar 2016, 23:59\n",
-				p.parse("edit 15 $tmr #misc !medium").toString());
+				p.parse("edit 15 $24 mar 16 #misc !medium").toString());
 	}
 	
 	@Test

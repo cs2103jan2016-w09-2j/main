@@ -14,6 +14,7 @@ public class ProtoTask {
 	private String sortCrit;
 	private String demoCommand;
 	private String path;
+	private String changeMessage;
 	
 	private int priority = -1;
 	private int id = -1;
@@ -79,6 +80,10 @@ public class ProtoTask {
 	
 	public String getPath() {
 		return path;
+	}
+	
+	public String getChangeMessage() {
+		return changeMessage;
 	}
 	
 	public int getPriority() {
@@ -154,6 +159,10 @@ public class ProtoTask {
 	
 	public void setPath(String p) {
 		path = p;
+	}
+	
+	public void setChangeMessage(String cm) {
+		changeMessage = cm;
 	}
 
 	public void setPriority(int p) {
@@ -231,9 +240,12 @@ public class ProtoTask {
 				toDisplay += "Demo command: " + demoCommand + "\n";
 			}
 
-
 			if (path != null) {
 				toDisplay += "Path: " + path + "\n";
+			}
+			
+			if (changeMessage != null) {
+				toDisplay += "Change message: " + changeMessage + "\n";
 			}
 
 			if (priority != -1) {

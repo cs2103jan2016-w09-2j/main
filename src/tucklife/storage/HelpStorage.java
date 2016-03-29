@@ -3,6 +3,7 @@ package tucklife.storage;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -32,13 +33,19 @@ public class HelpStorage {
 	
 	private boolean loadHelp(){
 		
-		FileInputStream fis;
+		InputStream is;
 		InputStreamReader isr;
 		BufferedReader br;
 		
 		try{
-			fis = new FileInputStream(FILENAME_HELP);
-			isr = new InputStreamReader(fis);
+			
+			// IDE version
+//			is = new FileInputStream(FILENAME_HELP);
+			
+			// JAR version
+			is = this.getClass().getClassLoader().getResourceAsStream(FILENAME_HELP);
+			
+			isr = new InputStreamReader(is);
 			br = new BufferedReader(isr);
 			
 			br.readLine(); // removes first line
@@ -51,7 +58,7 @@ public class HelpStorage {
 			
 			br.close();
 			isr.close();
-			fis.close();
+			is.close();
 			
 		} catch(IOException ioe){
 			ioe.printStackTrace();
@@ -63,13 +70,18 @@ public class HelpStorage {
 	
 	private boolean loadDemo(){
 		
-		FileInputStream fis;
+		InputStream is;
 		InputStreamReader isr;
 		BufferedReader br;
 		
 		try{
-			fis = new FileInputStream(FILENAME_DEMO);
-			isr = new InputStreamReader(fis);
+			// IDE version
+//			is = new FileInputStream(FILENAME_DEMO);
+			
+			// JAR version
+			is = this.getClass().getClassLoader().getResourceAsStream(FILENAME_DEMO);
+			
+			isr = new InputStreamReader(is);
 			br = new BufferedReader(isr);
 			
 			br.readLine(); // removes first line
@@ -102,7 +114,7 @@ public class HelpStorage {
 			
 			br.close();
 			isr.close();
-			fis.close();
+			is.close();
 			
 		} catch(IOException ioe){
 			ioe.printStackTrace();

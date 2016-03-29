@@ -411,6 +411,7 @@ public class Storage {
 	
 	//for testing purposes only
 	public static void clear(){
+		setLimit(0);
 		toDoList = new TaskList();
 		doneList = new TaskList();
 	}

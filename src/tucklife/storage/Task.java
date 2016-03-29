@@ -83,7 +83,7 @@ public class Task {
 	public void setQueueID(int id){
 		this.queueID = id;
 	}
-
+	
 	public Task(ProtoTask task){
 		//create the Task
 		this.location = task.getLocation();

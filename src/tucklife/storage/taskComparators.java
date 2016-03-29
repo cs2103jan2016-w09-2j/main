@@ -5,6 +5,24 @@ import java.util.Calendar;
 
 public class taskComparators {
 	
+	private int handleNullCases(Task task1, Task task2, String param1, String param2) {
+		if(param1 == null && param2 == null) {
+			return new ComparatorName().compare(task1, task2);
+		}
+		else{
+			if(param1 == null) {
+				return 1;
+			}
+			if(param2 == null) {
+				return -1;
+			}
+			if(param1.compareTo(param2)==0) {
+				return new ComparatorName().compare(task1, task2);
+			}
+		}
+		return param1.compareTo(param2);
+	}
+	
 	class ComparatorLocation implements Comparator<Task>
     {
 
@@ -12,8 +30,7 @@ public class taskComparators {
      public int compare(Task t1, Task t2) {
             String location1 = t1.getLocation();
             String location2 = t2.getLocation();
-
-            return location1.compareTo(location2);
+            return handleNullCases(t1, t2, location1, location2);
          }
     }
 	
@@ -40,10 +57,7 @@ public class taskComparators {
      public int compare(Task t1, Task t2) {
             String cat1 = t1.getCategory();
             String cat2 = t2.getCategory();
-            if (cat1.compareTo(cat2) == 0) {
-            	return new ComparatorName().compare(t1, t2);
-            }
-            return cat1.compareTo(cat2);
+            return handleNullCases(t1, t2, cat1, cat2);
          }
     }
 	
@@ -55,7 +69,7 @@ public class taskComparators {
             String add1 = t1.getAdditional();
             String add2 = t2.getAdditional();
 
-            return add1.compareTo(add2);
+            return handleNullCases(t1, t2, add1, add2);
          }
     }
 	

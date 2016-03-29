@@ -24,7 +24,7 @@ public class TestDriverForStorage {
 		
 		ProtoTask pt1 = p.parse("add meeting @as4-mr3");
 		ProtoTask pt2 = p.parse("add staff retreat @sentosa");
-		ProtoTask pt3 = p.parse("add interview intern @office");
+		ProtoTask pt3 = p.parse("add interview intern");
 		
 		ProtoTask pt4 = p.parse("display");
 		

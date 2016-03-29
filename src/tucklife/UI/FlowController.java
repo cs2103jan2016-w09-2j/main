@@ -10,6 +10,11 @@ public class FlowController {
 	private static Parser p = new Parser();
 	private static Storage s = new Storage();
 	private static ExternalStorage es = new ExternalStorage();
+	
+	public FlowController(){
+		es.load();
+		s.load(es.getLoadedData());
+	}
 
 
 	public void execute(String command){

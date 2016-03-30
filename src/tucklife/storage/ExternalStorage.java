@@ -18,6 +18,7 @@ public class ExternalStorage {
 	private ListStorage todo, done;
 	private HelpStorage help;
 	private PrefsStorage prefs;
+	private CommandStorage commands;
 	
 	public ExternalStorage(){
 		prefs = new PrefsStorage();
@@ -29,6 +30,8 @@ public class ExternalStorage {
 		done = new ListStorage(targetFolder + FILENAME_DONE);
 		help = new HelpStorage();
 		
+		commands = new CommandStorage();
+		commands.loadCommands();
 	}
 	
 	public boolean load(){		
@@ -43,6 +46,7 @@ public class ExternalStorage {
 	// new load that uses a DataBox
 	public DataBox getLoadedData(){
 		DataBox db = new DataBox(lists, prefs);
+		db.setCommands(commands.getCommands());
 		return db;
 	}
 	
@@ -55,8 +59,9 @@ public class ExternalStorage {
 		boolean savedDone = done.normalSave(listsToSave[1]);
 		
 		boolean savedPrefs = prefs.savePreferences();
+		boolean savedCommands = commands.saveCommands(db.getCommands());
 		
-		if(!savedTodo | !savedDone | !savedPrefs){
+		if(!savedTodo | !savedDone | !savedPrefs | !savedCommands){
 			return ERROR_SAVE;
 		}
 		

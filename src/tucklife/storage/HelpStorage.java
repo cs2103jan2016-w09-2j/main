@@ -130,7 +130,7 @@ public class HelpStorage {
 		
 		for(int i = 0; i < helpDirectory.size(); i += 2){
 			helpString.append(helpDirectory.get(i) + helpDirectory.get(i+1));
-			helpString.append("\n");
+			helpString.append("\n\n");
 		}
 		
 		return helpString.toString();

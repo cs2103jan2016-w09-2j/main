@@ -5,14 +5,19 @@ import tucklife.parser.Parser;
 
 public class TestDriverForStorage {
 	public static void main(String[] args){
+		System.out.println("sort location \n\n");
 		testSortLocation();
-		/*
+		System.out.println("\n\n\n sort time \n\n");
 		testSortTime();
+		System.out.println("\n\n\n overload \n\n");
 		testOverload();
+		System.out.println("\n\n\n overload 2 \n\n");
 		testOverload2();
+		System.out.println("\n\n\n undo \n\n");
 		testUndo();
+		System.out.println("\n\n\n redo \n\n");
 		testRedo();
-		*/
+		System.out.println("\n\n\n queue \n\n");
 		testQueue();
 	}
 
@@ -49,12 +54,17 @@ public class TestDriverForStorage {
 		Storage s = new Storage();
 		Storage.clear();
 		Parser p = new Parser();
-		
-		ProtoTask pt1 = p.parse("add meeting @meeting room 7"); /*$13/12/16 to 14/12/16 +8am to 3pm*/
-		ProtoTask pt2 = p.parse("add staff retreat @botanic gardens $tomorrow +0500");
+		/*
+		ProtoTask pt1 = p.parse("add meeting @meeting room 7 $13/12/16 to 14/12/16 +8am to 3pm"); /*$13/12/16 to 14/12/16 +8am to 3pm*/
+		/*
+		ProtoTask pt2 = p.parse("add staff retreat @botanic gardens $16/05/16 +0500");
 		ProtoTask pt3 = p.parse("add interview intern @mr5 $13/12/16");
+		*/
+		ProtoTask pt1 = p.parse("add meeting @meeting room 7 $13/05 +1400"); /*$13/12/16 to 14/12/16 +8am to 3pm*/
+		ProtoTask pt2 = p.parse("add staff retreat @botanic gardens $16/05 +0500");
+		ProtoTask pt3 = p.parse("add interview intern @mr5 $14/05 +1300");
 		
-		ProtoTask pt4 = p.parse("display ++");
+		ProtoTask pt4 = p.parse("display");
 		
 		s.parseCommand(pt1);
 		s.parseCommand(pt2);
@@ -62,8 +72,7 @@ public class TestDriverForStorage {
 		
 		System.out.println(s.parseCommand(pt4));
 		
-		ProtoTask pt5 = p.parse("display +$");
-		pt5.setSortCrit("$");
+		ProtoTask pt5 = p.parse("display ++");
 		
 		System.out.println(s.parseCommand(pt5));
 		System.out.println();
@@ -75,14 +84,14 @@ public class TestDriverForStorage {
 		Storage.clear();
 		Parser p = new Parser();
 		
-		ProtoTask pt1 = p.parse("add meeting @meeting room 7 $today +1400"); /*$13/12/16 to 14/12/16 +8am to 3pm*/
-		ProtoTask pt2 = p.parse("add staff retreat @botanic gardens $today +0500");
-		ProtoTask pt3 = p.parse("add interview intern @mr5 $today +1300");
+		ProtoTask pt1 = p.parse("add meeting @meeting room 7 $16/05 +1400"); /*$13/12/16 to 14/12/16 +8am to 3pm*/
+		ProtoTask pt2 = p.parse("add staff retreat @botanic gardens $16/05 +0500");
+		ProtoTask pt3 = p.parse("add interview intern @mr5 $16/05 +1300");
 		
 		ProtoTask pt4 = p.parse("setlimit 4");
 		
-		ProtoTask pt5 = p.parse("add 4th task $today +2359");
-		ProtoTask pt6 = p.parse("add overload $today +2300");
+		ProtoTask pt5 = p.parse("add 4th task $16/05 +2359");
+		ProtoTask pt6 = p.parse("add overload $16/05 +2300");
 		
 		s.parseCommand(pt1);
 		s.parseCommand(pt2);
@@ -91,6 +100,10 @@ public class TestDriverForStorage {
 		System.out.println(s.parseCommand(pt5));
 		System.out.println(s.parseCommand(pt6));
 		System.out.println(s.parseCommand(pt6));
+		System.out.println();
+		
+		ProtoTask ptDisplay = p.parse("display ++");
+		System.out.println(s.parseCommand(ptDisplay));
 		System.out.println();
 	}
 	
@@ -178,13 +191,13 @@ public class TestDriverForStorage {
 		ProtoTask ptlimit = p.parse("setlimit 100");
 		s.parseCommand(ptlimit);
 		
-		ProtoTask pt1 = p.parse("add meeting @meeting room 7"); /*$13/12/16 to 14/12/16 +8am to 3pm*/
-		ProtoTask pt2 = p.parse("add staff retreat @botanic gardens $tomorrow +0500");
+		ProtoTask pt1 = p.parse("add meeting @meeting room 7");
+		ProtoTask pt2 = p.parse("add staff retreat @botanic gardens $16/05 +0500");
 		ProtoTask pt3 = p.parse("add interview intern @mr5 $13/12/16");
-		ProtoTask pt4 = p.parse("add financial report $01/04/16");
-		ProtoTask pt5 = p.parse("add client meeting $09/04/16");
-		ProtoTask pt6 = p.parse("add payday $05/04/16");
-		ProtoTask pt7 = p.parse("add email boss $today");
+		ProtoTask pt4 = p.parse("add financial report $01/05/16");
+		ProtoTask pt5 = p.parse("add client meeting $09/05/16");
+		ProtoTask pt6 = p.parse("add payday $05/05/16");
+		ProtoTask pt7 = p.parse("add email boss $15/05");
 		
 		ProtoTask ptDisplay = p.parse("display");
 		

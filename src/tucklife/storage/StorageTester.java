@@ -9,6 +9,9 @@ import java.text.SimpleDateFormat;
 import org.junit.Before;
 import org.junit.Test;
 
+import tucklife.parser.Parser;
+import tucklife.parser.ProtoTask;
+
 public class StorageTester {
 
 	private ProtoTaskStubForStorage ptDisplay;
@@ -22,6 +25,8 @@ public class StorageTester {
 	private ProtoTaskStubForStorage ptEventEdit;
 	private ProtoTaskStubForStorage ptEventEditID;
 	private ProtoTaskStubForStorage ptDeadline;
+	private Parser p;
+	private ProtoTask pt;
 	private Storage s;
 	private Calendar tomorrow;
 	private Calendar endTime;
@@ -31,6 +36,8 @@ public class StorageTester {
 	
 	@Before
 	public void setUp() throws Exception {
+		
+		p = new Parser();
 		
 		tomorrow = Calendar.getInstance();
 		tomorrow.add(Calendar.DATE, 1);
@@ -58,7 +65,8 @@ public class StorageTester {
 	@Test
 	public void testAdd() {
 		s = new Storage();
-		String deadline = String.format("{1. walk the cat | deadline: %1$s | location: park | category: pet} has been added to TuckLife\'s to-do list!", sdf.format(tomorrow.getTime()));
+		pt = p.parse("add meeting");
+		String deadline = String.format("{1. meeting} has been added to TuckLife\'s to-do list!", sdf.format(tomorrow.getTime()));
 		String event = String.format("{2. walk the dog | start: %1$s end:%2$s | location: park | category: dog} has been added to TuckLife\'s to-do list!", sdf.format(tomorrow.getTime()), sdf.format(endTime));
 		assertEquals("fail to add Deadline",s.parseCommand(ptDeadline),deadline);
 		assertEquals("fail to add Event",s.parseCommand(ptEvent),event);

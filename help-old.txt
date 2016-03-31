@@ -13,7 +13,6 @@ undo,undo,Undoes the most recent add/edit/delete/complete
 redo,redo,Redoes the most recent undo
 save,save,Manual save
 exit,exit,Saves files and shuts down TuckLife
-remindertoggle,reminder,Toggles reminders on/off
 statussummary,status,Shows an overview of current tasks
 help,help,You're looking at it now - duh
 demo,demo <command>,Get an example of how to use <command>

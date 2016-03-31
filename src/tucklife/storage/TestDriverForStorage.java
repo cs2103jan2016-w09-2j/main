@@ -191,13 +191,13 @@ public class TestDriverForStorage {
 		ProtoTask ptlimit = p.parse("setlimit 100");
 		s.parseCommand(ptlimit);
 		
-		ProtoTask pt1 = p.parse("add meeting @meeting room 7"); /*$13/12/16 to 14/12/16 +8am to 3pm*/
-		ProtoTask pt2 = p.parse("add staff retreat @botanic gardens $tomorrow +0500");
+		ProtoTask pt1 = p.parse("add meeting @meeting room 7");
+		ProtoTask pt2 = p.parse("add staff retreat @botanic gardens $16/05 +0500");
 		ProtoTask pt3 = p.parse("add interview intern @mr5 $13/12/16");
-		ProtoTask pt4 = p.parse("add financial report $01/04/16");
-		ProtoTask pt5 = p.parse("add client meeting $09/04/16");
-		ProtoTask pt6 = p.parse("add payday $05/04/16");
-		ProtoTask pt7 = p.parse("add email boss $today");
+		ProtoTask pt4 = p.parse("add financial report $01/05/16");
+		ProtoTask pt5 = p.parse("add client meeting $09/05/16");
+		ProtoTask pt6 = p.parse("add payday $05/05/16");
+		ProtoTask pt7 = p.parse("add email boss $15/05");
 		
 		ProtoTask ptDisplay = p.parse("display");
 		

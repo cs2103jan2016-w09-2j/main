@@ -2,6 +2,9 @@ package tucklife.storage;
 
 import static org.junit.Assert.*;
 
+import java.util.Hashtable;
+
+import org.junit.Before;
 import org.junit.Test;
 
 import tucklife.parser.Parser;
@@ -15,6 +18,13 @@ public class TaskTest {
 	private Parser p;
 	private ProtoTask pt;
 
+	@Before
+	public void setUp() throws Exception {
+		p = new Parser();
+		Hashtable<String,String> ht = new Hashtable<String,String>();
+		p.loadCommands(ht);
+	}
+	
 	@Test
 	public void testTask() {
 		pt = p.parse("add meeting");

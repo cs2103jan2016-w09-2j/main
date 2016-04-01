@@ -2,8 +2,10 @@ package tucklife.storage;
 
 import static org.junit.Assert.*;
 
+import java.util.Hashtable;
 import java.util.Iterator;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import tucklife.parser.Parser;
@@ -13,10 +15,18 @@ public class TaskListTest {
 	
 	private Task t;
 	private int id;
-	private Parser p = new Parser();
+	private Parser p;
 	private ProtoTask pt;
 	private TaskList tl;
+	
 
+	@Before
+	public void setUp() throws Exception {
+		p = new Parser();
+		Hashtable<String,String> ht = new Hashtable<String,String>();
+		p.loadCommands(ht);
+	}
+	
 	@Test
 	public void testAdd() {
 		tl = new TaskList();

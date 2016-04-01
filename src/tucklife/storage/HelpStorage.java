@@ -40,10 +40,10 @@ public class HelpStorage {
 		try{
 			
 			// IDE version
-//			is = new FileInputStream(FILENAME_HELP);
+			is = new FileInputStream(FILENAME_HELP);
 			
 			// JAR version
-			is = this.getClass().getClassLoader().getResourceAsStream(FILENAME_HELP);
+			//is = this.getClass().getClassLoader().getResourceAsStream(FILENAME_HELP);
 			
 			isr = new InputStreamReader(is);
 			br = new BufferedReader(isr);
@@ -76,10 +76,10 @@ public class HelpStorage {
 		
 		try{
 			// IDE version
-//			is = new FileInputStream(FILENAME_DEMO);
+			is = new FileInputStream(FILENAME_DEMO);
 			
 			// JAR version
-			is = this.getClass().getClassLoader().getResourceAsStream(FILENAME_DEMO);
+			//is = this.getClass().getClassLoader().getResourceAsStream(FILENAME_DEMO);
 			
 			isr = new InputStreamReader(is);
 			br = new BufferedReader(isr);

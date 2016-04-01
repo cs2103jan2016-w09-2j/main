@@ -1,4 +1,12 @@
 NAME,FORMAT,DESCRIPTION,NO COMMAS PL0X!
+optional attributes,<--optional attributes for add and edit-->,These can be entered in any order if you need to add them
+location,@<location>,Location field,The location at which the task takes place
+priority,!<priority>,Priority field,Assign a priority from Low-Medium-High to this task
+date,$<deadline/date range>,Date Field,The date that the task occurs on or its start and end date
+time,+<deadline time/time range>,The time that the task occurs or the start and end time
+category,#<category>,The category you want to give the task
+additional,&<Additional Information>,Any extra information you want to include
+functions start,List of functions, 
 add,add <task desc> <--optional attributes-->,Adds task with given description and attributes
 edit,edit <id> <new task desc> <--optional attributes-->,Edits task to contain new attributes
 complete,complete <id>,Marks task as completed

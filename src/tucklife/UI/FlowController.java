@@ -28,17 +28,21 @@ public class FlowController {
 		} else {
 			if (pt.getCommand().equals("save")) {
 				executeSave();
+			} else if (pt.getCommand().equals("saveto")) {
+				executeSaveTo(pt.getPath());				
 			} else if (pt.getCommand().equals("help")) {
 				System.out.println(es.getHelp());
 			} else if (pt.getCommand().equals("demo")) {
 				System.out.println(es.getDemo(pt));
 			} else if (pt.getCommand().equals("change")) {
 				System.out.println(pt.getChangeMessage());
+				executeSave();
 			} else if (pt.getCommand().equals("exit")) {
 				executeSave();
 				System.exit(0);
 			} else {
 				System.out.println(s.parseCommand(pt));
+				executeSave();
 			}
 		}
 	}
@@ -47,5 +51,11 @@ public class FlowController {
 		DataBox db = s.save();
 		db.setCommands(p.getCommands());
 		System.out.println(es.saveData(db));
+	}
+	
+	public void executeSaveTo(String path) {
+		DataBox db = s.save();
+		db.setCommands(p.getCommands());
+		System.out.println(es.saveTo(db, path));
 	}
 }

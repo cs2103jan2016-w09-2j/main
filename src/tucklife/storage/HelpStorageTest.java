@@ -17,7 +17,7 @@ public class HelpStorageTest {
 	// test for file access/read
 	@Test
 	public void loadTest() {
-		assertEquals(hs.load(), true);
+		assertEquals(true, hs.load());
 	}
 	
 	// Partition: functions with only demo command
@@ -25,7 +25,7 @@ public class HelpStorageTest {
 	public void singleDemoTest() {
 		hs.load();
 		String demo = hs.getDemo("save");
-		assertEquals(demo, "Command: save\nResult: Saves any changes you have made in TuckLife\n");
+		assertEquals("Command: save\nResult: Saves any changes you have made in TuckLife\n", demo);
 	}
 	
 	// Partition: functions with multiple demo commands
@@ -33,17 +33,18 @@ public class HelpStorageTest {
 	public void multipleDemoTest() {
 		hs.load();
 		String demo = hs.getDemo("add");
-		assertEquals(demo, "Command: add read a book\n"
-				+ "Result: Adds the task \"read a book\" to TuckLife with no parameters\n"
+		assertEquals("Command: add board meeting\n"
+				+ "Result: Adds the task \"board meeting\" to TuckLife\n"
 				+ "\n"
-				+ "Command: add read a book $2 May\n"
-				+ "Result: Adds the task \"read a book\" to TuckLife with parameters: date: 2 May | time: 11:59pm\n"
+				+ "Command: add board meeting $2 May\n"
+				+ "Result: Adds the task \"read a book\" to TuckLife - By: 2 May\n"
 				+ "\n"
-				+ "Command: add walk the dog !low #pet +4pm\n"
-				+ "Result: Adds the task \"walk the dog\" to TuckLife with parameters: date: today's date | time: 4:00pm | priority: low | category: pet\n"
+				+ "Command: add board meeting !low #projectX +4pm\n"
+				+ "Result: Adds the task \"board meeting\" to TuckLife - By: Today at 4:00pm | Priority: low | Category: projectX\n"
 				+ "\n"
-				+ "Command: add walk the dog @park !low #pet $11 May +4pm to 6pm &walk 1km\n"
-				+ "Result: Adds the task \"walk the dog\" to TuckLife with parameters: date: 11 May | time: 4:00pm to 6:00pm | location: park | priority: low | category: pet | additional information: walk 1km\n");
+				+ "Command: add board meeting @meeting room 4 !low #projectX $11 May +4pm to 6pm &bring proposal\n"
+				+ "Result: Adds the task \"board meeting\" to TuckLife - From: 11 May 4:00pm To: 11 May 6:00pm | Location: meeting room 4 | Priority: low | Category: projectX | additional: bring proposal\n"
+				, demo);
 	}
 	
 	// test for help file loading - visual inspection due to long file

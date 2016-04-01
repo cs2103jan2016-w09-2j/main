@@ -7,7 +7,7 @@ public class ExternalStorage {
 	private static final String FILENAME_TODO = "todo.txt";
 	private static final String FILENAME_DONE = "done.txt";
 	
-	private static final String MSG_SAVE_COMPLETE = "Data saved successfully.";
+	private static final String MSG_SAVE_COMPLETE = "Files saved.";
 	
 	private static final String ERROR_SAVE = "Error saving files. Files have been saved to TuckLife's folder.";
 	private static final String ERROR_SAVETO = "Error saving files to new location. Files have been saved to previous location.";

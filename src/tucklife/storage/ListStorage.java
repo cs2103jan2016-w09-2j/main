@@ -26,6 +26,7 @@ public class ListStorage {
 	private static final String HEADER_DEADLINE = "By:";
 	private static final String HEADER_ADDITIONAL = "Additional:";
 	private static final String HEADER_EVENT_START = "From:";
+	private static final String HEADER_QUEUE = "Q:";
 	
 	private static final String PRIORITY_HIGH = "High";
 	private static final String PRIORITY_MEDIUM = "Med";
@@ -151,7 +152,9 @@ public class ListStorage {
 					// do nothing - wrong date is the same as no date
 				}
 				
-			}						
+			} else if(fieldHeader.equalsIgnoreCase(HEADER_QUEUE)){
+				pt.setPosition(Integer.parseInt(removeFirstWord(field)));
+			}
 		}
 		
 		return pt;
@@ -205,6 +208,10 @@ public class ListStorage {
 				taskString = taskString.substring(idBreak + 1);
 				
 				bos.write(taskString.getBytes());
+				
+				if(t.getQueueID() != -1){
+					bos.write((" | " + HEADER_QUEUE + " " + Integer.toString(t.getQueueID())).getBytes());
+				}
 				bos.write("\n".getBytes());
 			}
 			

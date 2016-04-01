@@ -314,6 +314,11 @@ public class Storage {
 	private static String complete(int taskID) {
 		if(toDoList.contains(taskID)){
 			Task completedTask = toDoList.delete(taskID);
+			completedTask.setQueueID(-1);
+			if(queueList.contains(taskID)) {
+				queueList.delete(taskID);
+				updateQueueIDs(0, 0);
+			}
 			doneList.add(completedTask);
 			return String.format(RETURN_MESSAGE_FOR_COMPLETE, completedTask.displayAll());
 		} else {

@@ -36,6 +36,10 @@ public class Task {
 	private static final String PRIORITY_MEDIUM = "Med";
 	private static final String PRIORITY_LOW = "Low";
 	
+	public static void resetGlobalId() {
+		globalID = 1;
+	}
+	
 	public int getId(){
 		return id;
 	}

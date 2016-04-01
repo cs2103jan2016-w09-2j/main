@@ -2,10 +2,14 @@ package tucklife.storage;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import tucklife.parser.ProtoTask;
 
 public class Task {
+	
+	private static final Logger log = Logger.getLogger( Storage.class.getName() );
 	
 	private String location;
 	private int priority;
@@ -101,9 +105,10 @@ public class Task {
 		this.id = globalID;
 		this.queueID = task.getPosition();
 		globalID++;
+		log.log( Level.FINE, "Task has been created via ProtoTask");
 	}
 	
-	/* unsure if needed
+	/* unsure if needed*/
 	public Task(Task task){
 		//create the Task
 		this.location = task.getLocation();
@@ -116,7 +121,7 @@ public class Task {
 		this.floating = startDate == null && endDate == null; //task.isFloating();
 		this.id = task.getId();	
 		this.queueID = task.getQueueID();
-	}*/
+	}//*/
 	
 	protected Task edit(ProtoTask task){
 		//edit task
@@ -129,6 +134,7 @@ public class Task {
 		this.endDate = task.getEndDate() == null ? this.endDate : task.getEndDate();
 		this.floating = startDate == null && endDate == null; //task.isFloating();
 		this.id = task.getId() == -1 ? this.id : task.getId();
+		log.log( Level.FINE, "Task has been edited via ProtoTask");
 		return this;
 	}
 	

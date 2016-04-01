@@ -16,15 +16,15 @@ public class PrefsStorageTest {
 
 	@Test
 	public void defaultValuesTest() {
-		assertEquals(ps.getDefPriority(), -1);
-		assertEquals(ps.getDefAdditional(), "");
-		assertEquals(ps.getReminderStatus(), true);
+		assertEquals(-1, ps.getDefPriority());
+		assertEquals("", ps.getDefAdditional());
+		assertEquals(true, ps.getReminderStatus());
 	}
 	
 	// remove prefs.txt before running to check for file creation
 	@Test
 	public void loadTest(){
-		assertEquals(ps.loadPreferences(), true);
+		assertEquals(true, ps.loadPreferences());
 	}
 	
 	// use the test prefs.txt to check for value loading
@@ -32,14 +32,14 @@ public class PrefsStorageTest {
 	public void valueTest(){
 		ps.loadPreferences();
 		
-		assertEquals(ps.getDefAdditional(), "Default additional information");
-		assertEquals(ps.getDefCategory(), "DefCat");
-		assertEquals(ps.getDefPriority(), 2);
-		assertEquals(ps.getDefLocation(), "");
-		assertEquals(ps.getReminderStatus(), false);
+		assertEquals("Default additional information", ps.getDefAdditional());
+		assertEquals("DefCat", ps.getDefCategory());
+		assertEquals(2, ps.getDefPriority());
+		assertEquals("", ps.getDefLocation());
+		assertEquals(false, ps.getReminderStatus());
 		
 		// to replace this string when testing folder is put in
-		assertEquals(ps.getSavePath(), "C:\\Users\\Ryan\\Desktop\\Holding Area\\");
+		assertEquals("C:\\Users\\Ryan\\Desktop\\Holding Area\\", ps.getSavePath());
 		
 	}
 	
@@ -55,11 +55,11 @@ public class PrefsStorageTest {
 		// to replace this string also
 		ps.setSavePath("C:\\Users\\Ryan\\Desktop\\Holding Area\\test\\");
 		
-		assertEquals(ps.getDefLocation(), "TestLoc");
-		assertEquals(ps.getOverloadLimit(), 25);
-		assertEquals(ps.getDefPriority(), 3);
-		assertEquals(ps.getReminderStatus(), true);
-		assertEquals(ps.getSavePath(), "C:\\Users\\Ryan\\Desktop\\Holding Area\\test\\");
+		assertEquals("TestLoc", ps.getDefLocation());
+		assertEquals(25, ps.getOverloadLimit());
+		assertEquals(3, ps.getDefPriority());
+		assertEquals(true, ps.getReminderStatus());
+		assertEquals("C:\\Users\\Ryan\\Desktop\\Holding Area\\test\\", ps.getSavePath());
 	}
 	
 	// unfortunately file needs to be visually inspected
@@ -75,7 +75,7 @@ public class PrefsStorageTest {
 		// to replace this string also
 		ps.setSavePath("C:\\Users\\Ryan\\Desktop\\Holding Area\\test\\");
 		
-		assertEquals(ps.savePreferences(), true);
+		assertEquals(true, ps.savePreferences());
 	}
 
 }

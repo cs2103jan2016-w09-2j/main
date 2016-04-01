@@ -1,3 +1,4 @@
+//@@author a0111101n
 package tucklife.storage;
 
 
@@ -59,8 +60,10 @@ public class Storage {
 			Task t = taskListIter.next();
 			oldToDoList.add(t);
 		}
-		oldToDoList.sort(null, true);
 		taskListIter = oldToDoList.iterator();
+		oldToDoList.sort(null, true);
+		//System.out.println(oldToDoList.display());
+		
 		while(taskListIter.hasNext()){
 			Task t = taskListIter.next();
 			if(t.getQueueID()!=-1) {
@@ -413,5 +416,13 @@ public class Storage {
 		setLimit(0);
 		toDoList = new TaskList();
 		doneList = new TaskList();
+	}
+	
+	public static TaskList getTD(){
+		return toDoList;
+	}
+	
+	public static TaskList getQ(){
+		return queueList;
 	}
 }

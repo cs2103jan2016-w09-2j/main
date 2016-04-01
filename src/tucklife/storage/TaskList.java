@@ -74,8 +74,9 @@ public class TaskList {
 				removed = task;
 			}
 		}
-		taskList.remove(removed);
-		log.log( Level.FINE, "{0} has been removed", removed.getName());
+		if (taskList.remove(removed)) {
+			log.log( Level.FINE, "{0} has been removed", removed.getName());
+		}
 		return removed;
 	}
 	

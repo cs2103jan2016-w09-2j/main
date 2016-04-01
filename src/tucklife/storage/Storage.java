@@ -35,10 +35,10 @@ public class Storage {
 	
 	private static TaskList queueList = new TaskList();
 	
-	private static ArrayList<TaskList> undoSaveState;
-	private static ArrayList<TaskList> redoSaveState;
-	
-	private static PreferenceList pf = new PreferenceList();
+	private static ArrayList<ArrayList<TaskList>> undoSaveState = new ArrayList<ArrayList<TaskList>>();
+	private static ArrayList<ArrayList<TaskList>> redoSaveState = new ArrayList<ArrayList<TaskList>>();
+
+	private static PrefsStorage pf;
 	
 	private enum COMMAND_TYPE {
 		ADD, DISPLAY, COMPLETE, DISPLAYDONE, DELETE, EDIT, INVALID, QUEUE, SETLIMIT, UNDO, REDO
@@ -51,7 +51,29 @@ public class Storage {
 	}
 
 	private static void storeUndoSaveState() {
-		undoSaveState = new ArrayList<TaskList>();
+		ArrayList<TaskList> saveState = getSaveState();
+		
+		if (undoSaveState.size() < 50) {
+			undoSaveState.add(saveState);
+		} else {
+			undoSaveState.remove(0);
+			undoSaveState.add(saveState);
+		}
+	}
+	
+	private static void storeRedoSaveState() {
+		ArrayList<TaskList> saveState = getSaveState();
+		
+		if (redoSaveState.size() < 50) {
+			redoSaveState.add(saveState);
+		} else {
+			redoSaveState.remove(0);
+			redoSaveState.add(saveState);
+		}
+	}
+
+	private static ArrayList<TaskList> getSaveState() {
+		ArrayList<TaskList> saveState = new ArrayList<TaskList>();
 		TaskList oldToDoList = new TaskList();
 		TaskList oldQueueList = new TaskList();
 		Iterator<Task> taskListIter = toDoList.iterator();
@@ -60,39 +82,6 @@ public class Storage {
 			Task t = new Task(taskListIter.next());
 			oldToDoList.add(t);
 		}
-		
-		oldToDoList.sort(null, true);
-		taskListIter = oldToDoList.iterator();
-		
-		while(taskListIter.hasNext()){
-			Task t = taskListIter.next();
-			if(t.getQueueID()!=-1) {
-				oldQueueList.add(t.getQueueID() - 1,t);
-			}
-		}
-		
-		undoSaveState.add(oldToDoList);
-		undoSaveState.add(oldQueueList);
-		
-		TaskList oldDoneList = new TaskList();
-		taskListIter = doneList.iterator();
-		while(taskListIter.hasNext()){
-			Task t = taskListIter.next();
-			oldDoneList.add(t);
-		}
-		undoSaveState.add(oldDoneList);
-	}
-	
-	private static void storeRedoSaveState() {
-		redoSaveState = new ArrayList<TaskList>();
-		TaskList oldToDoList = new TaskList();
-		TaskList oldQueueList = new TaskList();
-		Iterator<Task> taskListIter = toDoList.iterator();
-		
-		while(taskListIter.hasNext()){
-			Task t = taskListIter.next();
-			oldToDoList.add(t);
-		}
 		oldToDoList.sort(null, true);
 		taskListIter = oldToDoList.iterator();
 		while(taskListIter.hasNext()){
@@ -101,26 +90,26 @@ public class Storage {
 				oldQueueList.add(t.getQueueID() - 1,t);
 			}
 		}
-		redoSaveState.add(oldToDoList);
-		redoSaveState.add(oldQueueList);
+		saveState.add(oldToDoList);
+		saveState.add(oldQueueList);
 		
 		TaskList oldDoneList = new TaskList();
 		taskListIter = doneList.iterator();
 		while(taskListIter.hasNext()){
-			Task t = taskListIter.next();
+			Task t = new Task(taskListIter.next());
 			oldDoneList.add(t);
 		}
-		redoSaveState.add(oldDoneList);
+		saveState.add(oldDoneList);
+		return saveState;
 	}
 	
 	private static String undo() throws nothingToUndoException{
-		if (undoSaveState == null) {
+		if (undoSaveState.size() == 0) {
 			throw new nothingToUndoException();
 		}
 		storeRedoSaveState();
-		
-		restoreSaveState(undoSaveState);
-		undoSaveState = null;
+		ArrayList<TaskList> saveState = undoSaveState.remove(undoSaveState.size()-1);
+		restoreSaveState(saveState);
 		return "undone";
 	}
 
@@ -131,13 +120,12 @@ public class Storage {
 	}
 	
 	private static String redo() throws nothingToRedoException{
-		if (redoSaveState == null) {
+		if (redoSaveState.size() == 0) {
 			throw new nothingToRedoException();
 		}
 		storeUndoSaveState();
-		
-		restoreSaveState(redoSaveState);
-		redoSaveState = null;
+		ArrayList<TaskList> saveState = redoSaveState.remove(redoSaveState.size()-1);
+		restoreSaveState(saveState);
 		return "redone";
 	}
 	
@@ -161,7 +149,8 @@ public class Storage {
 				queueList.add(t);
 			}
 		}
-		pf.setLimit(db.getPrefs().getOverloadLimit());
+		//pf.setLimit(db.getPrefs().getOverloadLimit());
+		pf = db.getPrefs();
 	}
 	
 	private static COMMAND_TYPE determineCommandType(String commandTypeString) {
@@ -241,7 +230,7 @@ public class Storage {
 
 	private static void prepareForUndo() {
 		storeUndoSaveState();
-		redoSaveState = null;
+		redoSaveState.clear();
 	}
 	
 	private static String add(ProtoTask task) throws overloadException{
@@ -252,7 +241,7 @@ public class Storage {
 		}
 		toDoList.sort("$",true);
 		if(isOverloaded(newTask)) {
-			throw new overloadException(new PreferenceList().getLimit());
+			throw new overloadException(pf.getOverloadLimit());
 		}
 		
 		toDoList.add(newTask);
@@ -261,7 +250,7 @@ public class Storage {
 
 	private static boolean isOverloaded(Task newTask) {
 		
-		int limit = pf.getLimit();
+		int limit = pf.getOverloadLimit();
 		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy");
 		String newTaskDateString = newTask.isFloating() ? null : sdf.format(newTask.getEndDate().getTime());
 		return checkIsOverloaded(limit, newTaskDateString);
@@ -304,7 +293,7 @@ public class Storage {
 	private static String edit(int taskID, ProtoTask toEditTask) throws overloadException {
 		Task newTask = new Task(toEditTask);
 		if(isOverloaded(newTask)) {
-			throw new overloadException(new PreferenceList().getLimit());
+			throw new overloadException(pf.getOverloadLimit());
 		}
 		toDoList.edit(taskID, toEditTask);
 		String editedTaskDetails = toDoList.displayID(taskID);
@@ -409,9 +398,9 @@ public class Storage {
 	
 	private static String setLimit(int limit) {
 		assert limit >= 0;
-		PreferenceList.setLimit(limit);
+		pf.setOverloadLimit(limit);
 		if(limit == 0) {
-			PreferenceList.setLimit(-1);
+			pf.setOverloadLimit(-1);
 			return RETURN_MESSAGE_FOR_SETLIMIT_OFF;
 		} else if(checkIsOverloaded(limit, null)) {
 			return String.format(RETURN_MESSAGE_FOR_SETLIMIT_WHEN_ABOVE_LIMIT, limit);
@@ -424,12 +413,13 @@ public class Storage {
 	//for testing purposes only
 	public static void clear(){
 		Task.resetGlobalId();
+		pf = new PrefsStorage();
 		setLimit(0);
 		toDoList = new TaskList();
 		queueList = new TaskList();
 		doneList = new TaskList();
-		undoSaveState = null;
-		redoSaveState = null;
+		undoSaveState = new ArrayList<ArrayList<TaskList>>();
+		redoSaveState = new ArrayList<ArrayList<TaskList>>();
 	}
 	
 	public static TaskList getTD(){

@@ -134,21 +134,10 @@ public class StorageTest {
 		assertEquals("check display",s.parseCommand(ptDisplay),"2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
 		
 	}
-	/*
-	static int a = 0;
-	static int b = 0;
-	public void changeint(int c){
-		c = 5;
-	}
-	@Test
-	public void testint(){
-		changeint(a);
-		assertEquals(a,5);
-	}*/
 	
 	@Test
 	public void testQueue1() {
-		Storage.clear();
+		s.clear();
 		
 		TaskList td = Storage.getTD();
 		Task t;
@@ -185,7 +174,7 @@ public class StorageTest {
 	
 	@Test
 	public void testQueue100() {
-		Storage.clear();
+		s.clear();
 		
 		TaskList td = Storage.getTD();
 		Task t;

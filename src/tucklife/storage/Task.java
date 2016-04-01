@@ -108,7 +108,7 @@ public class Task {
 		log.log( Level.FINE, "Task has been created via ProtoTask");
 	}
 	
-	/* unsure if needed
+	/* unsure if needed*/
 	public Task(Task task){
 		//create the Task
 		this.location = task.getLocation();
@@ -121,7 +121,7 @@ public class Task {
 		this.floating = startDate == null && endDate == null; //task.isFloating();
 		this.id = task.getId();	
 		this.queueID = task.getQueueID();
-	}*/
+	}//*/
 	
 	protected Task edit(ProtoTask task){
 		//edit task

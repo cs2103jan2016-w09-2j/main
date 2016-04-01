@@ -57,12 +57,12 @@ public class Storage {
 		Iterator<Task> taskListIter = toDoList.iterator();
 		
 		while(taskListIter.hasNext()){
-			Task t = taskListIter.next();
+			Task t = new Task(taskListIter.next());
 			oldToDoList.add(t);
 		}
-		taskListIter = oldToDoList.iterator();
+		
 		oldToDoList.sort(null, true);
-		//System.out.println(oldToDoList.display());
+		taskListIter = oldToDoList.iterator();
 		
 		while(taskListIter.hasNext()){
 			Task t = taskListIter.next();
@@ -326,6 +326,7 @@ public class Storage {
 			Task deletedTask = toDoList.delete(taskID);
 			if(queueList.contains(taskID)) {
 				queueList.delete(taskID);
+				updateQueueIDs(0, 0);
 			}
 			return String.format(RETURN_MESSAGE_FOR_DELETE, deletedTask.displayAll());
 		} else {
@@ -379,21 +380,26 @@ public class Storage {
 				}
 			}
 			
-			Iterator<Task> qIter = queueList.iterator();
-			int count = 1;
-			while(qIter.hasNext()) {
-				Task t = qIter.next();
-				t.setQueueID(count);
-				if(t.getId() == taskID) {
-					pos = t.getQueueID();
-				}
-				count++;
-			}
+			pos = updateQueueIDs(taskID, pos);
 				
 			return String.format(RETURN_MESSAGE_FOR_QUEUE, qTask.displayAll(), pos);
 		} else {
 			return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID, taskID);
 		}
+	}
+
+	private static int updateQueueIDs(int taskID, int pos) {
+		Iterator<Task> qIter = queueList.iterator();
+		int count = 1;
+		while(qIter.hasNext()) {
+			Task t = qIter.next();
+			t.setQueueID(count);
+			if(t.getId() == taskID) {
+				pos = t.getQueueID();
+			}
+			count++;
+		}
+		return pos;
 	}
 	
 	private static String setLimit(int limit) {
@@ -415,7 +421,10 @@ public class Storage {
 		Task.resetGlobalId();
 		setLimit(0);
 		toDoList = new TaskList();
+		queueList = new TaskList();
 		doneList = new TaskList();
+		undoSaveState = null;
+		redoSaveState = null;
 	}
 	
 	public static TaskList getTD(){

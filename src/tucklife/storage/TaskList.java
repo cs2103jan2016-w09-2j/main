@@ -6,9 +6,20 @@ import java.util.Iterator;
 
 import tucklife.parser.ProtoTask;
 
+
 public class TaskList {
 
 	private ArrayList<Task> taskList;
+	
+	private static final String HEADER_ID = "ID";
+	private static final String HEADER_NAME = "Name";
+	private static final String HEADER_LOCATION = "Location";
+	private static final String HEADER_CATEGORY = "Category";
+	private static final String HEADER_PRIORITY = "Priority";
+	private static final String HEADER_DEADLINE = "By";
+	private static final String HEADER_ADDITIONAL = "Additional";
+	private static final String HEADER_EVENT_START = "From";
+	private static final String HEADER_EVENT_END = " To";
 	
 	public TaskList() {		
 		taskList = new ArrayList<Task>();
@@ -36,6 +47,7 @@ public class TaskList {
 	
 	protected String display() {
 		StringBuilder sb = new StringBuilder();
+		
 		for (Task task:taskList) {
 			sb.append(task.display());
 			sb.append("\n");

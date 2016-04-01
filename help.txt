@@ -6,6 +6,7 @@ date,$<deadline/date range>,Date Field,The date that the task occurs on or its s
 time,+<deadline time/time range>,The time that the task occurs or the start and end time
 category,#<category>,The category you want to give the task
 additional,&<Additional Information>,Any extra information you want to include
+separator,===================================================================================, 
 functions start,List of functions, 
 add,add <task desc> <--optional attributes-->,Adds task with given description and attributes
 edit,edit <id> <new task desc> <--optional attributes-->,Edits task to contain new attributes

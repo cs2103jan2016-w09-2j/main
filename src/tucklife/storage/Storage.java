@@ -4,11 +4,14 @@ package tucklife.storage;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 import tucklife.parser.ProtoTask;
 import tucklife.storage.TaskList;
 
 public class Storage {
+	
+	private static final Logger log = Logger.getLogger( Storage.class.getName() );
 	
 	private static final String RETURN_MESSAGE_FOR_ADD = "{%1$s} has been added to TuckLife's to-do list!";
 	private static final String RETURN_MESSAGE_FOR_EDIT = "{%1$s} has been edited in TuckLife's to-do list!";
@@ -361,14 +364,9 @@ public class Storage {
 				flag = true;
 			}
 			if(queueList.contains(taskID)) {
-				int qID = queueList.get(taskID).getQueueID();
-				if(qID>=pos) {
-					queueList.delete(taskID);
-					queueList.add(pos-1,qTask);
-				} else {
-					queueList.delete(taskID);
-					queueList.add(pos-2,qTask);
-				}
+				
+				queueList.delete(taskID);
+				queueList.add(pos-1,qTask);
 				
 			} else {
 				if(flag) {

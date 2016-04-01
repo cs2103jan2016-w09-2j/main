@@ -2,6 +2,8 @@ package tucklife.storage;
 
 import static org.junit.Assert.*;
 
+import java.util.Hashtable;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -9,12 +11,21 @@ import tucklife.parser.Parser;
 import tucklife.parser.ProtoTask;
 
 public class StorageTest {
-
+	
+	Parser p;
+	Storage s;
+	
+	@Before
+	public void setUp() throws Exception {
+		p = new Parser();
+		s = new Storage();
+		Hashtable<String,String> ht = new Hashtable<String,String>();
+		p.loadCommands(ht);
+	}
+	
 	@Test
 	public void testSortLocation() {
-		Storage s1 = new Storage();
 		Storage.clear();
-		Parser p = new Parser();
 		
 		ProtoTask pt1 = p.parse("add meeting @as4-mr3");
 		ProtoTask pt2 = p.parse("add staff retreat @sentosa");
@@ -22,22 +33,20 @@ public class StorageTest {
 		
 		ProtoTask pt4 = p.parse("display");
 		
-		s1.parseCommand(pt1);
-		s1.parseCommand(pt2);
-		s1.parseCommand(pt3);
-		assertEquals("not sorted",s1.parseCommand(pt4),"3. interview intern\n1. meeting | Location: as4-mr3\n2. staff retreat | Location: sentosa\n");
+		s.parseCommand(pt1);
+		s.parseCommand(pt2);
+		s.parseCommand(pt3);
+		assertEquals("not sorted",s.parseCommand(pt4),"3. interview intern\n1. meeting | Location: as4-mr3\n2. staff retreat | Location: sentosa\n");
 		
 		ProtoTask pt5 = p.parse("display +@");
-		assertEquals("sorted ascending",s1.parseCommand(pt5),"1. meeting | Location: as4-mr3\n2. staff retreat | Location: sentosa\n3. interview intern\n");
+		assertEquals("sorted ascending",s.parseCommand(pt5),"1. meeting | Location: as4-mr3\n2. staff retreat | Location: sentosa\n3. interview intern\n");
 		ProtoTask pt6 = p.parse("display -@");
-		assertEquals("sorted descending",s1.parseCommand(pt6),"3. interview intern\n2. staff retreat | Location: sentosa\n1. meeting | Location: as4-mr3\n");
+		assertEquals("sorted descending",s.parseCommand(pt6),"3. interview intern\n2. staff retreat | Location: sentosa\n1. meeting | Location: as4-mr3\n");
 	}
 	
 	@Test
 	public void testOverload() {
-		Storage s = new Storage();
 		Storage.clear();
-		Parser p = new Parser();
 		
 		ProtoTask pt1 = p.parse("add meeting @meeting room 7 $16/05 +1400");
 		ProtoTask pt2 = p.parse("add staff retreat @botanic gardens $16/05 +0500");
@@ -59,9 +68,7 @@ public class StorageTest {
 	
 	@Test
 	public void testUndo() {
-		Storage s = new Storage();
 		Storage.clear();
-		Parser p = new Parser();
 		
 		ProtoTask pt1 = p.parse("add meeting @meeting room 7");
 		ProtoTask pt2 = p.parse("add staff retreat @botanic gardens $tomorrow +0500");
@@ -81,9 +88,6 @@ public class StorageTest {
 	
 	@Test
 	public void testRedo() {
-		Storage s = new Storage();
-		Storage.clear();
-		Parser p = new Parser();
 		
 		ProtoTask pt1 = p.parse("add meeting @meeting room 7");
 		ProtoTask pt2 = p.parse("add staff retreat @botanic gardens $tomorrow +0500");
@@ -109,9 +113,7 @@ public class StorageTest {
 	
 	@Test
 	public void testQueue() {
-		Storage s = new Storage();
 		Storage.clear();
-		Parser p = new Parser();
 		
 		ProtoTask pt1 = p.parse("add meeting @meeting room 7");
 		ProtoTask pt2 = p.parse("add staff retreat @botanic gardens $16/05 +0500");

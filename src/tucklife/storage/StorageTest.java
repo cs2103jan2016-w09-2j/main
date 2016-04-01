@@ -670,6 +670,52 @@ public class StorageTest {
 		s.parseCommand(pt14);
 		assertEquals("queue id of completed is updated to default", -1, t.getQueueID());
 	}
+	
+	@Test
+	public void testQueueWithUndo() {
+		s.clear();
+		
+		TaskList td = s.getTD();
+		Task t;
+		
+		ProtoTask pt1 = p.parse("add meeting @meeting room 7");
+		ProtoTask pt2 = p.parse("add staff retreat @botanic gardens $16/05 +0500");
+		ProtoTask pt3 = p.parse("add interview intern @mr5 $13/12/16");
+		ProtoTask pt4 = p.parse("add financial report $01/05/16");
+		ProtoTask pt5 = p.parse("add client meeting $09/05/16");
+		ProtoTask pt6 = p.parse("add payday $05/05/16");
+		ProtoTask pt7 = p.parse("add email boss $15/05");
+		
+		ProtoTask ptDisplay = p.parse("display");
+		
+		s.parseCommand(pt1);
+		s.parseCommand(pt2);
+		s.parseCommand(pt3);
+		s.parseCommand(pt4);
+		s.parseCommand(pt5);
+		s.parseCommand(pt6);
+		s.parseCommand(pt7);
+		
+		assertEquals("check normal display without queue",s.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
+		
+		ProtoTask pt8 = p.parse("queue 4");
+		ProtoTask pt9 = p.parse("queue 6");
+		ProtoTask pt10 = p.parse("queue 5");
+		ProtoTask pt11 = p.parse("queue 7 1");
+		ProtoTask pt12 = p.parse("queue 2 2");
+		ProtoTask ptUndo = p.parse("undo");
+		s.parseCommand(pt8);
+		s.parseCommand(pt9);
+		s.parseCommand(pt10);
+		s.parseCommand(pt11);
+		s.parseCommand(pt12);
+		t = td.get(4);
+		assertEquals("correct id", 3, t.getQueueID());
+		s.parseCommand(ptUndo);
+		td = s.getTD();
+		t = td.get(6);
+		assertEquals("correct id", 3, t.getQueueID());
+	}
 
 	
 }

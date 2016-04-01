@@ -30,10 +30,10 @@ public class Storage {
 	private static final String RETURN_MESSAGE_FOR_NOTHING_TO_UNDO = "There is no previous action to undo!";
 	private static final String RETURN_MESSAGE_FOR_NOTHING_TO_REDO = "There is no previous action to redo!";
 	
-	private static TaskList toDoList = new TaskList();
-	private static TaskList doneList = new TaskList();
+	private static TaskList toDoList;
+	private static TaskList doneList;
 	
-	private static TaskList queueList = new TaskList();
+	private static TaskList queueList;
 	
 	private static ArrayList<ArrayList<TaskList>> undoSaveState = new ArrayList<ArrayList<TaskList>>();
 	private static ArrayList<ArrayList<TaskList>> redoSaveState = new ArrayList<ArrayList<TaskList>>();
@@ -74,33 +74,40 @@ public class Storage {
 
 	private static ArrayList<TaskList> getSaveState() {
 		ArrayList<TaskList> saveState = new ArrayList<TaskList>();
-		TaskList oldToDoList = new TaskList();
-		TaskList oldQueueList = new TaskList();
-		Iterator<Task> taskListIter = toDoList.iterator();
 		
-		while(taskListIter.hasNext()){
-			Task t = new Task(taskListIter.next());
-			oldToDoList.add(t);
-		}
-		oldToDoList.sort(null, true);
-		taskListIter = oldToDoList.iterator();
-		while(taskListIter.hasNext()){
-			Task t = taskListIter.next();
-			if(t.getQueueID()!=-1) {
-				oldQueueList.add(t.getQueueID() - 1,t);
-			}
-		}
+		TaskList oldToDoList = duplicateTaskList(toDoList);
+		TaskList oldQueueList = getQueueListFromToDoList(oldToDoList);
+		
 		saveState.add(oldToDoList);
 		saveState.add(oldQueueList);
 		
-		TaskList oldDoneList = new TaskList();
-		taskListIter = doneList.iterator();
-		while(taskListIter.hasNext()){
-			Task t = new Task(taskListIter.next());
-			oldDoneList.add(t);
-		}
+		TaskList oldDoneList = duplicateTaskList(doneList);
+		
 		saveState.add(oldDoneList);
 		return saveState;
+	}
+
+	private static TaskList getQueueListFromToDoList(TaskList oldToDoList) {
+		oldToDoList.sort(null, true);
+		TaskList oldQueueList = new TaskList();
+		Iterator<Task> taskListIter = oldToDoList.iterator();
+		while(taskListIter.hasNext()){
+			Task t = taskListIter.next();
+			if(t.getQueueID()!=-1) {
+				oldQueueList.add(t);
+			}
+		}
+		return oldQueueList;
+	}
+
+	private static TaskList duplicateTaskList(TaskList originalList) {
+		TaskList duplicateList = new TaskList();
+		Iterator<Task> taskListIter = originalList.iterator();
+		while(taskListIter.hasNext()){
+			Task t = new Task(taskListIter.next());
+			duplicateList.add(t);
+		}
+		return duplicateList;
 	}
 	
 	private static String undo() throws nothingToUndoException{
@@ -141,15 +148,7 @@ public class Storage {
 		TaskList[] loadList = db.getLists();
 		toDoList = loadList[0];
 		doneList = loadList[1];
-		toDoList.sort(null, true);
-		Iterator<Task> iter = toDoList.iterator();
-		while(iter.hasNext()){
-			Task t = iter.next();
-			if(t.getQueueID()!=-1){
-				queueList.add(t);
-			}
-		}
-		//pf.setLimit(db.getPrefs().getOverloadLimit());
+		queueList = getQueueListFromToDoList(toDoList);
 		pf = db.getPrefs();
 	}
 	

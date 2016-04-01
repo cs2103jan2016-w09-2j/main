@@ -98,8 +98,8 @@ public class Task {
 		this.startDate = task.getStartDate();
 		this.endDate = task.getEndDate();
 		this.floating = startDate == null && endDate == null; //task.isFloating();
-		this.id = globalID;	
-		this.queueID = -1;
+		this.id = globalID;
+		this.queueID = task.getPosition();
 		globalID++;
 	}
 	

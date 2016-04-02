@@ -1,3 +1,4 @@
+// @@author A0127835Y
 package tucklife.parser;
 
 import java.util.Calendar;
@@ -9,14 +10,14 @@ import java.text.SimpleDateFormat;
  * Supported date formats:
  * - Text dates:
  *   - Both short month names (jan, feb) and full month names (january, february)
- *   - ddmmm or ddmmmyy or ddmmmyyyy
- *   - dd mmm or dd mmm yy or dd mmm yyyy
- *   - dd-mmm or dd-mmm-yy or dd-mmm-yyyy
+ *   - ddmmm or ddmmmyy or ddmmmyyyy (15jan)
+ *   - dd mmm or dd mmm yy or dd mmm yyyy (15 jan)
+ *   - dd-mmm or dd-mmm-yy or dd-mmm-yyyy (15-jan)
  *   
  * - Number dates:
- *   - dd/mm or dd/mm/yy or dd/mm/yyyy
- *   - dd.mm or dd.mm.yy or dd.mm.yyyy
- *   - dd-mm or dd-mm-yy or dd-mm-yyyy
+ *   - dd/mm or dd/mm/yy or dd/mm/yyyy (15/1)
+ *   - dd.mm or dd.mm.yy or dd.mm.yyyy (15.1)
+ *   - dd-mm or dd-mm-yy or dd-mm-yyyy (15-1)
  *   
  * - Others
  *   - today
@@ -61,8 +62,6 @@ public class DateParser {
 	// Hour and minutes parsed from user-entered time
 	private int timeHour;
 	private int timeMin;
-	
-	private final String MESSAGE_DATE_PASSED = "date has passed. You can't travel back in time!";
 	
 	/* ***************
 	 * Date formats *
@@ -154,215 +153,184 @@ public class DateParser {
 		return calendar;
 	}
 	
-	public Calendar parseDate(String rawDate, String rawTime) throws InvalidDateException {
+	public Calendar parseDate(String rawDate) throws InvalidDateException {
+		calendar = Calendar.getInstance();
+		if (rawDate.equalsIgnoreCase("today")) {
+			return calendar;
+		} else if (rawDate.equalsIgnoreCase("tomorrow") || rawDate.equalsIgnoreCase("tmr")) {
+			calendar.add(Calendar.DATE, 1);
+			return calendar;
+		} else {
+			SimpleDateFormat sdf;
+			
+			/* ***********************
+			 * Variations of dd mm yy *
+			 *************************/
+			if (rawDate.matches(DATE_DMY_SLASH)) {
+				sdf = new SimpleDateFormat("dd/M/yy");
+				hasYear = true;
+			} else if (rawDate.matches(DATE_DMY_DOT)) {
+				sdf = new SimpleDateFormat("dd.M.yy");
+				hasYear = true;
+			} else if (rawDate.matches(DATE_DMY_DASH)) {
+				sdf = new SimpleDateFormat("dd-M-yy");
+				hasYear = true;
+			
+			/* ********************
+			 * Variations of dd mm *
+			 **********************/ 
+			} else if (rawDate.matches(DATE_DM_SLASH)) {
+				rawDate += "/" + calendar.get(Calendar.YEAR);
+				sdf = new SimpleDateFormat("dd/M/yy");
+			} else if (rawDate.matches(DATE_DM_DOT)) {
+				rawDate += "." + calendar.get(Calendar.YEAR);
+				sdf = new SimpleDateFormat("dd.M.yy");
+			} else if (rawDate.matches(DATE_DM_DASH)) {
+				rawDate += "-" + calendar.get(Calendar.YEAR);
+				sdf = new SimpleDateFormat("dd-M-yy");
+			
+			/* ***************************************
+			 * Variations of dd mmm yy (short month) *
+			 *****************************************/
+			} else if (rawDate.matches(DATE_SHORT_DMY)) {
+				sdf = new SimpleDateFormat("ddMMMyy");
+				hasYear = true;
+			} else if (rawDate.matches(DATE_SHORT_DMY_SPACE)) {
+				sdf = new SimpleDateFormat("dd MMM yy");
+				hasYear = true;
+			} else if (rawDate.matches(DATE_SHORT_DMY_DASH)) {
+				sdf = new SimpleDateFormat("dd-MMM-yy");
+				hasYear = true;
+			
+			/* ************************************
+			 * Variations of dd mmm (short month) *
+			 **************************************/
+			} else if (rawDate.matches(DATE_SHORT_DM)) {
+				rawDate += calendar.get(Calendar.YEAR);
+				sdf = new SimpleDateFormat("ddMMMyy");
+			} else if (rawDate.matches(DATE_SHORT_DM_SPACE)) {
+				rawDate += " " + calendar.get(Calendar.YEAR);
+				sdf = new SimpleDateFormat("dd MMM yy");
+			} else if (rawDate.matches(DATE_SHORT_DM_DASH)) {
+				rawDate += "-" + calendar.get(Calendar.YEAR);
+				sdf = new SimpleDateFormat("dd-MMM-yy");
+				
+			/* ***************************************
+			 * Variations of dd mmmm yy (long month) *
+			 *****************************************/
+			} else if (rawDate.matches(DATE_FULL_DMY)) {
+				sdf = new SimpleDateFormat("ddMMMMyy");
+				hasYear = true;
+			} else if (rawDate.matches(DATE_FULL_DMY_SPACE)) {
+				sdf = new SimpleDateFormat("dd MMMM yy");
+				hasYear = true;
+			} else if (rawDate.matches(DATE_FULL_DMY_DASH)) {
+				sdf = new SimpleDateFormat("dd-MMMM-yy");
+				hasYear = true;
+				
+			/* ************************************
+			 * Variations of dd mmmm (long month) *
+			 **************************************/
+			} else if (rawDate.matches(DATE_FULL_DM)) {
+				rawDate += calendar.get(Calendar.YEAR);
+				sdf = new SimpleDateFormat("ddMMMMyy");
+			} else if (rawDate.matches(DATE_FULL_DM_SPACE)) {
+				rawDate += " " + calendar.get(Calendar.YEAR);
+				sdf = new SimpleDateFormat("dd MMMM yy");
+			} else if (rawDate.matches(DATE_FULL_DM_DASH)) {
+				rawDate += "-" + calendar.get(Calendar.YEAR);
+				sdf = new SimpleDateFormat("dd-MMMM-yy");
+				
+			// Unrecognised date
+			} else {
+				throw new InvalidDateException("invalid date");
+			}
+
+			sdf.setLenient(false);
+			
+			try {
+				Date date = sdf.parse(rawDate);
+				calendar.setTime(date);
+				
+				if (!hasYear && isPastDate()) {
+					calendar.add(Calendar.YEAR, 1);
+				}
+				
+				return calendar;
+			} catch (ParseException e) {
+				throw new InvalidDateException("invalid date");
+			}				
+		}
+	}
+	
+	public Calendar parseTime(String rawTime) throws InvalidDateException {
 		calendar = Calendar.getInstance();
 		is12Hour = false;
 		
-		if (rawTime.isEmpty()) {
-			timeHour = 23;
-			timeMin = 59;
+		/* ****************************
+		 * Variations of 12-hour time *
+		 ******************************/
+		if (rawTime.matches(TIME_12HM_DOT)) {
+			int dotPos = rawTime.indexOf(".");
+			timeHour = Integer.parseInt(rawTime.substring(0, dotPos));
+			timeMin = Integer.parseInt(rawTime.substring(dotPos + 1, dotPos + 3));
+			is12Hour = true;
+		} else if (rawTime.matches(TIME_12HM_COLON)) {
+			int colonPos = rawTime.indexOf(":");
+			timeHour = Integer.parseInt(rawTime.substring(0, colonPos));
+			timeMin = Integer.parseInt(rawTime.substring(colonPos + 1, colonPos + 3));
+			is12Hour = true;
+		} else if (rawTime.matches(TIME_12H)) {
+			timeHour = Integer.parseInt(rawTime.split("\\s?[aApP]")[0]);
+			timeMin = 0;
+			is12Hour = true;
+			
+		/* ****************************
+		 * Variations of 24-hour time *
+		 ******************************/
+		} else if (rawTime.matches(TIME_24H_DOT)) {
+			int dotPos = rawTime.indexOf(".");
+			timeHour = Integer.parseInt(rawTime.substring(0, dotPos));
+			timeMin = Integer.parseInt(rawTime.substring(dotPos + 1, dotPos + 3));
+		} else if (rawTime.matches(TIME_24H_COLON)) {
+			int colonPos = rawTime.indexOf(":");
+			timeHour = Integer.parseInt(rawTime.substring(0, colonPos));
+			timeMin = Integer.parseInt(rawTime.substring(colonPos + 1, colonPos + 3));
+		} else if (rawTime.matches(TIME_24H)) {
+			timeHour = Integer.parseInt(rawTime.substring(0, 2));
+			timeMin = Integer.parseInt(rawTime.substring(2, rawTime.length()));
+			
+		// Unrecognised time
 		} else {
-			/* ****************************
-			 * Variations of 12-hour time *
-			 ******************************/
-			if (rawTime.matches(TIME_12HM_DOT)) {
-				int dotPos = rawTime.indexOf(".");
-				timeHour = Integer.parseInt(rawTime.substring(0, dotPos));
-				timeMin = Integer.parseInt(rawTime.substring(dotPos + 1, dotPos + 3));
-				is12Hour = true;
-			} else if (rawTime.matches(TIME_12HM_COLON)) {
-				int colonPos = rawTime.indexOf(":");
-				timeHour = Integer.parseInt(rawTime.substring(0, colonPos));
-				timeMin = Integer.parseInt(rawTime.substring(colonPos + 1, colonPos + 3));
-				is12Hour = true;
-			} else if (rawTime.matches(TIME_12H)) {
-				timeHour = Integer.parseInt(rawTime.split("\\s?[aApP]")[0]);
-				timeMin = 0;
-				is12Hour = true;
-				
-			/* ****************************
-			 * Variations of 24-hour time *
-			 ******************************/
-			} else if (rawTime.matches(TIME_24H_DOT)) {
-				int dotPos = rawTime.indexOf(".");
-				timeHour = Integer.parseInt(rawTime.substring(0, dotPos));
-				timeMin = Integer.parseInt(rawTime.substring(dotPos + 1, dotPos + 3));
-			} else if (rawTime.matches(TIME_24H_COLON)) {
-				int colonPos = rawTime.indexOf(":");
-				timeHour = Integer.parseInt(rawTime.substring(0, colonPos));
-				timeMin = Integer.parseInt(rawTime.substring(colonPos + 1, colonPos + 3));
-			} else if (rawTime.matches(TIME_24H)) {
-				timeHour = Integer.parseInt(rawTime.substring(0, 2));
-				timeMin = Integer.parseInt(rawTime.substring(2, rawTime.length()));
-				
-			// Unrecognised time
-			} else {
-				throw new InvalidDateException("invalid time");
-			}
-			
-			if (is12Hour) {
-				// Check if time is valid
-				if (timeHour == 0) {
-					throw new InvalidDateException("invalid time");
-				}
-				
-				// Conversion to 24-hour time
-				if (isPm(rawTime)) {
-					if (timeHour != 12) {
-						timeHour += 12;
-					}
-				} else {
-					if (timeHour == 12) {
-						timeHour = 0;
-					}
-				}
-			}
-			
+			throw new InvalidDateException("invalid time");
+		}
+		
+		// Conversion to 24-hour time
+		if (is12Hour) {
 			// Check if time is valid
-			if (timeHour > 23) {
+			if (timeHour == 0) {
 				throw new InvalidDateException("invalid time");
+			}
+			
+			if (isPm(rawTime)) {
+				if (timeHour != 12) {
+					timeHour += 12;
+				}
+			} else {
+				if (timeHour == 12) {
+					timeHour = 0;
+				}
 			}
 		}
 		
-		if (rawDate.isEmpty()) {
-			setTime();
-			
-			if (isPastTime()) {
-				calendar.add(Calendar.DATE, 1);
-			}
-
-			if (hasDatePassed()) {
-				throw new InvalidDateException(MESSAGE_DATE_PASSED);
-			} else {
-				return calendar;
-			}
-		} else {
-			if (rawDate.equalsIgnoreCase("today")) {
-				setTime();
-				
-				if (hasDatePassed()) {
-					throw new InvalidDateException(MESSAGE_DATE_PASSED);
-				} else {
-					return calendar;
-				}
-			} else if (rawDate.equalsIgnoreCase("tomorrow") || rawDate.equalsIgnoreCase("tmr")) {
-				calendar.add(Calendar.DATE, 1);
-				setTime();
-				
-				if (hasDatePassed()) {
-					throw new InvalidDateException(MESSAGE_DATE_PASSED);
-				} else {
-					return calendar;
-				}
-			} else {
-				SimpleDateFormat sdf;
-				
-				/* ***********************
-				 * Variations of dd mm yy *
-				 *************************/
-				if (rawDate.matches(DATE_DMY_SLASH)) {
-					sdf = new SimpleDateFormat("dd/M/yy");
-					hasYear = true;
-				} else if (rawDate.matches(DATE_DMY_DOT)) {
-					sdf = new SimpleDateFormat("dd.M.yy");
-					hasYear = true;
-				} else if (rawDate.matches(DATE_DMY_DASH)) {
-					sdf = new SimpleDateFormat("dd-M-yy");
-					hasYear = true;
-				
-				/* ********************
-				 * Variations of dd mm *
-				 **********************/ 
-				} else if (rawDate.matches(DATE_DM_SLASH)) {
-					rawDate += "/" + calendar.get(Calendar.YEAR);
-					sdf = new SimpleDateFormat("dd/M/yy");
-				} else if (rawDate.matches(DATE_DM_DOT)) {
-					rawDate += "." + calendar.get(Calendar.YEAR);
-					sdf = new SimpleDateFormat("dd.M.yy");
-				} else if (rawDate.matches(DATE_DM_DASH)) {
-					rawDate += "-" + calendar.get(Calendar.YEAR);
-					sdf = new SimpleDateFormat("dd-M-yy");
-				
-				/* ***************************************
-				 * Variations of dd mmm yy (short month) *
-				 *****************************************/
-				} else if (rawDate.matches(DATE_SHORT_DMY)) {
-					sdf = new SimpleDateFormat("ddMMMyy");
-					hasYear = true;
-				} else if (rawDate.matches(DATE_SHORT_DMY_SPACE)) {
-					sdf = new SimpleDateFormat("dd MMM yy");
-					hasYear = true;
-				} else if (rawDate.matches(DATE_SHORT_DMY_DASH)) {
-					sdf = new SimpleDateFormat("dd-MMM-yy");
-					hasYear = true;
-				
-				/* ************************************
-				 * Variations of dd mmm (short month) *
-				 **************************************/
-				} else if (rawDate.matches(DATE_SHORT_DM)) {
-					rawDate += calendar.get(Calendar.YEAR);
-					sdf = new SimpleDateFormat("ddMMMyy");
-				} else if (rawDate.matches(DATE_SHORT_DM_SPACE)) {
-					rawDate += " " + calendar.get(Calendar.YEAR);
-					sdf = new SimpleDateFormat("dd MMM yy");
-				} else if (rawDate.matches(DATE_SHORT_DM_DASH)) {
-					rawDate += "-" + calendar.get(Calendar.YEAR);
-					sdf = new SimpleDateFormat("dd-MMM-yy");
-					
-				/* ***************************************
-				 * Variations of dd mmmm yy (long month) *
-				 *****************************************/
-				} else if (rawDate.matches(DATE_FULL_DMY)) {
-					sdf = new SimpleDateFormat("ddMMMMyy");
-					hasYear = true;
-				} else if (rawDate.matches(DATE_FULL_DMY_SPACE)) {
-					sdf = new SimpleDateFormat("dd MMMM yy");
-					hasYear = true;
-				} else if (rawDate.matches(DATE_FULL_DMY_DASH)) {
-					sdf = new SimpleDateFormat("dd-MMMM-yy");
-					hasYear = true;
-					
-				/* ************************************
-				 * Variations of dd mmmm (long month) *
-				 **************************************/
-				} else if (rawDate.matches(DATE_FULL_DM)) {
-					rawDate += calendar.get(Calendar.YEAR);
-					sdf = new SimpleDateFormat("ddMMMMyy");
-				} else if (rawDate.matches(DATE_FULL_DM_SPACE)) {
-					rawDate += " " + calendar.get(Calendar.YEAR);
-					sdf = new SimpleDateFormat("dd MMMM yy");
-				} else if (rawDate.matches(DATE_FULL_DM_DASH)) {
-					rawDate += "-" + calendar.get(Calendar.YEAR);
-					sdf = new SimpleDateFormat("dd-MMMM-yy");
-					
-				// Unrecognised date
-				} else {
-					throw new InvalidDateException("invalid date");
-				}
-
-				sdf.setLenient(false);
-				
-				try {
-					Date date = sdf.parse(rawDate);
-					calendar.setTime(date);
-					
-					if (!hasYear && isPastDate()) {
-						calendar.add(Calendar.YEAR, 1);
-					}
-
-					// Set time
-					setTime();
-					
-					if (hasDatePassed()) {
-						throw new InvalidDateException(MESSAGE_DATE_PASSED);
-					} else {
-						return calendar;
-					}
-				} catch (ParseException e) {
-					throw new InvalidDateException("invalid date");
-				}				
-			}
+		// Check if time is valid
+		if (timeHour > 23) {
+			throw new InvalidDateException("invalid time");
 		}
+		
+		calendar.set(Calendar.HOUR_OF_DAY, timeHour);
+		calendar.set(Calendar.MINUTE, timeMin);
+		return calendar;
 	}
 	
 	// Check if date entered has passed for current year
@@ -371,12 +339,7 @@ public class DateParser {
 		c.add(Calendar.DATE, -1);
 		return calendar.before(c);
 	}
-	
-	// Check if time entered has passed for today
-	private boolean isPastTime() {
-		Calendar c = Calendar.getInstance();
-		return calendar.before(c);
-	}
+
 	
 	// Check if time of day is am or pm
 	private boolean isPm(String time) {
@@ -384,14 +347,53 @@ public class DateParser {
 		return timeOfDay.equalsIgnoreCase("pm");
 	}
 	
-	// Set the time for calendar
-	private void setTime() {
-		calendar.set(Calendar.HOUR_OF_DAY, timeHour);
-		calendar.set(Calendar.MINUTE, timeMin);
+	// Check if date has passed
+	public boolean hasDatePassed(Calendar date, Calendar time) {
+		Calendar curr = Calendar.getInstance();
+		Calendar combined = combineDateTime(date, time);
+		return combined.before(curr);
 	}
 	
-	private boolean hasDatePassed() {
+	// Combines date and time into a single Calendar
+	private Calendar combineDateTime(Calendar date, Calendar time) {
 		Calendar c = Calendar.getInstance();
-		return calendar.before(c);
+		
+		c.set(Calendar.YEAR, date.get(Calendar.YEAR));
+		c.set(Calendar.MONTH, date.get(Calendar.MONTH));
+		c.set(Calendar.DATE, date.get(Calendar.DATE));
+		
+		c.set(Calendar.HOUR_OF_DAY, time.get(Calendar.HOUR_OF_DAY));
+		c.set(Calendar.MINUTE, time.get(Calendar.MINUTE));
+		
+		return c;
+	}
+	
+	public Calendar getDefaultStartTime() {
+		Calendar c = Calendar.getInstance();
+		
+		c.set(Calendar.HOUR_OF_DAY, 0);
+		c.set(Calendar.MINUTE, 0);
+		
+		return c;
+	}
+	
+	public Calendar getDefaultEndTime() {
+		Calendar c = Calendar.getInstance();
+		
+		c.set(Calendar.HOUR_OF_DAY, 23);
+		c.set(Calendar.MINUTE, 59);
+		
+		return c;
+	}
+	
+	public Calendar getDefaultDate() {
+		return Calendar.getInstance();
+	}
+	
+	public Calendar getNextDay(Calendar c) {
+		Calendar next = c;
+		next.add(Calendar.DATE, 1);
+		
+		return next;
 	}
 }

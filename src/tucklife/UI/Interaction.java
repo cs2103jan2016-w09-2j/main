@@ -7,8 +7,8 @@ import tucklife.storage.Storage;
 public class Interaction {
 
 	private static final String MESSAGE_COMMAND_PROMPT = "Input command >>> ";
-	private static final String MESSAGE_WELCOME = "===============================\n|  Welcome to Tucklife! :)  |\n" 
-			+ "| Type help to get started. |\n===============================\n";
+	private static final String MESSAGE_WELCOME = "=============================\n|  Welcome to Tucklife! :)  |\n" 
+			+ "| Type help to get started. |\n=============================\n";
 
 	private static Scanner sc = new Scanner(System.in);
 	private static FlowController fc = new FlowController();

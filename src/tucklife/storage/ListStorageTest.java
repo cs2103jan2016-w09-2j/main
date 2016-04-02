@@ -10,7 +10,7 @@ public class ListStorageTest {
 	private ListStorage todo, done;
 	private TaskList todoList, doneList;
 	
-	private static final String TEST_PATH = "C:\\Users\\Ryan\\Desktop\\Holding Area\\test\\";
+	private static final String TEST_PATH = "test\\";
 	public static final String FILENAME_TODO = "todo.txt";
 	public static final String FILENAME_DONE = "done.txt";
 	
@@ -33,8 +33,8 @@ public class ListStorageTest {
 	@Test
 	public void taskTest(){
 		
-		// todo list should have seven tasks as test file has seven tasks
-		// task5, 4, 11, 8, 6, 7, 3
+		// todo list should have eight tasks as test file has seven tasks
+		// task5, 4, 11, 8, 6, 7, 3, 12
 		
 		assertEquals(true, todoList.contains(1));
 		assertEquals(true, todoList.contains(2));
@@ -43,20 +43,21 @@ public class ListStorageTest {
 		assertEquals(true, todoList.contains(5));
 		assertEquals(true, todoList.contains(6));
 		assertEquals(true, todoList.contains(7));
+		assertEquals(true, todoList.contains(8));
 			
-		// done list should have four tasks - task1, task9, task2 and task10
-		assertEquals(true, doneList.contains(8));
+		// done list should have four tasks - task1, task9, task2, task10
 		assertEquals(true, doneList.contains(9));
 		assertEquals(true, doneList.contains(10));
 		assertEquals(true, doneList.contains(11));
+		assertEquals(true, doneList.contains(12));
 		
 		// first task type - no parameters
-		String task = doneList.displayID(8);
-		assertEquals("8. task1", task);
+		String task = doneList.displayID(9);
+		assertEquals("9. task1", task);
 		
 		// second task type - location parameter
-		task = doneList.displayID(10);
-		assertEquals("10. task2 | Location: loc2", task);
+		task = doneList.displayID(11);
+		assertEquals("11. task2 | Location: loc2", task);
 		
 		// third task type - priority parameter
 		task = todoList.displayID(7);
@@ -83,12 +84,18 @@ public class ListStorageTest {
 		assertEquals("4. task8 | From: Mon, 8 Aug 2016 23:59 To: Wed, 10 Aug 2016 23:59", task);
 		
 		// ninth task type - event (time only)
-		task = doneList.displayID(9);
-		assertEquals("9. task9 | From: Tue, 29 Mar 2016 09:00 To: Tue, 29 Mar 2016 10:00", task);
+		task = doneList.displayID(10);
+		assertEquals("10. task9 | From: Tue, 29 Mar 2016 09:00 To: Tue, 29 Mar 2016 10:00", task);
 		
 		// tenth task type - event (both date and time)
-		task = doneList.displayID(11);
-		assertEquals("11. task10 | From: Wed, 10 Aug 2016 22:00 To: Fri, 12 Aug 2016 23:00", task);
+		task = doneList.displayID(12);
+		assertEquals("12. task10 | From: Wed, 10 Aug 2016 22:00 To: Fri, 12 Aug 2016 23:00", task);
+		
+		// eleventh task type - queue ID
+		task = todoList.displayID(8);
+		assertEquals("8. task12", task);
+		Task t = todoList.delete(8);
+		assertEquals(1, t.getQueueID());
 		
 		// consolidation - all parameters
 		task = todoList.displayID(3);

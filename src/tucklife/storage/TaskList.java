@@ -59,6 +59,48 @@ public class TaskList {
 		return sb.toString();
 	}
 	
+	protected String displayDefault() {
+		StringBuilder sb = new StringBuilder();
+		boolean qflag = false;
+		for (Task task:taskList) {
+			if (task.getQueueID() == -1 && !qflag) {
+				return display();
+			}
+			if(task.getQueueID() != -1 && !qflag) {
+				sb.append("Queue:\n");
+				qflag = true;
+			}
+			if(task.getQueueID() == -1 && qflag) {
+				sb.append("\nOther Tasks:\n");
+				qflag = false;
+			}
+			sb.append(task.display());
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
+	
+	protected String search(String searchKey) {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("Exact Match\n");
+		for (Task task:taskList) {
+			if(task.containsExact(searchKey)) {
+				sb.append(task.displayAll());
+				sb.append("\n");
+			}
+		}
+		
+		sb.append("\nPartial Match\n");
+		for (Task task:taskList) {
+			if(task.containsPartial(searchKey)) {
+				sb.append(task.displayAll());
+				sb.append("\n");
+			}
+		}
+		return sb.toString();
+	}
+	
 	protected void add(ProtoTask task) {
 		Task newTask = new Task(task);
 		taskList.add(newTask);

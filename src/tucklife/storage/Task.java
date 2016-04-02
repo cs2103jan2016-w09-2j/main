@@ -2,10 +2,14 @@ package tucklife.storage;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import tucklife.parser.ProtoTask;
 
 public class Task {
+	
+	private static final Logger log = Logger.getLogger( Storage.class.getName() );
 	
 	private String location;
 	private int priority;
@@ -35,6 +39,10 @@ public class Task {
 	private static final String PRIORITY_HIGH = "High";
 	private static final String PRIORITY_MEDIUM = "Med";
 	private static final String PRIORITY_LOW = "Low";
+	
+	public static void resetGlobalId() {
+		globalID = 1;
+	}
 	
 	public int getId(){
 		return id;
@@ -94,12 +102,13 @@ public class Task {
 		this.startDate = task.getStartDate();
 		this.endDate = task.getEndDate();
 		this.floating = startDate == null && endDate == null; //task.isFloating();
-		this.id = globalID;	
-		this.queueID = -1;
+		this.id = globalID;
+		this.queueID = task.getPosition();
 		globalID++;
+		log.log( Level.FINE, "Task has been created via ProtoTask");
 	}
 	
-	/* unsure if needed
+	/* unsure if needed*/
 	public Task(Task task){
 		//create the Task
 		this.location = task.getLocation();
@@ -112,7 +121,7 @@ public class Task {
 		this.floating = startDate == null && endDate == null; //task.isFloating();
 		this.id = task.getId();	
 		this.queueID = task.getQueueID();
-	}*/
+	}//*/
 	
 	protected Task edit(ProtoTask task){
 		//edit task
@@ -125,6 +134,7 @@ public class Task {
 		this.endDate = task.getEndDate() == null ? this.endDate : task.getEndDate();
 		this.floating = startDate == null && endDate == null; //task.isFloating();
 		this.id = task.getId() == -1 ? this.id : task.getId();
+		log.log( Level.FINE, "Task has been edited via ProtoTask");
 		return this;
 	}
 	
@@ -132,7 +142,7 @@ public class Task {
 		StringBuilder displayString = new StringBuilder();
 		
 		// display order:
-		// id. name | date | location | priority | category
+		// id. name | date | location | priority
 		
 		displayString.append(idField());
 		displayString.append(" ");
@@ -143,9 +153,8 @@ public class Task {
 		fields[0] = dateField();
 		fields[1] = locationField();
 		fields[2] = priorityField();
-		fields[3] = categoryField();
 		
-		for(int i = 0; i < 4; i++){
+		for(int i = 0; i < 3; i++){
 			if(fields[i] != null){
 				displayString.append(" | ");
 				displayString.append(fields[i]);
@@ -220,9 +229,17 @@ public class Task {
 	
 	protected String displayAll(){
 		String displayString = display();
-		if (additional != null) {
-			displayString += " | " + additionalField();
+		String[] otherStuff = new String[2];
+		
+		otherStuff[0] = categoryField();
+		otherStuff[1] = additionalField();
+		
+		for(int i = 0; i < 2; i++){
+			if(otherStuff[i] != null){
+				displayString += " | " + otherStuff[i];
+			}
 		}
+		
 		return displayString;
 	}	
 	

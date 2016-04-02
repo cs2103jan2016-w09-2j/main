@@ -3,12 +3,27 @@ package tucklife.storage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import tucklife.parser.ProtoTask;
 
+
 public class TaskList {
+	
+	private static final Logger log = Logger.getLogger( Storage.class.getName() );
 
 	private ArrayList<Task> taskList;
+	
+	private static final String HEADER_ID = "ID";
+	private static final String HEADER_NAME = "Name";
+	private static final String HEADER_LOCATION = "Location";
+	private static final String HEADER_CATEGORY = "Category";
+	private static final String HEADER_PRIORITY = "Priority";
+	private static final String HEADER_DEADLINE = "By";
+	private static final String HEADER_ADDITIONAL = "Additional";
+	private static final String HEADER_EVENT_START = "From";
+	private static final String HEADER_EVENT_END = " To";
 	
 	public TaskList() {		
 		taskList = new ArrayList<Task>();
@@ -36,6 +51,7 @@ public class TaskList {
 	
 	protected String display() {
 		StringBuilder sb = new StringBuilder();
+		
 		for (Task task:taskList) {
 			sb.append(task.display());
 			sb.append("\n");
@@ -46,14 +62,17 @@ public class TaskList {
 	protected void add(ProtoTask task) {
 		Task newTask = new Task(task);
 		taskList.add(newTask);
+		log.log( Level.FINE, "{0} added to tasklist via ProtoTask", newTask.getName());
 	}
 	
 	protected void add(Task task) {
 		taskList.add(task);
+		log.log( Level.FINE, "{0} added to tasklist via Task", task.getName());
 	}
 	
 	protected void add(int index, Task task) {
 		taskList.add(index, task);
+		log.log( Level.FINE, "{0} added to tasklist via index:{1} and Task", new Object[]{task.getName(), index});
 	}
 	
 	protected int size() {
@@ -67,12 +86,16 @@ public class TaskList {
 				removed = task;
 			}
 		}
-		taskList.remove(removed);
+		if (taskList.remove(removed)) {
+			log.log( Level.FINE, "{0} has been removed", removed.getName());
+		}
 		return removed;
 	}
 	
 	protected Task remove(int index) {
-		return taskList.remove(index);
+		Task t = taskList.remove(index);
+		log.log( Level.FINE, "{0} has been removed", t.getName());
+		return t;
 	}
 	
 	protected void edit(int taskID, ProtoTask toEditTask) {
@@ -81,6 +104,7 @@ public class TaskList {
 				int taskIndex = taskList.indexOf(task);
 				Task newTask = task.edit(toEditTask);
 				taskList.set(taskIndex, newTask);
+				log.log( Level.FINE, "{0} has been edited", newTask.getName());
 			}
 		}
 	}
@@ -107,34 +131,42 @@ public class TaskList {
 		if (sortBy != null) {
 			if (sortBy.equals("@")) {
 				Collections.sort(taskList,new taskComparators().new ComparatorLocation());
+				log.log( Level.FINE, "tasklist has been sorted by location");
 			}
 			
 			if (sortBy.equals("!")) {
 				Collections.sort(taskList,new taskComparators().new ComparatorPriority());
+				log.log( Level.FINE, "tasklist has been sorted by priority");
 			}
 			
 			if (sortBy.equals("#")) {
 				Collections.sort(taskList,new taskComparators().new ComparatorCategory());
+				log.log( Level.FINE, "tasklist has been sorted by category");
 			}
 			
 			if (sortBy.equals("$")) {
 				Collections.sort(taskList,new taskComparators().new ComparatorTime());
+				log.log( Level.FINE, "tasklist has been sorted by time");
 			}
 			
 			if (sortBy.equals("+")) { //is there actually a point doing this?? Im setting it to time for now
 				Collections.sort(taskList,new taskComparators().new ComparatorTime());
+				log.log( Level.FINE, "tasklist has been sorted by time");
 			}
 			
 			if (sortBy.equals("&")) {
 				Collections.sort(taskList,new taskComparators().new ComparatorAdditional());
+				log.log( Level.FINE, "tasklist has been sorted by additional information");
 			}
 			
 			if (!isAscending) {
 				Collections.reverse(taskList);
+				log.log( Level.FINE, "tasklist has been sorted in reverse order");
 			}
 		}
 		else {
 			Collections.sort(taskList,new taskComparators().new ComparatorDefault());
+			log.log( Level.FINE, "tasklist has been sorted by queue number, then by time");
 			//Collections.reverse(taskList);
 		}
 	}

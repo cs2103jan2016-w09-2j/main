@@ -1,14 +1,18 @@
+//@@author a0111101n
 package tucklife.storage;
 
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 import tucklife.parser.ProtoTask;
 import tucklife.storage.TaskList;
 
 public class Storage {
+	
+	private static final Logger log = Logger.getLogger( Storage.class.getName() );
 	
 	private static final String RETURN_MESSAGE_FOR_ADD = "{%1$s} has been added to TuckLife's to-do list!";
 	private static final String RETURN_MESSAGE_FOR_EDIT = "{%1$s} has been edited in TuckLife's to-do list!";
@@ -53,11 +57,13 @@ public class Storage {
 		Iterator<Task> taskListIter = toDoList.iterator();
 		
 		while(taskListIter.hasNext()){
-			Task t = taskListIter.next();
+			Task t = new Task(taskListIter.next());
 			oldToDoList.add(t);
 		}
+		
 		oldToDoList.sort(null, true);
 		taskListIter = oldToDoList.iterator();
+		
 		while(taskListIter.hasNext()){
 			Task t = taskListIter.next();
 			if(t.getQueueID()!=-1) {
@@ -308,6 +314,11 @@ public class Storage {
 	private static String complete(int taskID) {
 		if(toDoList.contains(taskID)){
 			Task completedTask = toDoList.delete(taskID);
+			completedTask.setQueueID(-1);
+			if(queueList.contains(taskID)) {
+				queueList.delete(taskID);
+				updateQueueIDs(0, 0);
+			}
 			doneList.add(completedTask);
 			return String.format(RETURN_MESSAGE_FOR_COMPLETE, completedTask.displayAll());
 		} else {
@@ -320,6 +331,7 @@ public class Storage {
 			Task deletedTask = toDoList.delete(taskID);
 			if(queueList.contains(taskID)) {
 				queueList.delete(taskID);
+				updateQueueIDs(0, 0);
 			}
 			return String.format(RETURN_MESSAGE_FOR_DELETE, deletedTask.displayAll());
 		} else {
@@ -361,14 +373,9 @@ public class Storage {
 				flag = true;
 			}
 			if(queueList.contains(taskID)) {
-				int qID = queueList.get(taskID).getQueueID();
-				if(qID>=pos) {
-					queueList.delete(taskID);
-					queueList.add(pos-1,qTask);
-				} else {
-					queueList.delete(taskID);
-					queueList.add(pos-2,qTask);
-				}
+				
+				queueList.delete(taskID);
+				queueList.add(pos-1,qTask);
 				
 			} else {
 				if(flag) {
@@ -378,21 +385,26 @@ public class Storage {
 				}
 			}
 			
-			Iterator<Task> qIter = queueList.iterator();
-			int count = 1;
-			while(qIter.hasNext()) {
-				Task t = qIter.next();
-				t.setQueueID(count);
-				if(t.getId() == taskID) {
-					pos = t.getQueueID();
-				}
-				count++;
-			}
+			pos = updateQueueIDs(taskID, pos);
 				
 			return String.format(RETURN_MESSAGE_FOR_QUEUE, qTask.displayAll(), pos);
 		} else {
 			return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID, taskID);
 		}
+	}
+
+	private static int updateQueueIDs(int taskID, int pos) {
+		Iterator<Task> qIter = queueList.iterator();
+		int count = 1;
+		while(qIter.hasNext()) {
+			Task t = qIter.next();
+			t.setQueueID(count);
+			if(t.getId() == taskID) {
+				pos = t.getQueueID();
+			}
+			count++;
+		}
+		return pos;
 	}
 	
 	private static String setLimit(int limit) {
@@ -411,7 +423,20 @@ public class Storage {
 	
 	//for testing purposes only
 	public static void clear(){
+		Task.resetGlobalId();
+		setLimit(0);
 		toDoList = new TaskList();
+		queueList = new TaskList();
 		doneList = new TaskList();
+		undoSaveState = null;
+		redoSaveState = null;
+	}
+	
+	public static TaskList getTD(){
+		return toDoList;
+	}
+	
+	public static TaskList getQ(){
+		return queueList;
 	}
 }

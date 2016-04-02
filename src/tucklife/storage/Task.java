@@ -164,6 +164,52 @@ public class Task {
 		return displayString.toString();
 	}
 	
+	protected boolean containsExact(String searchKey) {
+		String[] fields = new String[6];
+		
+		fields[0] = dateField();
+		fields[1] = locationField();
+		fields[2] = priorityField();
+		fields[3] = categoryField();
+		fields[4] = additionalField();
+		fields[5] = getName();
+		
+		String searchItem = " " + searchKey + " ";
+		
+		for(int i = 0; i < 6; i++){
+			if(fields[i] != null){
+				String searchFrom = "  " + fields[i] + " ";
+				if (searchFrom.toLowerCase().contains(searchItem.toLowerCase())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	protected boolean containsPartial(String searchKey) {
+		if(this.containsExact(searchKey)) {
+			return false;
+		}
+		String[] fields = new String[6];
+		
+		fields[0] = dateField();
+		fields[1] = locationField();
+		fields[2] = priorityField();
+		fields[3] = categoryField();
+		fields[4] = additionalField();
+		fields[5] = getName();
+		
+		for(int i = 0; i < 6; i++){
+			if(fields[i] != null){
+				if (fields[i].toLowerCase().contains(searchKey.toLowerCase())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	private String idField(){
 		return Integer.toString(id) + ".";
 	}

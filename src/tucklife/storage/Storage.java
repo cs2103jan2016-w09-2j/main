@@ -265,18 +265,29 @@ public class Storage {
 		
 		while(taskListIter.hasNext()){
 			Task t = taskListIter.next();
+			
 			if(t.isFloating()) {
 				continue;
+			} else {
+				String taskEndDateString = sdf.format(t.getEndDate().getTime());
+				if(t.getStartDate()!=null) {
+					String taskStartDateString = sdf.format(t.getStartDate().getTime());
+					if(taskEndDateString.equals(taskStartDateString)) {
+						continue;
+					}
+				}
 			}
-			String taskDateString = sdf.format(t.getEndDate().getTime());
-			if(taskDateString.equals(oldDateString)) {
+			
+			String taskEndDateString = sdf.format(t.getEndDate().getTime());
+			
+			if(taskEndDateString.equals(oldDateString)) {
 				count += 1;
 			} else {
-				oldDateString = taskDateString;
+				oldDateString = taskEndDateString;
 				count = 1;
 			}
 			if(flag) {
-				if(taskDateString.equals(newTaskDateString)) {
+				if(taskEndDateString.equals(newTaskDateString)) {
 					count +=1;
 					flag = false;
 				}
@@ -336,15 +347,23 @@ public class Storage {
 	}
 	
 	private static String display(ProtoTask pt) {
+		if (pt.getSearchKey()!=null) {
+			toDoList.sort(null, true);
+			return toDoList.search(pt.getSearchKey());
+		}
+		
 		if(pt.getId() != -1) {
 			return displayID(pt.getId());
 		} else {
 			String sortBy = pt.getSortCrit();
 			assert sortBy.equals("@") || sortBy.equals("!") || sortBy.equals("#") || sortBy.equals("$") || sortBy.equals("&") || sortBy.equals("+") || sortBy == null;
 			boolean isAscending = pt.getIsAscending();
-			//assert ((sortOrder == 1 || sortOrder == 0) && sortBy != null) || (sortBy == null && sortOrder == -1);
 			toDoList.sort(sortBy,isAscending);
-			return toDoList.display();
+			if (sortBy == null) {
+				return toDoList.displayDefault();
+			} else {
+				return toDoList.display();
+			}
 		}
 	}
 	

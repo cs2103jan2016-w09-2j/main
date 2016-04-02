@@ -46,7 +46,7 @@ public class TaskTest {
 		pt = p.parse("add meeting with boss @mr3 +1200 $16/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
-		taskDisplay = String.format("%1$s. meeting with boss | By: Mon, 16 May 2016 12:00 | Location: mr3 | Category: important",id);
+		taskDisplay = String.format("%1$s. meeting with boss | By: Mon, 16 May 2016 12:00 | Location: mr3",id);
 		assertEquals("fail to display properly", t.display(), taskDisplay);
 		taskDisplay = String.format("%1$s. meeting with boss | By: Mon, 16 May 2016 12:00 | Location: mr3 | Category: important | Additional: bring all documents",id);
 		assertEquals("fail to display all properly", t.displayAll(), taskDisplay);
@@ -57,13 +57,27 @@ public class TaskTest {
 		pt = p.parse("add meeting with boss @mr3 +1200 $16/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
-		String taskDisplay = String.format("%1$s. meeting with boss | By: Mon, 16 May 2016 12:00 | Location: mr3 | Category: important",id);
+		String taskDisplay = String.format("%1$s. meeting with boss | By: Mon, 16 May 2016 12:00 | Location: mr3",id);
 		pt = p.parse(String.format("edit %1$s @mr4 +1300 $17/05",id));
 		t.edit(pt);
-		String taskDisplayEdit = String.format("%1$s. meeting with boss | By: Tue, 17 May 2016 13:00 | Location: mr4 | Category: important",id);
+		String taskDisplayEdit = String.format("%1$s. meeting with boss | By: Tue, 17 May 2016 13:00 | Location: mr4",id);
 		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
 		taskDisplay = String.format("%1$s. meeting with boss | By: Tue, 17 May 2016 13:00 | Location: mr4 | Category: important | Additional: bring all documents",id);
 		assertEquals("fail to display all properly", t.displayAll(), taskDisplay);
+	}
+	
+	@Test
+	public void testSearch1() {
+		ProtoTask pt1 = p.parse("add go to gap @mr3 +1200 $16/05 #important &bring all documents");
+		t = new Task(pt1);
+		t.containsExact("gAp");
+	}
+	
+	@Test
+	public void testSearch2() {
+		ProtoTask pt2 = p.parse("add travelling @Singapore");
+		t = new Task(pt2);
+		t.containsPartial("gap");
 	}
 }
 

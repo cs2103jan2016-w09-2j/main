@@ -1,32 +1,31 @@
 FUNCTION,DEMO,RESULT,NO COMMAS PL0X!
-add,add read a book,Adds the task "read a book" to TuckLife with no parameters
-add,add read a book $2 May,Adds the task "read a book" to TuckLife with parameters: date: 2 May | time: 11:59pm
-add,add walk the dog !low #pet +4pm,Adds the task "walk the dog" to TuckLife with parameters: date: today's date | time: 4:00pm | priority: low | category: pet
-add,add walk the dog @park !low #pet $11 May +4pm to 6pm &walk 1km,Adds the task "walk the dog" to TuckLife with parameters: date: 11 May | time: 4:00pm to 6:00pm | location: park | priority: low | category: pet | additional information: walk 1km
+add,add board meeting,Adds the task "board meeting" to TuckLife
+add,add board meeting $2 May,Adds the task "read a book" to TuckLife - By: 2 May
+add,add board meeting !low #projectX +4pm,Adds the task "board meeting" to TuckLife - By: Today at 4:00pm | Priority: low | Category: projectX
+add,add board meeting @meeting room 4 !low #projectX $11 May +4pm to 6pm &bring proposal,Adds the task "board meeting" to TuckLife - From: 11 May 4:00pm To: 11 May 6:00pm | Location: meeting room 4 | Priority: low | Category: projectX | additional: bring proposal
 display,display,Shows all tasks sorted in default order (Queue then chronological order)
-display,display +priority,Shows all tasks sorted by priority in ascending order
-display,display -location,Shows all tasks sorted by location in descending order
-display,display book,Shows all tasks containing the word 'book'
-edit,edit 5 walk the cat @garden $10 May,Edits the task with id: 5 to "walk the cat" with parameters: date: 10 May | location: garden
-complete,complete 4,Marks the task with id: 4 as complete and moves it into the Done List
+display,display +!,Shows all tasks sorted by priority in ascending order
+display,display -@,Shows all tasks sorted by location in descending order
+display,display meeting,Shows all tasks containing the word 'meeting'
+edit,edit 5 company retreat @gardens by the bay $10 May,Edits the task with id: 5 to "company retreat" with new parameters - By: 10 May | Location: gardens by the bay
+complete,complete 4,Marks the task with id: 4 as complete and moves it into your Done List
 delete,del 3,Permanently deletes the task with id: 3
 displaydone,displaydone,Shows all completed tasks in the reverse order of completion
-displaydone,displaydone -category,Shows all completed tasks sorted by category in descending order
-displaydone,displaydone +date,Shows all completed tasks sorted by date in ascending order
-displaydone,displaydone book,Shows all completed tasks containing the word 'book'
+displaydone,displaydone -#,Shows all completed tasks sorted by category in descending order
+displaydone,displaydone +$,Shows all completed tasks sorted by date in ascending order
+displaydone,displaydone meeting,Shows all completed tasks containing the word 'meeting'
 undo,undo,Undoes the most recent add/edit/complete/delete done
 redo,redo,Redoes the most recent undo
 save,save,Saves any changes you have made in TuckLife
 exit,exit,Saves files and shuts down TuckLife :-(
-reminder,reminder,Toggles reminders on/off
-status,status,Shows a quick overview of your tasks. Sample: Total tasks: 21 | Tasks due today: 5 | Current task: walk the dog
+status,status,Shows a quick overview of your tasks. Sample: Total tasks: 21 | Tasks due today: 5 | Current task: prepare sales report
 help,help,Shows a quick reference of all TuckLife's functions
 demo,demo demo,Shows you how to use the demo command. Wait - you didn't know that already?
 recur,recur 5 week,Makes the task with id: 5 recur every week
 showrecur,showrecur,Shows all recurring tasks in default order (descending frequency)
 showrecur,showrecur +frequency,Shows all recurring tasks sorted in descending frequency
-showrecur,showrecur book,Shows all reucrring tasks containing the word 'book'
-editrecur,editrecur 5 walk the dog !medium,Edits the recurring task with id: 5 to "walk the dog" with parameters: priority: medium. Updates all instances of this recurring task
+showrecur,showrecur meeting,Shows all reucrring tasks containing the word 'meeting'
+editrecur,editrecur 5 sales project meeting !medium,Edits the recurring task with id: 5 to "sales project meeting" with new parameters - Priority: medium. Updates all instances of this recurring task
 delrecur,delrecur 3,Deletes the recurring task with id: 3. Also removes all instances of this task
 queue,queue 13,Adds the task with id: 13 to the back of the queue
 queue,queue 11 5,Adds the tasks with id: 11 to the 5th position of the queue

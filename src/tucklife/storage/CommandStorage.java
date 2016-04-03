@@ -1,3 +1,4 @@
+// @@author A0127835Y
 package tucklife.storage;
 
 import java.io.BufferedOutputStream;
@@ -13,7 +14,7 @@ import java.util.Hashtable;
 
 public class CommandStorage {
 	
-	private final String FILENAME_COMMANDS = "commands.txt";
+	private static final String FILENAME_COMMANDS = "commands.txt";
 	
 	private Hashtable<String, String> commandTable;
 	
@@ -49,7 +50,8 @@ public class CommandStorage {
 			
 			br.close();
 			isr.close();
-			fis.close();	
+			fis.close();
+			
 		} catch(IOException ioe){
 			ioe.printStackTrace();
 			return false;

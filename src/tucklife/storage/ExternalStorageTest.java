@@ -16,7 +16,7 @@ public class ExternalStorageTest {
 
 	@Test
 	public void loadTest() {
-		assertEquals(es.load(), true);
+		assertEquals(true, es.load());
 	}
 	
 	@Test
@@ -25,7 +25,7 @@ public class ExternalStorageTest {
 		DataBox db = es.getLoadedData();
 		
 		TaskList[] lists = db.getLists();
-		assertEquals(lists.length, 2);
+		assertEquals(2, lists.length);
 	}
 	
 	@Test
@@ -33,7 +33,7 @@ public class ExternalStorageTest {
 		es.load();
 		DataBox db = es.getLoadedData();
 		
-		assertEquals(es.saveData(db), "Data saved successfully.");
+		assertEquals("Data saved successfully.", es.saveData(db));
 	}
 	
 	@Test
@@ -41,7 +41,7 @@ public class ExternalStorageTest {
 		es.load();
 		DataBox db = es.getLoadedData();
 		
-		assertEquals(es.saveTo(db, "C:\\Users\\Ryan\\Desktop\\Holding Area\\"), "Data saved successfully.");
+		assertEquals("Data saved successfully.", es.saveTo(db, "C:\\Users\\Ryan\\Desktop\\Holding Area\\"));
 	}
 
 }

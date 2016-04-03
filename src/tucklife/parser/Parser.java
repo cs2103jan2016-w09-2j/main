@@ -1,3 +1,4 @@
+// @@author A0127835Y
 package tucklife.parser;
 
 import java.util.Calendar;
@@ -26,6 +27,8 @@ public class Parser {
 	private final String ERROR_PARAMS_LIMIT = "Format: setlimit <limit>";
 	private final String ERROR_PARAMS_SAVETO = "Format: saveto <file path>";
 	private final String ERROR_PARAMS_CHANGE = "Format: change <old command> <new command>";
+	private final String ERROR_PARAMS_DEFAULT = "Format: setdefault (at least one of the following) <task description> "
+											  + "$<date> +<time> #<category> !<priority> @<location> &<additional>";
 	
 	private final String ERROR_INVALID_PARAMS = "Incorrect number of parameters";
 	private final String ERROR_INVALID_COMMAND = "'%1$s' is not a valid command";
@@ -162,9 +165,14 @@ public class Parser {
 				
 				// No break, edit and add share similar parameters
 				
+			case "setdefault" :
+				if (commandArg.isEmpty()) {
+					createErrorTask(ERROR_INVALID_PARAMS + "\n" + ERROR_PARAMS_DEFAULT);
+				}
+				
 			case "add" :
 				if (commandArg.isEmpty()) {
-					createErrorTask(ERROR_INVALID_PARAMS + "\n" + ERROR_PARAMS_ADD);
+						createErrorTask(ERROR_INVALID_PARAMS + "\n" + ERROR_PARAMS_ADD);
 				} else {
 					String taskDesc = extractParameter("", commandArg);
 					
@@ -205,31 +213,68 @@ public class Parser {
 					if (!time.isEmpty() || !date.isEmpty()) {
 						dp = new DateParser();
 						Calendar startDate = null;
-						Calendar endDate;
+						Calendar startTime = null;
+						Calendar endDate = null;
+						Calendar endTime = null;
 						String[] times, dates;
 						
 						try {
 							if (time.isEmpty()) {
+								// Time not specified
 								dates = splitEventDate(date);
 								
 								if (dates.length == 1) {
-									endDate = dp.parseDate(date, "");
+									// Deadline
+									endDate = dp.parseDate(date);
+									
+									if (!commandType.equals("edit") && !commandType.equals("setdefault"))  {
+										endTime = dp.getDefaultEndTime();
+									}
 								} else if (dates.length == 2) {
-									startDate = dp.parseDate(dates[0], "");
-									endDate = dp.parseDate(dates[1], "");
+									// Event
+									startDate = dp.parseDate(dates[0]);
+									endDate = dp.parseDate(dates[1]);
+									
+									if (!commandType.equals("edit") && !commandType.equals("setdefault"))  {
+										startTime = dp.getDefaultStartTime();
+										endTime = dp.getDefaultEndTime();
+									}
 								} else {
+									// Unrecognized format
 									createErrorTask("invalid date");
 									break;
 								}
 							} else if (date.isEmpty()) {
+								// Date not specified
 								times = splitEventDate(time);
 								
 								if (times.length == 1) {
-									endDate = dp.parseDate("", time);
+									// Deadline
+									endTime = dp.parseTime(time);
+									
+									if (!commandType.equals("edit") && !commandType.equals("setdefault"))  {
+										endDate = dp.getDefaultDate();
+										
+										if (dp.hasDatePassed(endDate, endTime)) {
+											endDate = dp.getNextDay(endDate);
+										}
+									}
 								} else if (times.length == 2) {
-									startDate = dp.parseDate("", times[0]);
-									endDate = dp.parseDate("", times[1]);
+									// Event
+									startTime = dp.parseTime(times[0]);
+									endTime = dp.parseTime(times[1]);
+
+									if (!commandType.equals("edit") && !commandType.equals("setdefault"))  {
+										startDate = dp.getDefaultDate();
+										
+										if (dp.hasDatePassed(startDate, startTime)) {
+											startDate = dp.getNextDay(startDate);
+										}
+										
+										endDate = startDate;
+									}
 								} else {
+									// Unrecognized format
 									createErrorTask("invalid time");
 									break;
 								}
@@ -239,31 +284,51 @@ public class Parser {
 								
 								if (dates.length == times.length) {
 									if (dates.length == 1) {
-										endDate = dp.parseDate(date, time);
+										// Deadline
+										endDate = dp.parseDate(date);
+										endTime = dp.parseTime(time);
 									} else if (dates.length == 2) {
-										startDate = dp.parseDate(dates[0], times[0]);
-										endDate = dp.parseDate(dates[1], times[1]);
+										// Multiple day event
+										startDate = dp.parseDate(dates[0]);
+										endDate = dp.parseDate(dates[1]);
+										
+										startTime = dp.parseTime(times[0]);
+										endTime = dp.parseTime(times[1]);
 									} else {
+										// Unrecognized format
 										createErrorTask("invalid event format");
 										break;
 									}
 								} else if (dates.length == 1 && times.length == 2) {
-									startDate = dp.parseDate(date, times[0]);
-									endDate = dp.parseDate(date, times[1]);
+									// Same day event
+									startDate = dp.parseDate(date);
+									endDate = dp.parseDate(date);
+									
+									startTime = dp.parseTime(times[0]);
+									endTime = dp.parseTime(times[1]);
 								} else {
+									// Unrecognized format
 									createErrorTask("invalid event format");
 									break;
 								}
 							}
 							
+							// Setting the parameters in ProtoTask
 							if (startDate != null) {
-								if (startDate.before(endDate)) {
-									pt.setStartDate(startDate);
-								} else {
-									createErrorTask("start date is later than end date");
-								}
+								pt.setStartDate(startDate);
 							}
-							pt.setEndDate(endDate);
+							
+							if (startTime != null) {
+								pt.setStartTime(startTime);
+							}
+							
+							if (endDate != null) {
+								pt.setEndDate(endDate);
+							}
+							
+							if (endTime != null) {
+								pt.setEndTime(endTime);
+							}
 						} catch (InvalidDateException e) {
 							createErrorTask(e.getMessage());
 							break;
@@ -397,11 +462,7 @@ public class Parser {
 				}
 				
 				break;
-				
-			case "setdefault" :
-				// TODO: setdefault
-				break;
-				
+
 			// Parameter: file path
 			case "saveto" :
 				if (commandArg.isEmpty()) {

@@ -57,7 +57,12 @@ public class ListStorage {
 				if(!nextTask.equals("")){
 					ProtoTask pt = parseTask(nextTask);
 					
-					list.add(pt);
+					try {
+						list.add(pt);
+					} catch (invalidDateException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}			
 			}
 			

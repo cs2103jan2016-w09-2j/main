@@ -10,9 +10,14 @@ public class IDNotFoundException extends Exception {
 }
 
 class overloadException extends Exception {
-	public int limit;
+	private int limit;
+	
 	public overloadException(int limit) {
 		this.limit = limit;
+	}
+	
+	public int getLimit() {
+		return limit;
 	}
 }
 
@@ -21,5 +26,9 @@ class nothingToUndoException extends Exception {
 }
 
 class nothingToRedoException extends Exception {
+	
+}
+
+class invalidDateException extends Exception {
 	
 }

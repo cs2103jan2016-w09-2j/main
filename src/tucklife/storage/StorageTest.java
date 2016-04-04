@@ -110,8 +110,8 @@ public class StorageTest {
 		ProtoTask pt6 = p.parse("add redundant $17/05 +2300");
 		ProtoTask pt7 = p.parse("add overload $16/05 +2300");
 		
-		ProtoTask pt8 = p.parse("add safety awareness week $10/05 to 16/05 #gg");
-		ProtoTask pt9 = p.parse("add holiday $09/05 to 16/05 &to siam stupid stuff");
+		ProtoTask pt8 = p.parse("add safety awareness week $09/05 to 16/05 #gg");
+		ProtoTask pt9 = p.parse("add holiday $10/05 to 16/05 &to siam stupid stuff");
 		ProtoTask pt10 = p.parse("add meeting $16/05 +2pm to 3pm");
 		
 		s.parseCommand(pt1);
@@ -124,8 +124,8 @@ public class StorageTest {
 		assertEquals("able to add",s.parseCommand(pt5),"{5. 4th task | By: Mon, 16 May 2016 23:59} has been added to TuckLife's to-do list!");
 		assertEquals("able to add",s.parseCommand(pt6),"{6. redundant | By: Tue, 17 May 2016 23:00} has been added to TuckLife's to-do list!");
 		assertEquals("unable to add, hit limit",s.parseCommand(pt7),"That day has been filled with 4 tasks! It hit the limit! You should reschedule the task to another day. Alternatively, you can either change the overload limit or turn it off.");
-		assertEquals("able to add, hit limit",s.parseCommand(pt8),"{8. safety awareness week | From: Mon, 09 May 2016 23:59 To: Mon, 16 May 2016 23:59 | Category: gg} has been added to TuckLife's to-do list!");
-		assertEquals("unable to add, hit limit",s.parseCommand(pt10),"That day has been filled with 4 tasks! It hit the limit! You should reschedule the task to another day. Alternatively, you can either change the overload limit or turn it off.");
+		assertEquals("able to add, hit limit",s.parseCommand(pt8),"{8. safety awareness week | From: Mon, 9 May 2016 00:00 To: Mon, 16 May 2016 23:59 | Category: gg} has been added to TuckLife's to-do list!");
+		assertEquals("unable to add, hit limit",s.parseCommand(pt10),"{9. meeting | From: Mon, 16 May 2016 14:00 To: Mon, 16 May 2016 15:00} has been added to TuckLife's to-do list!");
 		
 	}
 	

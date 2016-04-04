@@ -185,7 +185,10 @@ public class Storage {
 				prepareForUndo();
 				return add(pt);
 			} catch (overloadException e) {
-				return String.format(RETURN_MESSAGE_FOR_OVERLOAD, e.limit);
+				return String.format(RETURN_MESSAGE_FOR_OVERLOAD, e.getLimit());
+			} catch (invalidDateException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		case COMPLETE :
 			prepareForUndo();
@@ -202,7 +205,10 @@ public class Storage {
 				prepareForUndo();
 				return edit(pt.getId(), pt);
 			} catch (overloadException e) {
-				return String.format(RETURN_MESSAGE_FOR_OVERLOAD, e.limit);
+				return String.format(RETURN_MESSAGE_FOR_OVERLOAD, e.getLimit());
+			} catch (invalidDateException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		case QUEUE :
 			prepareForUndo();
@@ -232,7 +238,7 @@ public class Storage {
 		redoSaveState.clear();
 	}
 	
-	private static String add(ProtoTask task) throws overloadException{
+	private static String add(ProtoTask task) throws overloadException, invalidDateException{
 		Task newTask = new Task(task);
 		if (newTask.isFloating()) {
 			toDoList.add(newTask);
@@ -248,10 +254,13 @@ public class Storage {
 	}
 
 	private static boolean isOverloaded(Task newTask) {
+		if(newTask.isFloating() || newTask.getStartDate() != null) {
+			return false;
+		}
 		
 		int limit = pf.getOverloadLimit();
 		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy");
-		String newTaskDateString = newTask.isFloating() ? null : sdf.format(newTask.getEndDate().getTime());
+		String newTaskDateString = sdf.format(newTask.getEndDate().getTime());
 		return checkIsOverloaded(limit, newTaskDateString);
 	}
 
@@ -266,17 +275,9 @@ public class Storage {
 		while(taskListIter.hasNext()){
 			Task t = taskListIter.next();
 			
-			if(t.isFloating()) {
+			if(t.isFloating() || t.getStartDate() != null) {
 				continue;
-			} else {
-				String taskEndDateString = sdf.format(t.getEndDate().getTime());
-				if(t.getStartDate()!=null) {
-					String taskStartDateString = sdf.format(t.getStartDate().getTime());
-					if(taskEndDateString.equals(taskStartDateString)) {
-						continue;
-					}
-				}
-			}
+			} 
 			
 			String taskEndDateString = sdf.format(t.getEndDate().getTime());
 			
@@ -300,7 +301,7 @@ public class Storage {
 		return hitLimit;
 	}
 	
-	private static String edit(int taskID, ProtoTask toEditTask) throws overloadException {
+	private static String edit(int taskID, ProtoTask toEditTask) throws overloadException, invalidDateException {
 		Task newTask = new Task(toEditTask);
 		if(isOverloaded(newTask)) {
 			throw new overloadException(pf.getOverloadLimit());

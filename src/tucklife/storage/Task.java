@@ -92,15 +92,16 @@ public class Task {
 		this.queueID = id;
 	}
 	
-	public Task(ProtoTask task){
+	public Task(ProtoTask task) throws invalidDateException{
 		//create the Task
 		this.location = task.getLocation();
 		this.priority = task.getPriority();
 		this.category = task.getCategory();
 		this.additional = task.getAdditional();
 		this.name = task.getTaskDesc();
-		this.startDate = task.getStartDate();
-		this.endDate = task.getEndDate();
+		this.startDate = combineDateTime(task.getStartDate(),task.getStartTime());
+		this.endDate = combineDateTime(task.getEndDate(),task.getEndTime());
+		checkValidDates(startDate, endDate);
 		this.floating = startDate == null && endDate == null; //task.isFloating();
 		this.id = globalID;
 		this.queueID = task.getPosition();
@@ -123,15 +124,26 @@ public class Task {
 		this.queueID = task.getQueueID();
 	}//*/
 	
-	protected Task edit(ProtoTask task){
+	protected Task edit(ProtoTask task) throws invalidDateException{
 		//edit task
 		this.location = task.getLocation() == null ? this.location : task.getLocation();
 		this.priority = task.getPriority() == -1 ? this.priority : task.getPriority();
 		this.category = task.getCategory() == null ? this.category : task.getCategory();
 		this.additional = task.getAdditional() == null ? this.additional : task.getAdditional();
 		this.name = task.getTaskDesc() == null ? this.name : task.getTaskDesc();
+		
 		this.startDate = task.getStartDate() == null ? this.startDate : task.getStartDate();
 		this.endDate = task.getEndDate() == null ? this.endDate : task.getEndDate();
+		
+		if(task.getStartTime()!=null) {
+			this.startDate = combineDateTime(this.startDate,task.getStartTime());
+		}
+		
+		if(task.getEndTime() != null) {
+			this.endDate = combineDateTime(this.endDate,task.getEndTime());
+		}
+		checkValidDates(startDate, endDate);
+		
 		this.floating = startDate == null && endDate == null; //task.isFloating();
 		this.id = task.getId() == -1 ? this.id : task.getId();
 		log.log( Level.FINE, "Task has been edited via ProtoTask");
@@ -287,6 +299,31 @@ public class Task {
 		}
 		
 		return displayString;
-	}	
+	}
+	
+	private Calendar combineDateTime(Calendar date, Calendar time) {
+		if(date == null) {
+			return null;
+		}
+		Calendar c = Calendar.getInstance();
+		
+		c.set(Calendar.YEAR, date.get(Calendar.YEAR));
+		c.set(Calendar.MONTH, date.get(Calendar.MONTH));
+		c.set(Calendar.DATE, date.get(Calendar.DATE));
+		
+		c.set(Calendar.HOUR_OF_DAY, time.get(Calendar.HOUR_OF_DAY));
+		c.set(Calendar.MINUTE, time.get(Calendar.MINUTE));
+		
+		return c;
+	}
+	
+	private void checkValidDates(Calendar start, Calendar end) throws invalidDateException{
+		if(end == null) {
+			return;
+		}
+		if (end.before(start) && start!= null) {
+			throw new invalidDateException();
+		}
+	}
 	
 }

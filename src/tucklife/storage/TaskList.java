@@ -101,7 +101,7 @@ public class TaskList {
 		return sb.toString();
 	}
 	
-	protected void add(ProtoTask task) {
+	protected void add(ProtoTask task) throws invalidDateException {
 		Task newTask = new Task(task);
 		taskList.add(newTask);
 		log.log( Level.FINE, "{0} added to tasklist via ProtoTask", newTask.getName());
@@ -140,7 +140,7 @@ public class TaskList {
 		return t;
 	}
 	
-	protected void edit(int taskID, ProtoTask toEditTask) {
+	protected void edit(int taskID, ProtoTask toEditTask) throws invalidDateException {
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {
 				int taskIndex = taskList.indexOf(task);

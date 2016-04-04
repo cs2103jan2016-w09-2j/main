@@ -28,7 +28,7 @@ public class TaskListTest {
 	}
 	
 	@Test
-	public void testAdd() {
+	public void testAdd() throws invalidDateException {
 		tl = new TaskList();
 		pt = p.parse("add meeting");
 		tl.add(pt);
@@ -42,7 +42,7 @@ public class TaskListTest {
 	}
 	
 	@Test
-	public void testContains() {
+	public void testContains() throws invalidDateException {
 		tl = new TaskList();
 		pt = p.parse("add meeting");
 		t = new Task(pt);
@@ -58,7 +58,7 @@ public class TaskListTest {
 	}
 	
 	@Test
-	public void testDelete() {
+	public void testDelete() throws invalidDateException {
 		tl = new TaskList();
 		pt = p.parse("add meeting");
 		t = new Task(pt);
@@ -75,7 +75,7 @@ public class TaskListTest {
 	}
 	
 	@Test
-	public void testEdit() {
+	public void testEdit() throws invalidDateException {
 		tl = new TaskList();
 		pt = p.parse("add meeting @mr4 $16/05 +1300 #intern");
 		t = new Task(pt);
@@ -93,7 +93,7 @@ public class TaskListTest {
 	}
 	
 	@Test
-	public void testSort() {
+	public void testSort() throws invalidDateException {
 		tl = new TaskList();
 		pt = p.parse("add meeting @a");
 		t = new Task(pt);

@@ -120,7 +120,20 @@ public class ListStorage {
 					SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
 					Calendar c = Calendar.getInstance();
 					c.setTime(sdf.parse(removeFirstWord(field)));
-					pt.setEndDate(c);
+					
+					Calendar cDate, cTime;
+					cDate = Calendar.getInstance();
+					cTime = Calendar.getInstance();
+					
+					cDate.set(Calendar.YEAR, c.get(Calendar.YEAR));
+					cDate.set(Calendar.MONTH, c.get(Calendar.MONTH));
+					cDate.set(Calendar.DATE, c.get(Calendar.DATE));
+					
+					cTime.set(Calendar.HOUR_OF_DAY, c.get(Calendar.HOUR_OF_DAY));
+					cTime.set(Calendar.MINUTE, c.get(Calendar.MINUTE));
+					
+					pt.setEndDate(cDate);
+					pt.setEndTime(cTime);
 				
 				// date is wrong - ignore it	
 				} catch(ParseException pe){
@@ -149,8 +162,32 @@ public class ListStorage {
 					Calendar cEnd = Calendar.getInstance();
 					cStart.setTime(sdf.parse(sDate));
 					cEnd.setTime(sdf.parse(eDate));
-					pt.setStartDate(cStart);
-					pt.setEndDate(cEnd);
+					
+					Calendar cStartDate, cStartTime, cEndDate, cEndTime;
+					
+					cStartDate = Calendar.getInstance();
+					cStartTime = Calendar.getInstance();
+					cEndDate = Calendar.getInstance();
+					cEndTime = Calendar.getInstance();
+					
+					cStartDate.set(Calendar.YEAR, cStart.get(Calendar.YEAR));
+					cStartDate.set(Calendar.MONTH, cStart.get(Calendar.MONTH));
+					cStartDate.set(Calendar.DATE, cStart.get(Calendar.DATE));
+					
+					cStartTime.set(Calendar.HOUR_OF_DAY, cStart.get(Calendar.HOUR_OF_DAY));
+					cStartTime.set(Calendar.MINUTE, cStart.get(Calendar.MINUTE));
+					
+					cEndDate.set(Calendar.YEAR, cEnd.get(Calendar.YEAR));
+					cEndDate.set(Calendar.MONTH, cEnd.get(Calendar.MONTH));
+					cEndDate.set(Calendar.DATE, cEnd.get(Calendar.DATE));
+					
+					cEndTime.set(Calendar.HOUR_OF_DAY, cEnd.get(Calendar.HOUR_OF_DAY));
+					cEndTime.set(Calendar.MINUTE, cEnd.get(Calendar.MINUTE));
+					
+					pt.setStartDate(cStartDate);
+					pt.setStartTime(cStartTime);
+					pt.setEndDate(cEndDate);
+					pt.setEndTime(cEndTime);
 				
 				// dates is wrong - ignore them	
 				} catch(ParseException pe){

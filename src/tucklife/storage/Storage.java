@@ -20,7 +20,7 @@ public class Storage {
 	private static final String RETURN_MESSAGE_FOR_QUEUE = "{%1$s} has been added to TuckLife's queue at position {%2$s}!";
 	private static final String RETURN_MESSAGE_FOR_SETLIMIT = "Limit has been set to %1$s in TuckLife's to-do list!";
 	private static final String RETURN_MESSAGE_FOR_SETLIMIT_WHEN_ABOVE_LIMIT = RETURN_MESSAGE_FOR_SETLIMIT
-			+ "but warning: there are some days with number of tasks above limit!";
+			+ " Be aware that there are some days with more tasks than your new limit!";
 	private static final String RETURN_MESSAGE_FOR_SETLIMIT_OFF = "Limit has been turned off in TuckLife's to-do list!";
 	private static final String RETURN_MESSAGE_FOR_COMPLETE = "{%1$s} has been moved to TuckLife's done list!";
 	
@@ -29,6 +29,12 @@ public class Storage {
 			+ "Alternatively, you can either change the overload limit or turn it off.";
 	private static final String RETURN_MESSAGE_FOR_NOTHING_TO_UNDO = "There is no previous action to undo!";
 	private static final String RETURN_MESSAGE_FOR_NOTHING_TO_REDO = "There is no previous action to redo!";
+	
+	private static final String STATUS_HEADER = "Tasks at a glance...";
+	private static final String STATUS_OUTSTANDING = "Total outstanding tasks: %1$s";
+	private static final String STATUS_TODAY = "Tasks due today: %1$s";
+	private static final String STATUS_CURRENT = "Current task: {%1$s}";
+	private static final String STATUS_CURRENT_NONE = "None";
 	
 	private static TaskList toDoList;
 	private static TaskList doneList;
@@ -426,6 +432,24 @@ public class Storage {
 		} else {
 			return String.format(RETURN_MESSAGE_FOR_SETLIMIT, limit);
 		}
+	}
+	
+	public String getStatus(){
+		StringBuilder status = new StringBuilder();
+		
+		status.append(STATUS_HEADER);
+		status.append("\n");
+		status.append(String.format(STATUS_OUTSTANDING, Integer.toString(toDoList.size())));
+		status.append("\n");
+		status.append(String.format(STATUS_TODAY, Integer.toString(toDoList.tasksToday())));
+		status.append("\n");
+		if(queueList.size() != 0){
+			status.append(String.format(STATUS_CURRENT, queueList.display().split("\n")[0]));
+		} else{
+			status.append(String.format(STATUS_CURRENT, STATUS_CURRENT_NONE));
+		}
+		
+		return status.toString();
 	}
 	
 	

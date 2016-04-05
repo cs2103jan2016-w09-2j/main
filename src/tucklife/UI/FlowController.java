@@ -19,43 +19,50 @@ public class FlowController {
 		s.load(db);
 	}
 
-	public void execute(String command){
+	public String execute(String command){
 
 		ProtoTask pt = p.parse(command);
 
 		if(pt.isError()){
-			System.out.println(pt.toString());
+			return pt.toString();
 		} else {
+			
+			String result, status;
+			
 			if (pt.getCommand().equals("save")) {
-				executeSave();
+				return executeSave();
 			} else if (pt.getCommand().equals("saveto")) {
-				executeSaveTo(pt.getPath());				
+				return executeSaveTo(pt.getPath());				
 			} else if (pt.getCommand().equals("help")) {
-				System.out.println(es.getHelp());
+				return es.getHelp();
 			} else if (pt.getCommand().equals("demo")) {
-				System.out.println(es.getDemo(pt));
+				return es.getDemo(pt);
 			} else if (pt.getCommand().equals("change")) {
-				System.out.println(pt.getChangeMessage());
-				executeSave();
+				return pt.getChangeMessage() + "\n" + executeSave();
 			} else if (pt.getCommand().equals("exit")) {
 				executeSave();
 				System.exit(0);
-			} else {
-				System.out.println(s.parseCommand(pt));
+				return null;
+			} else if(pt.getCommand().equals("display") || pt.getCommand().equals("displaydone")){
+				return s.parseCommand(pt);
+			} else{
+				result = s.parseCommand(pt);
+				status = s.getStatus();
 				executeSave();
+				return status + "\n\n" + result;
 			}
 		}
 	}
 	
-	public void executeSave() {
+	public String executeSave() {
 		DataBox db = s.save();
 		db.setCommands(p.getCommands());
-		System.out.println(es.saveData(db));
+		return es.saveData(db);
 	}
 	
-	public void executeSaveTo(String path) {
+	public String executeSaveTo(String path) {
 		DataBox db = s.save();
 		db.setCommands(p.getCommands());
-		System.out.println(es.saveTo(db, path));
+		return es.saveTo(db, path);
 	}
 }

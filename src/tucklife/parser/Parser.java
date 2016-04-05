@@ -217,13 +217,22 @@ public class Parser {
 								
 								if (dates.length == 1) {
 									// Deadline
-									endDate = dp.combineDateTime(dp.parseDate(date), dp.getDefaultEndTime());
+									endDate = dp.parseDate(date);
+									
+									if (!commandType.equals("edit")) {
+										endTime = dp.getDefaultEndTime();
+									}
 
 								} else if (dates.length == 2) {
 									// Event
-									startDate = dp.combineDateTime(dp.parseDate(dates[0]), dp.getDefaultStartTime());
-									endDate = dp.combineDateTime(dp.parseDate(dates[1]), dp.getDefaultEndTime());
+									startDate = dp.parseDate(dates[0]);
+									endDate = dp.parseDate(dates[1]);
 									
+									startTime = dp.getDefaultStartTime();
+									endTime = dp.getDefaultEndTime();
+									
+									startDate = dp.combineDateTime(startDate, startTime);
+									endDate = dp.combineDateTime(endDate, endTime);
 								} else {
 									// Unrecognized format
 									createErrorTask("invalid date");
@@ -235,35 +244,29 @@ public class Parser {
 								
 								if (times.length == 1) {
 									// Deadline
-									if (commandType.equals("edit"))  {
-										endTime = dp.parseTime(time);
-									} else {
+									endTime = dp.parseTime(time);
+									
+									if (!commandType.equals("edit")) {
 										endDate = dp.getDefaultDate();
-
-										if (dp.hasDatePassed(endDate, dp.parseTime(time))) {
+										
+										if (dp.hasDatePassed(endDate, endTime)) {
 											endDate = dp.getNextDay(endDate);
 										}
-
-										endDate = dp.combineDateTime(endDate, dp.parseTime(time));
-									}
-									
+									}									
 								} else if (times.length == 2) {
 									// Event
-									if (commandType.equals("edit"))  {
-										startTime = dp.parseTime(times[0]);
-										endTime = dp.parseTime(times[1]);
-									} else {
+									startTime = dp.parseTime(times[0]);
+									endTime = dp.parseTime(times[1]);
+									
+									if (!commandType.equals("edit"))  {
 										startDate = dp.getDefaultDate();
 										
-										if (dp.hasDatePassed(startDate, dp.parseTime(times[0]))) {
+										if (dp.hasDatePassed(startDate, startTime)) {
 											startDate = dp.getNextDay(startDate);
 										}
 										
-										endDate = startDate;
-										startDate = dp.combineDateTime(startDate, dp.parseTime(times[0]));
-										endDate = dp.combineDateTime(endDate, dp.parseTime(times[1])); 
+										endDate = startDate; 
 									}
-									
 								} else {
 									// Unrecognized format
 									createErrorTask("invalid time");
@@ -276,22 +279,20 @@ public class Parser {
 								if (dates.length == times.length) {
 									if (dates.length == 1) {
 										// Deadline
-										endDate = dp.combineDateTime(dp.parseDate(date), dp.parseTime(time));
+										endDate = dp.parseDate(date);
+										endTime = dp.parseTime(time);
 										
-										if (commandType.equals("edit")) {
-											endTime = dp.parseTime(time);
-										}
-										
+										endDate = dp.combineDateTime(endDate, endTime);
 									} else if (dates.length == 2) {
 										// Multiple day event
-										startDate = dp.combineDateTime(dp.parseDate(dates[0]), dp.parseTime(times[0]));
-										endDate = dp.combineDateTime(dp.parseDate(dates[1]), dp.parseTime(times[1]));
+										startDate = dp.parseDate(dates[0]);
+										endDate = dp.parseDate(dates[1]);
 										
-										if (commandType.equals("edit")) {
-											startTime = dp.parseTime(times[0]);
-											endTime = dp.parseTime(times[1]);
-										}
+										startTime = dp.parseTime(times[0]);
+										endTime = dp.parseTime(times[1]);
 										
+										startDate = dp.combineDateTime(startDate, startTime);
+										endDate = dp.combineDateTime(endDate, endTime);
 									} else {
 										// Unrecognized format
 										createErrorTask("invalid event format");
@@ -299,14 +300,14 @@ public class Parser {
 									}
 								} else if (dates.length == 1 && times.length == 2) {
 									// Same day event
-									startDate = dp.combineDateTime(dp.parseDate(date), dp.parseTime(times[0]));
-									endDate = dp.combineDateTime(dp.parseDate(date), dp.parseTime(times[1]));
+									startDate = dp.parseDate(date);
+									endDate = dp.parseDate(date);
 									
-									if (commandType.equals("edit")) {
-										startTime = dp.parseTime(times[0]);
-										endTime = dp.parseTime(times[1]);
-									}
-									
+									startTime = dp.parseTime(times[0]);
+									endTime = dp.parseTime(times[1]);
+
+									startDate = dp.combineDateTime(startDate, startTime);
+									endDate = dp.combineDateTime(endDate, endTime);
 								} else {
 									// Unrecognized format
 									createErrorTask("invalid event format");

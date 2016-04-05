@@ -1,3 +1,4 @@
+//@@author a0111101n
 package tucklife.storage;
 
 import java.text.SimpleDateFormat;
@@ -64,18 +65,19 @@ public class TaskList {
 	
 	protected String displayDefault() {
 		StringBuilder sb = new StringBuilder();
-		boolean qflag = false;
+		boolean qFlag = false;
+		boolean othersFlag = false;
 		for (Task task:taskList) {
-			if (task.getQueueID() == -1 && !qflag) {
+			if (task.getQueueID() == -1 && !qFlag) {
 				return display();
 			}
-			if(task.getQueueID() != -1 && !qflag) {
+			if(task.getQueueID() != -1 && !qFlag) {
 				sb.append("Queue:\n");
-				qflag = true;
+				qFlag = true;
 			}
-			if(task.getQueueID() == -1 && qflag) {
+			if(task.getQueueID() == -1 && !othersFlag) {
 				sb.append("\nOther Tasks:\n");
-				qflag = false;
+				othersFlag = true;
 			}
 			sb.append(task.display());
 			sb.append("\n");

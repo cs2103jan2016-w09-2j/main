@@ -100,8 +100,8 @@ public class Task {
 		this.category = task.getCategory();
 		this.additional = task.getAdditional();
 		this.name = task.getTaskDesc();
-		this.startDate = combineDateTime(task.getStartDate(),task.getStartTime());
-		this.endDate = combineDateTime(task.getEndDate(),task.getEndTime());
+		this.startDate = task.getStartDate();
+		this.endDate = task.getEndDate();
 		checkValidDates(startDate, endDate);
 		this.floating = startDate == null && endDate == null; //task.isFloating();
 		this.id = globalID;
@@ -138,6 +138,9 @@ public class Task {
 		} else {
 			if(task.getStartTime()!=null && task.getStartDate()!=null) {
 				this.startDate = task.getStartDate();
+			}
+			if(task.getStartTime() == null && task.getStartDate() == null) {
+				this.startDate = null;
 			}
 		}
 		
@@ -364,9 +367,13 @@ public class Task {
 		c.set(Calendar.YEAR, date.get(Calendar.YEAR));
 		c.set(Calendar.MONTH, date.get(Calendar.MONTH));
 		c.set(Calendar.DATE, date.get(Calendar.DATE));
-		
-		c.set(Calendar.HOUR_OF_DAY, time.get(Calendar.HOUR_OF_DAY));
-		c.set(Calendar.MINUTE, time.get(Calendar.MINUTE));
+		if (time == null) {
+			c.set(Calendar.HOUR_OF_DAY, date.get(Calendar.HOUR_OF_DAY));
+			c.set(Calendar.MINUTE, date.get(Calendar.MINUTE));
+		} else {
+			c.set(Calendar.HOUR_OF_DAY, time.get(Calendar.HOUR_OF_DAY));
+			c.set(Calendar.MINUTE, time.get(Calendar.MINUTE));
+		}
 		
 		return c;
 	}

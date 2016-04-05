@@ -219,9 +219,7 @@ public class Parser {
 									// Deadline
 									endDate = dp.parseDate(date);
 									
-									if (commandType.equals("edit")) {
-										endDate = dp.combineDateTime(endDate, dp.getDefaultEndTime());
-									} else {
+									if (!commandType.equals("edit")) {
 										endTime = dp.getDefaultEndTime();
 									}
 									
@@ -230,14 +228,11 @@ public class Parser {
 									startDate = dp.parseDate(dates[0]);
 									endDate = dp.parseDate(dates[1]);
 
-									if (commandType.equals("edit")) {
-										startDate = dp.combineDateTime(startDate, dp.getDefaultStartTime());
-										endDate = dp.combineDateTime(endDate, dp.getDefaultEndTime());
-									} else {
-										startTime = dp.getDefaultStartTime();
-										endTime = dp.getDefaultEndTime();
-									}
-									
+									startTime = dp.getDefaultStartTime();
+									endTime = dp.getDefaultEndTime();
+
+									startDate = dp.combineDateTime(startDate, startTime);
+									endDate = dp.combineDateTime(endDate, endTime);
 								} else {
 									// Unrecognized format
 									createErrorTask("invalid date");

@@ -20,7 +20,7 @@ public class Storage {
 	private static final String RETURN_MESSAGE_FOR_QUEUE = "{%1$s} has been added to TuckLife's queue at position {%2$s}!";
 	private static final String RETURN_MESSAGE_FOR_SETLIMIT = "Limit has been set to %1$s in TuckLife's to-do list!";
 	private static final String RETURN_MESSAGE_FOR_SETLIMIT_WHEN_ABOVE_LIMIT = RETURN_MESSAGE_FOR_SETLIMIT
-			+ "but warning: there are some days with number of tasks above limit!";
+			+ " Be aware that there are some days with more tasks than your new limit!";
 	private static final String RETURN_MESSAGE_FOR_SETLIMIT_OFF = "Limit has been turned off in TuckLife's to-do list!";
 	private static final String RETURN_MESSAGE_FOR_COMPLETE = "{%1$s} has been moved to TuckLife's done list!";
 	
@@ -29,6 +29,12 @@ public class Storage {
 			+ "Alternatively, you can either change the overload limit or turn it off.";
 	private static final String RETURN_MESSAGE_FOR_NOTHING_TO_UNDO = "There is no previous action to undo!";
 	private static final String RETURN_MESSAGE_FOR_NOTHING_TO_REDO = "There is no previous action to redo!";
+	
+	private static final String STATUS_HEADER = "Tasks at a glance...";
+	private static final String STATUS_OUTSTANDING = "Total outstanding tasks: %1$s";
+	private static final String STATUS_TODAY = "Tasks due today: %1$s";
+	private static final String STATUS_CURRENT = "Current task: {%1$s}";
+	private static final String STATUS_CURRENT_NONE = "None";
 	
 	private static TaskList toDoList;
 	private static TaskList doneList;
@@ -185,7 +191,10 @@ public class Storage {
 				prepareForUndo();
 				return add(pt);
 			} catch (overloadException e) {
-				return String.format(RETURN_MESSAGE_FOR_OVERLOAD, e.limit);
+				return String.format(RETURN_MESSAGE_FOR_OVERLOAD, e.getLimit());
+			} catch (invalidDateException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		case COMPLETE :
 			prepareForUndo();
@@ -202,7 +211,10 @@ public class Storage {
 				prepareForUndo();
 				return edit(pt.getId(), pt);
 			} catch (overloadException e) {
-				return String.format(RETURN_MESSAGE_FOR_OVERLOAD, e.limit);
+				return String.format(RETURN_MESSAGE_FOR_OVERLOAD, e.getLimit());
+			} catch (invalidDateException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		case QUEUE :
 			prepareForUndo();
@@ -232,7 +244,7 @@ public class Storage {
 		redoSaveState.clear();
 	}
 	
-	private static String add(ProtoTask task) throws overloadException{
+	private static String add(ProtoTask task) throws overloadException, invalidDateException{
 		Task newTask = new Task(task);
 		if (newTask.isFloating()) {
 			toDoList.add(newTask);
@@ -248,10 +260,13 @@ public class Storage {
 	}
 
 	private static boolean isOverloaded(Task newTask) {
+		if(newTask.isFloating() || newTask.getStartDate() != null) { //dont count floating tasks and events
+			return false;
+		}
 		
 		int limit = pf.getOverloadLimit();
 		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy");
-		String newTaskDateString = newTask.isFloating() ? null : sdf.format(newTask.getEndDate().getTime());
+		String newTaskDateString = sdf.format(newTask.getEndDate().getTime());
 		return checkIsOverloaded(limit, newTaskDateString);
 	}
 
@@ -263,20 +278,12 @@ public class Storage {
 		String oldDateString = null;
 		Iterator<Task> taskListIter = toDoList.iterator();
 		
-		while(taskListIter.hasNext()){
+		while(taskListIter.hasNext()) {
 			Task t = taskListIter.next();
 			
-			if(t.isFloating()) {
+			if(t.isFloating() || t.getStartDate() != null) { //dont count floating tasks and events
 				continue;
-			} else {
-				String taskEndDateString = sdf.format(t.getEndDate().getTime());
-				if(t.getStartDate()!=null) {
-					String taskStartDateString = sdf.format(t.getStartDate().getTime());
-					if(taskEndDateString.equals(taskStartDateString)) {
-						continue;
-					}
-				}
-			}
+			} 
 			
 			String taskEndDateString = sdf.format(t.getEndDate().getTime());
 			
@@ -300,7 +307,7 @@ public class Storage {
 		return hitLimit;
 	}
 	
-	private static String edit(int taskID, ProtoTask toEditTask) throws overloadException {
+	private static String edit(int taskID, ProtoTask toEditTask) throws overloadException, invalidDateException {
 		Task newTask = new Task(toEditTask);
 		if(isOverloaded(newTask)) {
 			throw new overloadException(pf.getOverloadLimit());
@@ -425,6 +432,24 @@ public class Storage {
 		} else {
 			return String.format(RETURN_MESSAGE_FOR_SETLIMIT, limit);
 		}
+	}
+	
+	public String getStatus(){
+		StringBuilder status = new StringBuilder();
+		
+		status.append(STATUS_HEADER);
+		status.append("\n");
+		status.append(String.format(STATUS_OUTSTANDING, Integer.toString(toDoList.size())));
+		status.append("\n");
+		status.append(String.format(STATUS_TODAY, Integer.toString(toDoList.tasksToday())));
+		status.append("\n");
+		if(queueList.size() != 0){
+			status.append(String.format(STATUS_CURRENT, queueList.display().split("\n")[0]));
+		} else{
+			status.append(String.format(STATUS_CURRENT, STATUS_CURRENT_NONE));
+		}
+		
+		return status.toString();
 	}
 	
 	

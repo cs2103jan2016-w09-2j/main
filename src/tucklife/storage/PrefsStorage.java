@@ -1,3 +1,4 @@
+// @@author A0121352X
 package tucklife.storage;
 
 import java.io.BufferedOutputStream;
@@ -57,7 +58,8 @@ public class PrefsStorage {
 			InputStreamReader isr = new InputStreamReader(fis);
 			BufferedReader br = new BufferedReader(isr);
 			
-			/* format for prefs file
+			/* 
+			 * format for prefs file
 			 * line 0 - Preferences:
 			 * line 1 - savePath
 			 * 
@@ -90,12 +92,12 @@ public class PrefsStorage {
 			fis.close();
 			
 			return true;
-			
+		
+		// signal that a new blank prefs.txt is needed
 		} catch(FileNotFoundException fnfe){
 			throw fnfe;
 			
 		} catch(IOException ioe){
-			ioe.printStackTrace();
 			return false;
 		}
 	}
@@ -105,27 +107,13 @@ public class PrefsStorage {
 			FileOutputStream fos = new FileOutputStream(FILENAME_PREFS);
 			BufferedOutputStream bos = new BufferedOutputStream(fos);
 			
-			/* format for prefs file
-			 * line 0 - Preferences:
-			 * line 1 - savePath
-			 * 
-			 * line 2 - defLocation
-			 * line 3 - defPriority
-			 * line 4 - defCategory
-			 * line 5 - defTime
-			 * line 6 - defAdditional
-			 * 
-			 * line 7 - overload limit
-			 * line 8 - reminders on/off
-			 */
-			
 			// write blank preferences
 			bos.write(FILE_BLANK.getBytes());
 			
 			bos.close();
 			fos.close();
 		
-		// should not happen under normal circumstances
+		// should not happen under normal use
 		} catch(FileNotFoundException fnfe){
 			return false;
 			
@@ -141,7 +129,8 @@ public class PrefsStorage {
 			FileOutputStream fos = new FileOutputStream(FILENAME_PREFS);
 			BufferedOutputStream bos = new BufferedOutputStream(fos);
 			
-			/* format for prefs file
+			/* 
+			 * format for prefs file
 			 * line 0 - Preferences:
 			 * line 1 - savePath
 			 * 
@@ -186,7 +175,7 @@ public class PrefsStorage {
 			bos.close();
 			fos.close();
 		
-		// should not happen under any circumstance
+		// should not happen unless file was deleted after startup
 		} catch(FileNotFoundException fnfe){
 			return false;
 			
@@ -204,7 +193,17 @@ public class PrefsStorage {
 	protected void setOverloadLimit(int overloadLimit) {
 		this.overloadLimit = overloadLimit;
 	}
-
+	
+	protected String getSavePath(){
+		return savePath;
+	}
+	
+	protected int getOverloadLimit(){
+		return overloadLimit;
+	}
+	
+	// @@author A0121352X-unused
+	// these default parameters were to be used by an abandoned feature
 	protected void setReminderOn(boolean reminderOn) {
 		this.reminderOn = reminderOn;
 	}
@@ -223,14 +222,6 @@ public class PrefsStorage {
 
 	protected void setDefAdditional(String defAdditional) {
 		this.defAdditional = defAdditional;
-	}
-		
-	protected String getSavePath(){
-		return savePath;
-	}
-	
-	protected int getOverloadLimit(){
-		return overloadLimit;
 	}
 	
 	protected boolean getReminderStatus(){

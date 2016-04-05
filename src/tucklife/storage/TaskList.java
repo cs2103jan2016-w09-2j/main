@@ -1,6 +1,9 @@
+//@@author a0111101n
 package tucklife.storage;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.logging.Level;
@@ -15,6 +18,7 @@ public class TaskList {
 
 	private ArrayList<Task> taskList;
 	
+	// intended for use when table is aligned
 	private static final String HEADER_ID = "ID";
 	private static final String HEADER_NAME = "Name";
 	private static final String HEADER_LOCATION = "Location";
@@ -61,18 +65,19 @@ public class TaskList {
 	
 	protected String displayDefault() {
 		StringBuilder sb = new StringBuilder();
-		boolean qflag = false;
+		boolean qFlag = false;
+		boolean othersFlag = false;
 		for (Task task:taskList) {
-			if (task.getQueueID() == -1 && !qflag) {
+			if (task.getQueueID() == -1 && !qFlag) {
 				return display();
 			}
-			if(task.getQueueID() != -1 && !qflag) {
+			if(task.getQueueID() != -1 && !qFlag) {
 				sb.append("Queue:\n");
-				qflag = true;
+				qFlag = true;
 			}
-			if(task.getQueueID() == -1 && qflag) {
+			if(task.getQueueID() == -1 && !othersFlag) {
 				sb.append("\nOther Tasks:\n");
-				qflag = false;
+				othersFlag = true;
 			}
 			sb.append(task.display());
 			sb.append("\n");
@@ -101,7 +106,7 @@ public class TaskList {
 		return sb.toString();
 	}
 	
-	protected void add(ProtoTask task) {
+	protected void add(ProtoTask task) throws invalidDateException {
 		Task newTask = new Task(task);
 		taskList.add(newTask);
 		log.log( Level.FINE, "{0} added to tasklist via ProtoTask", newTask.getName());
@@ -140,7 +145,7 @@ public class TaskList {
 		return t;
 	}
 	
-	protected void edit(int taskID, ProtoTask toEditTask) {
+	protected void edit(int taskID, ProtoTask toEditTask) throws invalidDateException {
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {
 				int taskIndex = taskList.indexOf(task);
@@ -211,6 +216,27 @@ public class TaskList {
 			log.log( Level.FINE, "tasklist has been sorted by queue number, then by time");
 			//Collections.reverse(taskList);
 		}
+	}
+	
+	protected int tasksToday(){
+		Calendar c = Calendar.getInstance();
+		int count = 0;
+		
+		for(Task t: taskList){
+			
+			if(t.isFloating() || t.getStartDate() != null) {
+				continue;
+			} 
+			
+			Calendar deadline = t.getEndDate();
+			
+			if(c.get(Calendar.YEAR) == deadline.get(Calendar.YEAR) &&
+					c.get(Calendar.DAY_OF_YEAR)  == deadline.get(Calendar.DAY_OF_YEAR)){
+				count += 1;
+			}
+		}
+			
+		return count;
 	}
 	
 }

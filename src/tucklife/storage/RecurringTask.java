@@ -1,3 +1,5 @@
+// @@author A0121352X-unused
+// this was a potential implementation for a recurring task - feature was abandoned
 package tucklife.storage;
 
 import java.util.Calendar;
@@ -119,7 +121,6 @@ public class RecurringTask {
 	}
 	
 	public ProtoTask createNextOccurence(){
-		// hopefully I'm creating this correctly
 		ProtoTask pt = new ProtoTask("add");
 		
 		pt.setTaskDesc(description);

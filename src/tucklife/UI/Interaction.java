@@ -1,8 +1,6 @@
 package tucklife.UI;
 
 import java.util.Scanner;
-import tucklife.storage.ExternalStorage;
-import tucklife.storage.Storage;
 
 public class Interaction {
 

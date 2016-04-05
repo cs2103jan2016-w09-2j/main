@@ -121,6 +121,12 @@ public class DateParser {
 	// Format: dd-mmmm (full month)
 	private static final String DATE_FULL_DM_DASH = "[0-3]?\\d-[a-zA-Z]{4,9}";
 	
+	// Format: Short day name
+	private static final String DAY_SHORT = "(next\\s)?[a-zA-Z]{3,5}";
+	
+	// Format: Full day name
+	private static final String DAY_FULL = "(next\\s)?[a-zA-Z]{6,9}";
+	
 	/* *************
 	 * Time formats *
 	 ****************/
@@ -154,15 +160,64 @@ public class DateParser {
 	}
 	
 	public Calendar parseDate(String rawDate) throws InvalidDateException {
+		SimpleDateFormat sdf;
 		calendar = Calendar.getInstance();
+		
 		if (rawDate.equalsIgnoreCase("today")) {
 			return calendar;
+			
 		} else if (rawDate.equalsIgnoreCase("tomorrow") || rawDate.equalsIgnoreCase("tmr")) {
 			calendar.add(Calendar.DATE, 1);
 			return calendar;
-		} else {
-			SimpleDateFormat sdf;
 			
+		} else if (rawDate.matches(DAY_SHORT) || rawDate.matches(DAY_FULL)) {
+			String[] d = rawDate.split(" ");
+			String dayOfWeek;
+			boolean isNextWeek = false;
+			
+			if (d.length == 1) {
+				dayOfWeek = rawDate;
+			} else if (d.length == 2 && d[0].equalsIgnoreCase("next")) {
+				dayOfWeek = d[1].toLowerCase();
+				isNextWeek = true;
+			} else {
+				throw new InvalidDateException("invalid date");
+			}
+
+			int taskDay = -1;
+			int today = calendar.get(Calendar.DAY_OF_WEEK);
+
+			if (dayOfWeek.equals("mon") || dayOfWeek.equals("monday")) {
+				taskDay = Calendar.MONDAY;
+			} else if (dayOfWeek.equals("tue") || dayOfWeek.equals("tues")
+					   || dayOfWeek.equals("tuesday")) {
+				taskDay = Calendar.TUESDAY;
+			} else if (dayOfWeek.equals("wed") || dayOfWeek.equals("wednesday")) {
+				taskDay = Calendar.WEDNESDAY;
+			} else if (dayOfWeek.equals("thu") || dayOfWeek.equals("thur")
+					   || dayOfWeek.equals("thurs") || dayOfWeek.equals("thursday")) {
+				taskDay = Calendar.THURSDAY;
+			} else if (dayOfWeek.equals("fri") || dayOfWeek.equals("friday")) {
+				taskDay = Calendar.FRIDAY;
+			} else if (dayOfWeek.equals("sat") || dayOfWeek.equals("saturday")) {
+				taskDay = Calendar.SATURDAY;
+			} else if (dayOfWeek.equals("sun") || dayOfWeek.equals("sunday")) {
+				taskDay = Calendar.SUNDAY;
+			}
+
+			if (taskDay == -1) {
+				throw new InvalidDateException("invalid date");
+			} else {
+				if (today > taskDay || isNextWeek) {
+					calendar.add(Calendar.DATE, 7);
+				}
+
+				calendar.set(Calendar.DAY_OF_WEEK, taskDay);
+
+				return calendar;
+			}
+			
+		} else {
 			/* ***********************
 			 * Variations of dd mm yy *
 			 *************************/
@@ -355,7 +410,7 @@ public class DateParser {
 	}
 	
 	// Combines date and time into a single Calendar
-	private Calendar combineDateTime(Calendar date, Calendar time) {
+	public Calendar combineDateTime(Calendar date, Calendar time) {
 		Calendar c = Calendar.getInstance();
 		
 		c.set(Calendar.YEAR, date.get(Calendar.YEAR));

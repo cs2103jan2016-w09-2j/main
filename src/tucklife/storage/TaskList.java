@@ -1,6 +1,8 @@
 package tucklife.storage;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.logging.Level;
@@ -15,6 +17,7 @@ public class TaskList {
 
 	private ArrayList<Task> taskList;
 	
+	// intended for use when table is aligned
 	private static final String HEADER_ID = "ID";
 	private static final String HEADER_NAME = "Name";
 	private static final String HEADER_LOCATION = "Location";
@@ -211,6 +214,27 @@ public class TaskList {
 			log.log( Level.FINE, "tasklist has been sorted by queue number, then by time");
 			//Collections.reverse(taskList);
 		}
+	}
+	
+	protected int tasksToday(){
+		Calendar c = Calendar.getInstance();
+		int count = 0;
+		
+		for(Task t: taskList){
+			
+			if(t.isFloating() || t.getStartDate() != null) {
+				continue;
+			} 
+			
+			Calendar deadline = t.getEndDate();
+			
+			if(c.get(Calendar.YEAR) == deadline.get(Calendar.YEAR) &&
+					c.get(Calendar.DAY_OF_YEAR)  == deadline.get(Calendar.DAY_OF_YEAR)){
+				count += 1;
+			}
+		}
+			
+		return count;
 	}
 	
 }

@@ -21,7 +21,8 @@ public class Interaction {
 			System.out.print(MESSAGE_COMMAND_PROMPT);
 			String command = sc.nextLine();
 			System.out.println();
-			fc.execute(command);
+			String result = fc.execute(command);
+			System.out.println(result);
 			System.out.println();
 		}
 	}

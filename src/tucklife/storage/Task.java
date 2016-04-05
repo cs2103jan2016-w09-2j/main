@@ -1,3 +1,4 @@
+//@@author a0111101n
 package tucklife.storage;
 
 import java.text.SimpleDateFormat;
@@ -135,8 +136,38 @@ public class Task {
 		this.startDate = task.getStartDate() == null ? this.startDate : task.getStartDate();
 		this.endDate = task.getEndDate() == null ? this.endDate : task.getEndDate();
 		
-		if(task.getStartTime()!=null) {
-			this.startDate = combineDateTime(this.startDate,task.getStartTime());
+		if(task.getStartDate() == null && task.getEndDate() == null) { //only do such changes if there is a time but no date
+			
+			if(task.getStartTime() == null && task.getEndTime()!=null) { //current task must be a deadline else it does not make sense
+				if(this.startDate != null) {
+					throw new invalidDateException();
+				} else {
+					if(this.endDate == null) { //current task is a floating task
+						this.endDate = task.getEndTime(); //take deadline to be nearest time, similiar to the way add handles a single time
+					} else {
+						this.endDate = combineDateTime(this.endDate, task.getEndTime()); //change the time of the deadline
+					}
+				} 
+			}
+			
+			if(task.getStartTime()!=null && task.getEndTime()!=null) { //new edited task becomes an event
+				if(isFloating()) { //cant created an event from a floating task since you dont know the dates
+					throw new invalidDateException();
+				}
+				
+				if(this.startDate != null && this.startDate != this.endDate) {
+					this.startDate = combineDateTime(this.startDate,task.getStartTime());
+					this.endDate = combineDateTime(this.endDate,task.getEndTime());
+				} else {
+					if(onSameDay(task.getStartTime(),task.getEndTime())) {
+						this.startDate = combineDateTime(this.startDate,task.getStartTime());
+						this.endDate = combineDateTime(this.endDate,task.getEndTime());
+					} else {
+						this.startDate = combineDateTime(this.startDate,task.getStartTime());
+						this.endDate = combineDateTime(tomorrow(this.endDate),task.getEndTime());
+					}
+				}
+			}
 		}
 		
 		if(task.getEndTime() != null) {
@@ -150,6 +181,16 @@ public class Task {
 		return this;
 	}
 	
+	private Calendar tomorrow(Calendar endDate) {
+		endDate.add(Calendar.DATE, 1);
+		return endDate;
+	}
+
+	private boolean onSameDay(Calendar startTime, Calendar endTime) {
+		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy");
+		return sdf.format(startTime.getTime()).equals(sdf.format(endTime.getTime()));
+	}
+
 	protected String display(){
 		StringBuilder displayString = new StringBuilder();
 		

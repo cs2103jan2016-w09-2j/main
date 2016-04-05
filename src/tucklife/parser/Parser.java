@@ -7,8 +7,7 @@ import java.util.Hashtable;
 public class Parser {
 	
 	private String[] commandTypes = { "add", "change", "complete", "delete", "demo", "display", "displaydone",
-									  "edit", "exit", "help", "queue", "redo",
-									  "save", "saveto", "setlimit", "setdefault", "undo" };
+									  "edit", "exit", "help", "queue", "redo", "save", "saveto", "setlimit", "undo" };
 	private String[] paramSymbols = { "-", "+", "$", "#", "!", "&", "@" };
 	private ProtoTask pt;
 	private DateParser dp;
@@ -21,14 +20,12 @@ public class Parser {
 										  + "+<time> #<category> !<priority> @<location> &<additional>)";
 	private final String ERROR_PARAMS_EDIT = "Format: edit <id> (optional: <task description> "
 										   + "$<date> +<time> #<category> !<priority> @<location> &<additional>)";
-	private final String ERROR_PARAMS_DISPLAY = "Format: display (optional: <search term> +/-<sort order>";
+	private final String ERROR_PARAMS_DISPLAY = "Format: display (optional: <search term> +/-<sort order>)";
 	private final String ERROR_PARAMS_QUEUE = "Format: queue <id> <pos>";
 	private final String ERROR_PARAMS_DEMO = "Format: demo <command>";
 	private final String ERROR_PARAMS_LIMIT = "Format: setlimit <limit>";
 	private final String ERROR_PARAMS_SAVETO = "Format: saveto <file path>";
 	private final String ERROR_PARAMS_CHANGE = "Format: change <old command> <new command>";
-	private final String ERROR_PARAMS_DEFAULT = "Format: setdefault (at least one of the following) <task description> "
-											  + "$<date> +<time> #<category> !<priority> @<location> &<additional>";
 	
 	private final String ERROR_INVALID_PARAMS = "Incorrect number of parameters";
 	private final String ERROR_INVALID_COMMAND = "'%1$s' is not a valid command";
@@ -165,11 +162,6 @@ public class Parser {
 				
 				// No break, edit and add share similar parameters
 				
-			case "setdefault" :
-				if (commandArg.isEmpty()) {
-					createErrorTask(ERROR_INVALID_PARAMS + "\n" + ERROR_PARAMS_DEFAULT);
-				}
-				
 			case "add" :
 				if (commandArg.isEmpty()) {
 						createErrorTask(ERROR_INVALID_PARAMS + "\n" + ERROR_PARAMS_ADD);
@@ -227,18 +219,18 @@ public class Parser {
 									// Deadline
 									endDate = dp.parseDate(date);
 									
-									if (!commandType.equals("edit") && !commandType.equals("setdefault"))  {
+									//if (!commandType.equals("edit"))  {
 										endTime = dp.getDefaultEndTime();
-									}
+									//}
 								} else if (dates.length == 2) {
 									// Event
 									startDate = dp.parseDate(dates[0]);
 									endDate = dp.parseDate(dates[1]);
 									
-									if (!commandType.equals("edit") && !commandType.equals("setdefault"))  {
+									//if (!commandType.equals("edit"))  {
 										startTime = dp.getDefaultStartTime();
 										endTime = dp.getDefaultEndTime();
-									}
+									//}
 								} else {
 									// Unrecognized format
 									createErrorTask("invalid date");
@@ -252,7 +244,7 @@ public class Parser {
 									// Deadline
 									endTime = dp.parseTime(time);
 									
-									if (!commandType.equals("edit") && !commandType.equals("setdefault"))  {
+									if (!commandType.equals("edit"))  {
 										endDate = dp.getDefaultDate();
 										
 										if (dp.hasDatePassed(endDate, endTime)) {
@@ -264,7 +256,7 @@ public class Parser {
 									startTime = dp.parseTime(times[0]);
 									endTime = dp.parseTime(times[1]);
 
-									if (!commandType.equals("edit") && !commandType.equals("setdefault"))  {
+									if (!commandType.equals("edit"))  {
 										startDate = dp.getDefaultDate();
 										
 										if (dp.hasDatePassed(startDate, startTime)) {
@@ -588,14 +580,21 @@ public class Parser {
 	}
 	
 	private String[] splitEventDate(String s) {
+		String[] result;
 		if (s.contains(" - ")) {
-			return s.split("\\s-\\s");
+			result = s.split("\\s-\\s");
 		} else if (s.contains(" to ")) {
-			return s.split("\\sto\\s");
+			result = s.split("\\sto\\s");
 		} else {
-			String[] result = {s};
-			return result;
+			String[] ss = {s};
+			return ss;
 		}
+		
+		if (result[0].startsWith("next") && !result[1].startsWith("next")) {
+			result[1] = "next " + result[1];
+		}
+		
+		return result;
 	}
 	
 	private void parseCommandWithoutParam(String command, String arg) {

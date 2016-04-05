@@ -133,6 +133,22 @@ public class Task {
 		this.additional = task.getAdditional() == null ? this.additional : task.getAdditional();
 		this.name = task.getTaskDesc() == null ? this.name : task.getTaskDesc();
 		
+		if(task.getStartTime() == null && task.getStartDate()!=null) {
+			this.startDate = combineDateTime(task.getStartDate(),this.startDate); //merge date and time
+		} else {
+			if(task.getStartTime()!=null && task.getStartDate()!=null) {
+				this.startDate = task.getStartDate();
+			}
+		}
+		
+		if(task.getEndTime() == null && task.getEndDate()!=null) {
+			this.endDate = combineDateTime(task.getEndDate(),this.endDate); //merge date and time
+		} else {
+			if(task.getEndTime()!=null && task.getEndDate()!=null) {
+				this.endDate = task.getEndDate();
+			}
+		}
+		
 		this.startDate = task.getStartDate() == null ? this.startDate : task.getStartDate();
 		this.endDate = task.getEndDate() == null ? this.endDate : task.getEndDate();
 		
@@ -160,19 +176,16 @@ public class Task {
 					this.endDate = combineDateTime(this.endDate,task.getEndTime());
 				} else {
 					if(onSameDay(task.getStartTime(),task.getEndTime())) {
-						this.startDate = combineDateTime(this.startDate,task.getStartTime());
+						this.startDate = combineDateTime(this.endDate,task.getStartTime());
 						this.endDate = combineDateTime(this.endDate,task.getEndTime());
 					} else {
-						this.startDate = combineDateTime(this.startDate,task.getStartTime());
+						this.startDate = combineDateTime(this.endDate,task.getStartTime());
 						this.endDate = combineDateTime(tomorrow(this.endDate),task.getEndTime());
 					}
 				}
 			}
 		}
 		
-		if(task.getEndTime() != null) {
-			this.endDate = combineDateTime(this.endDate,task.getEndTime());
-		}
 		checkValidDates(startDate, endDate);
 		
 		this.floating = startDate == null && endDate == null; //task.isFloating();

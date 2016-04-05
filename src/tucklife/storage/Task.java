@@ -149,8 +149,8 @@ public class Task {
 			}
 		}
 		
-		this.startDate = task.getStartDate() == null ? this.startDate : task.getStartDate();
-		this.endDate = task.getEndDate() == null ? this.endDate : task.getEndDate();
+		//this.startDate = task.getStartDate() == null ? this.startDate : task.getStartDate();
+		//this.endDate = task.getEndDate() == null ? this.endDate : task.getEndDate();
 		
 		if(task.getStartDate() == null && task.getEndDate() == null) { //only do such changes if there is a time but no date
 			

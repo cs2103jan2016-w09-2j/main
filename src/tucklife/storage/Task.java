@@ -1,3 +1,4 @@
+//@@author a0111101n
 package tucklife.storage;
 
 import java.text.SimpleDateFormat;
@@ -92,15 +93,16 @@ public class Task {
 		this.queueID = id;
 	}
 	
-	public Task(ProtoTask task){
+	public Task(ProtoTask task) throws invalidDateException{
 		//create the Task
 		this.location = task.getLocation();
 		this.priority = task.getPriority();
 		this.category = task.getCategory();
 		this.additional = task.getAdditional();
 		this.name = task.getTaskDesc();
-		this.startDate = task.getStartDate();
-		this.endDate = task.getEndDate();
+		this.startDate = combineDateTime(task.getStartDate(),task.getStartTime());
+		this.endDate = combineDateTime(task.getEndDate(),task.getEndTime());
+		checkValidDates(startDate, endDate);
 		this.floating = startDate == null && endDate == null; //task.isFloating();
 		this.id = globalID;
 		this.queueID = task.getPosition();
@@ -123,21 +125,72 @@ public class Task {
 		this.queueID = task.getQueueID();
 	}//*/
 	
-	protected Task edit(ProtoTask task){
+	protected Task edit(ProtoTask task) throws invalidDateException{
 		//edit task
 		this.location = task.getLocation() == null ? this.location : task.getLocation();
 		this.priority = task.getPriority() == -1 ? this.priority : task.getPriority();
 		this.category = task.getCategory() == null ? this.category : task.getCategory();
 		this.additional = task.getAdditional() == null ? this.additional : task.getAdditional();
 		this.name = task.getTaskDesc() == null ? this.name : task.getTaskDesc();
+		
 		this.startDate = task.getStartDate() == null ? this.startDate : task.getStartDate();
 		this.endDate = task.getEndDate() == null ? this.endDate : task.getEndDate();
+		
+		if(task.getStartDate() == null && task.getEndDate() == null) { //only do such changes if there is a time but no date
+			
+			if(task.getStartTime() == null && task.getEndTime()!=null) { //current task must be a deadline else it does not make sense
+				if(this.startDate != null) {
+					throw new invalidDateException();
+				} else {
+					if(this.endDate == null) { //current task is a floating task
+						this.endDate = task.getEndTime(); //take deadline to be nearest time, similiar to the way add handles a single time
+					} else {
+						this.endDate = combineDateTime(this.endDate, task.getEndTime()); //change the time of the deadline
+					}
+				} 
+			}
+			
+			if(task.getStartTime()!=null && task.getEndTime()!=null) { //new edited task becomes an event
+				if(isFloating()) { //cant created an event from a floating task since you dont know the dates
+					throw new invalidDateException();
+				}
+				
+				if(this.startDate != null && this.startDate != this.endDate) {
+					this.startDate = combineDateTime(this.startDate,task.getStartTime());
+					this.endDate = combineDateTime(this.endDate,task.getEndTime());
+				} else {
+					if(onSameDay(task.getStartTime(),task.getEndTime())) {
+						this.startDate = combineDateTime(this.startDate,task.getStartTime());
+						this.endDate = combineDateTime(this.endDate,task.getEndTime());
+					} else {
+						this.startDate = combineDateTime(this.startDate,task.getStartTime());
+						this.endDate = combineDateTime(tomorrow(this.endDate),task.getEndTime());
+					}
+				}
+			}
+		}
+		
+		if(task.getEndTime() != null) {
+			this.endDate = combineDateTime(this.endDate,task.getEndTime());
+		}
+		checkValidDates(startDate, endDate);
+		
 		this.floating = startDate == null && endDate == null; //task.isFloating();
 		this.id = task.getId() == -1 ? this.id : task.getId();
 		log.log( Level.FINE, "Task has been edited via ProtoTask");
 		return this;
 	}
 	
+	private Calendar tomorrow(Calendar endDate) {
+		endDate.add(Calendar.DATE, 1);
+		return endDate;
+	}
+
+	private boolean onSameDay(Calendar startTime, Calendar endTime) {
+		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy");
+		return sdf.format(startTime.getTime()).equals(sdf.format(endTime.getTime()));
+	}
+
 	protected String display(){
 		StringBuilder displayString = new StringBuilder();
 		
@@ -162,6 +215,52 @@ public class Task {
 		}
 		
 		return displayString.toString();
+	}
+	
+	protected boolean containsExact(String searchKey) {
+		String[] fields = new String[6];
+		
+		fields[0] = dateField();
+		fields[1] = locationField();
+		fields[2] = priorityField();
+		fields[3] = categoryField();
+		fields[4] = additionalField();
+		fields[5] = getName();
+		
+		String searchItem = " " + searchKey + " ";
+		
+		for(int i = 0; i < 6; i++){
+			if(fields[i] != null){
+				String searchFrom = "  " + fields[i] + " ";
+				if (searchFrom.toLowerCase().contains(searchItem.toLowerCase())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	protected boolean containsPartial(String searchKey) {
+		if(this.containsExact(searchKey)) {
+			return false;
+		}
+		String[] fields = new String[6];
+		
+		fields[0] = dateField();
+		fields[1] = locationField();
+		fields[2] = priorityField();
+		fields[3] = categoryField();
+		fields[4] = additionalField();
+		fields[5] = getName();
+		
+		for(int i = 0; i < 6; i++){
+			if(fields[i] != null){
+				if (fields[i].toLowerCase().contains(searchKey.toLowerCase())) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	private String idField(){
@@ -241,6 +340,31 @@ public class Task {
 		}
 		
 		return displayString;
-	}	
+	}
+	
+	private Calendar combineDateTime(Calendar date, Calendar time) {
+		if(date == null) {
+			return null;
+		}
+		Calendar c = Calendar.getInstance();
+		
+		c.set(Calendar.YEAR, date.get(Calendar.YEAR));
+		c.set(Calendar.MONTH, date.get(Calendar.MONTH));
+		c.set(Calendar.DATE, date.get(Calendar.DATE));
+		
+		c.set(Calendar.HOUR_OF_DAY, time.get(Calendar.HOUR_OF_DAY));
+		c.set(Calendar.MINUTE, time.get(Calendar.MINUTE));
+		
+		return c;
+	}
+	
+	private void checkValidDates(Calendar start, Calendar end) throws invalidDateException{
+		if(end == null) {
+			return;
+		}
+		if (end.before(start) && start!= null) {
+			throw new invalidDateException();
+		}
+	}
 	
 }

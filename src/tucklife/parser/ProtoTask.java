@@ -122,6 +122,14 @@ public class ProtoTask {
 		return endDate;
 	}
 	
+	public Calendar getStartTime() {
+		return startTime;
+	}
+	
+	public Calendar getEndTime() {
+		return endTime;
+	}
+	
 	public boolean isError() {
 		return isError;
 	}

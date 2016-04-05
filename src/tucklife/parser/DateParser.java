@@ -410,7 +410,7 @@ public class DateParser {
 	}
 	
 	// Combines date and time into a single Calendar
-	private Calendar combineDateTime(Calendar date, Calendar time) {
+	public Calendar combineDateTime(Calendar date, Calendar time) {
 		Calendar c = Calendar.getInstance();
 		
 		c.set(Calendar.YEAR, date.get(Calendar.YEAR));

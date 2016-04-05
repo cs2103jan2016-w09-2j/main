@@ -219,18 +219,20 @@ public class Parser {
 									// Deadline
 									endDate = dp.parseDate(date);
 									
-									//if (!commandType.equals("edit"))  {
+									if (!commandType.equals("edit")) {
 										endTime = dp.getDefaultEndTime();
-									//}
+									}
+									
 								} else if (dates.length == 2) {
 									// Event
 									startDate = dp.parseDate(dates[0]);
 									endDate = dp.parseDate(dates[1]);
-									
-									//if (!commandType.equals("edit"))  {
-										startTime = dp.getDefaultStartTime();
-										endTime = dp.getDefaultEndTime();
-									//}
+
+									startTime = dp.getDefaultStartTime();
+									endTime = dp.getDefaultEndTime();
+
+									startDate = dp.combineDateTime(startDate, startTime);
+									endDate = dp.combineDateTime(endDate, endTime);
 								} else {
 									// Unrecognized format
 									createErrorTask("invalid date");
@@ -279,6 +281,8 @@ public class Parser {
 										// Deadline
 										endDate = dp.parseDate(date);
 										endTime = dp.parseTime(time);
+										
+										endDate = dp.combineDateTime(endDate, endTime);
 									} else if (dates.length == 2) {
 										// Multiple day event
 										startDate = dp.parseDate(dates[0]);
@@ -286,6 +290,9 @@ public class Parser {
 										
 										startTime = dp.parseTime(times[0]);
 										endTime = dp.parseTime(times[1]);
+										
+										startDate = dp.combineDateTime(startDate, startTime);
+										endDate = dp.combineDateTime(endDate, endTime);
 									} else {
 										// Unrecognized format
 										createErrorTask("invalid event format");
@@ -298,6 +305,9 @@ public class Parser {
 									
 									startTime = dp.parseTime(times[0]);
 									endTime = dp.parseTime(times[1]);
+									
+									startDate = dp.combineDateTime(startDate, startTime);
+									endDate = dp.combineDateTime(endDate, endTime);
 								} else {
 									// Unrecognized format
 									createErrorTask("invalid event format");

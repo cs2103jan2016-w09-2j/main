@@ -222,15 +222,15 @@ public class Parser {
 									if (!commandType.equals("edit")) {
 										endTime = dp.getDefaultEndTime();
 									}
-
+									
 								} else if (dates.length == 2) {
 									// Event
 									startDate = dp.parseDate(dates[0]);
 									endDate = dp.parseDate(dates[1]);
-									
+
 									startTime = dp.getDefaultStartTime();
 									endTime = dp.getDefaultEndTime();
-									
+
 									startDate = dp.combineDateTime(startDate, startTime);
 									endDate = dp.combineDateTime(endDate, endTime);
 								} else {
@@ -252,12 +252,12 @@ public class Parser {
 										if (dp.hasDatePassed(endDate, endTime)) {
 											endDate = dp.getNextDay(endDate);
 										}
-									}									
+									}
 								} else if (times.length == 2) {
 									// Event
 									startTime = dp.parseTime(times[0]);
 									endTime = dp.parseTime(times[1]);
-									
+
 									if (!commandType.equals("edit"))  {
 										startDate = dp.getDefaultDate();
 										
@@ -265,7 +265,7 @@ public class Parser {
 											startDate = dp.getNextDay(startDate);
 										}
 										
-										endDate = startDate; 
+										endDate = startDate;
 									}
 								} else {
 									// Unrecognized format
@@ -305,7 +305,7 @@ public class Parser {
 									
 									startTime = dp.parseTime(times[0]);
 									endTime = dp.parseTime(times[1]);
-
+									
 									startDate = dp.combineDateTime(startDate, startTime);
 									endDate = dp.combineDateTime(endDate, endTime);
 								} else {

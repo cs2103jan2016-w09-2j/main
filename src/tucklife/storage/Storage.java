@@ -260,7 +260,7 @@ public class Storage {
 	}
 
 	private static boolean isOverloaded(Task newTask) {
-		if(newTask.isFloating() || newTask.getStartDate() != null) {
+		if(newTask.isFloating() || newTask.getStartDate() != null) { //dont count floating tasks and events
 			return false;
 		}
 		
@@ -278,10 +278,10 @@ public class Storage {
 		String oldDateString = null;
 		Iterator<Task> taskListIter = toDoList.iterator();
 		
-		while(taskListIter.hasNext()){
+		while(taskListIter.hasNext()) {
 			Task t = taskListIter.next();
 			
-			if(t.isFloating() || t.getStartDate() != null) {
+			if(t.isFloating() || t.getStartDate() != null) { //dont count floating tasks and events
 				continue;
 			} 
 			

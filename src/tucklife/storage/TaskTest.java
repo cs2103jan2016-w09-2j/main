@@ -125,6 +125,28 @@ public class TaskTest {
 	}
 	
 	@Test
+	public void testEdit7() throws invalidDateException {
+		pt = p.parse("add company trip with boss @mr3 +1700 $19/05 #important &bring all documents");
+		t = new Task(pt);
+		id = t.getId();
+		pt = p.parse(String.format("edit %1$s @mr4 $16/05",id));
+		t.edit(pt);
+		String taskDisplayEdit = String.format("%1$s. company trip with boss | By: Mon, 16 May 2016 17:00 | Location: mr4",id);
+		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+	}
+	
+	@Test
+	public void testEdit8() throws invalidDateException {
+		pt = p.parse("add company trip with boss $16/06 +1500");
+		t = new Task(pt);
+		id = t.getId();
+		pt = p.parse(String.format("edit %1$s @mr4 $16/05",id));
+		t.edit(pt);
+		String taskDisplayEdit = String.format("%1$s. company trip with boss | By: Mon, 16 May 2016 15:00 | Location: mr4",id);
+		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+	}
+	
+	@Test
 	public void testSearch1() throws invalidDateException {
 		ProtoTask pt1 = p.parse("add go to gap @mr3 +1200 $16/05 #important &bring all documents");
 		t = new Task(pt1);

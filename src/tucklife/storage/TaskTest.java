@@ -1,3 +1,4 @@
+//@@author a0111101n
 package tucklife.storage;
 
 import static org.junit.Assert.*;
@@ -121,6 +122,61 @@ public class TaskTest {
 		pt = p.parse(String.format("edit %1$s @mr4 $16/05 to 17/05",id));
 		t.edit(pt);
 		String taskDisplayEdit = String.format("%1$s. company trip with boss | From: Mon, 16 May 2016 09:00 To: Tue, 17 May 2016 10:00 | Location: mr4",id);
+		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+	}
+	
+	@Test
+	public void testEdit7() throws invalidDateException {
+		pt = p.parse("add company trip with boss @mr3 +1700 $19/05 #important &bring all documents");
+		t = new Task(pt);
+		id = t.getId();
+		pt = p.parse(String.format("edit %1$s @mr4 $16/05",id));
+		t.edit(pt);
+		String taskDisplayEdit = String.format("%1$s. company trip with boss | By: Mon, 16 May 2016 17:00 | Location: mr4",id);
+		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+	}
+	
+	@Test
+	public void testEdit8() throws invalidDateException {
+		pt = p.parse("add company trip with boss $16/06 +1500");
+		t = new Task(pt);
+		id = t.getId();
+		pt = p.parse(String.format("edit %1$s @mr4 $16/05",id));
+		t.edit(pt);
+		String taskDisplayEdit = String.format("%1$s. company trip with boss | By: Mon, 16 May 2016 15:00 | Location: mr4",id);
+		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+	}
+	
+	@Test
+	public void testEdit9() throws invalidDateException {
+		pt = p.parse("add company trip with boss");
+		t = new Task(pt);
+		id = t.getId();
+		pt = p.parse(String.format("edit %1$s @mr4 $16/05 +1500",id));
+		t.edit(pt);
+		String taskDisplayEdit = String.format("%1$s. company trip with boss | By: Mon, 16 May 2016 15:00 | Location: mr4",id);
+		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+	}
+	
+	@Test
+	public void testEdit10() throws invalidDateException {
+		pt = p.parse("add company trip with boss");
+		t = new Task(pt);
+		id = t.getId();
+		pt = p.parse(String.format("edit %1$s @mr4 $16/05",id));
+		t.edit(pt);
+		String taskDisplayEdit = String.format("%1$s. company trip with boss | By: Mon, 16 May 2016 23:59 | Location: mr4",id);
+		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+	}
+	
+	@Test
+	public void testEdit11() throws invalidDateException {
+		pt = p.parse("add company trip with boss");
+		t = new Task(pt);
+		id = t.getId();
+		pt = p.parse(String.format("edit %1$s @mr4 $16/05 to 17/05",id));
+		t.edit(pt);
+		String taskDisplayEdit = String.format("%1$s. company trip with boss | From: Mon, 16 May 2016 00:00 To: Tue, 17 May 2016 23:59 | Location: mr4",id);
 		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
 	}
 	

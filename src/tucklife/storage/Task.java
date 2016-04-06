@@ -1,4 +1,4 @@
-//@@author a0111101n
+//@@author A0111101N
 package tucklife.storage;
 
 import java.text.SimpleDateFormat;
@@ -139,9 +139,10 @@ public class Task {
 			if(task.getStartTime()!=null && task.getStartDate()!=null) {
 				this.startDate = task.getStartDate();
 			}
+			/*
 			if(task.getStartTime() == null && task.getStartDate() == null) {
 				this.startDate = null;
-			}
+			}*/
 		}
 		
 		if(task.getEndTime() == null && task.getEndDate()!=null) {

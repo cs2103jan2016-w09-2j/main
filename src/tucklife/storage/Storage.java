@@ -1,4 +1,4 @@
-//@@author a0111101n
+//@@author A0111101N
 package tucklife.storage;
 
 
@@ -146,7 +146,7 @@ public class Storage {
 		TaskList[] saveList = new TaskList[2];
 		saveList[0] = toDoList;
 		saveList[1] = doneList;
-		DataBox db = new DataBox(saveList, new PrefsStorage());
+		DataBox db = new DataBox(saveList, pf);
 		return db;
 	}
 	
@@ -215,6 +215,7 @@ public class Storage {
 			} catch (invalidDateException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				return "I GOT PROBLEM WITH DATE DUDE";
 			}
 		case QUEUE :
 			prepareForUndo();

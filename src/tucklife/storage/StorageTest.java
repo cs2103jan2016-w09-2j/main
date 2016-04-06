@@ -333,7 +333,7 @@ public class StorageTest {
 		assertEquals("check display",s.parseCommand(ptDisplay),"2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
 		ProtoTask pt4 = p.parse("queue 1");
 		s.parseCommand(pt4);
-		assertEquals("task is queued",s.parseCommand(ptDisplay),"1. meeting | Location: meeting room 7\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n");
+		assertEquals("task is queued",s.parseCommand(ptDisplay),"Queue:\n1. meeting | Location: meeting room 7\n\nOther Tasks:\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n");
 		ProtoTask pt5 = p.parse("undo");	
 		s.parseCommand(pt5);
 		assertEquals("task is unqueued",s.parseCommand(ptDisplay),"2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");

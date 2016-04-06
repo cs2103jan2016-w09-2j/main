@@ -29,8 +29,7 @@ public class ProtoTask {
 	private Calendar startTime;
 	private Calendar endDate;
 	private Calendar endTime;
-	private SimpleDateFormat sdfDate = new SimpleDateFormat("EEE, dd MMM yyyy");
-	private SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm");
+	private SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm");
 	
 	private boolean isError;
 	private String errorMessage;
@@ -293,19 +292,19 @@ public class ProtoTask {
 			}
 
 			if (startDate != null) {
-				toDisplay += "Start date: " + sdfDate.format(startDate.getTime()) + "\n";
+				toDisplay += "Start date: " + sdf.format(startDate.getTime()) + "\n";
 			}
 			
 			if (startTime != null) {
-				toDisplay += "Start time: " + sdfTime.format(startTime.getTime()) + "\n";
+				toDisplay += "Start time: " + sdf.format(startTime.getTime()) + "\n";
 			}
 
 			if (endDate != null) {
-				toDisplay += "End date: " + sdfDate.format(endDate.getTime()) + "\n";
+				toDisplay += "End date: " + sdf.format(endDate.getTime()) + "\n";
 			}
 			
 			if (endTime != null) {
-				toDisplay += "End time: " + sdfTime.format(endTime.getTime()) + "\n";
+				toDisplay += "End time: " + sdf.format(endTime.getTime()) + "\n";
 			}
 
 

@@ -8,7 +8,7 @@ public class Parser {
 	
 	private String[] commandTypes = { "add", "change", "complete", "delete", "demo", "display", "displaydone",
 									  "edit", "exit", "help", "queue", "redo", "save", "saveto", "setlimit", "undo" };
-	private String[] paramSymbols = { "-", "+", "$", "#", "!", "&", "@" };
+	private String paramSymbols = "-+$#!&@";
 	private ProtoTask pt;
 	private DateParser dp;
 	private Hashtable<String, String> commandTable;
@@ -217,22 +217,13 @@ public class Parser {
 								
 								if (dates.length == 1) {
 									// Deadline
-									endDate = dp.parseDate(date);
-									
-									if (!commandType.equals("edit")) {
-										endTime = dp.getDefaultEndTime();
-									}
-									
+									endDate = dp.combineDateTime(dp.parseDate(date), dp.getDefaultEndTime());
+
 								} else if (dates.length == 2) {
 									// Event
-									startDate = dp.parseDate(dates[0]);
-									endDate = dp.parseDate(dates[1]);
-
-									startTime = dp.getDefaultStartTime();
-									endTime = dp.getDefaultEndTime();
-
-									startDate = dp.combineDateTime(startDate, startTime);
-									endDate = dp.combineDateTime(endDate, endTime);
+									startDate = dp.combineDateTime(dp.parseDate(dates[0]), dp.getDefaultStartTime());
+									endDate = dp.combineDateTime(dp.parseDate(dates[1]), dp.getDefaultEndTime());
+									
 								} else {
 									// Unrecognized format
 									createErrorTask("invalid date");
@@ -244,29 +235,35 @@ public class Parser {
 								
 								if (times.length == 1) {
 									// Deadline
-									endTime = dp.parseTime(time);
-									
-									if (!commandType.equals("edit"))  {
+									if (commandType.equals("edit"))  {
+										endTime = dp.parseTime(time);
+									} else {
 										endDate = dp.getDefaultDate();
-										
-										if (dp.hasDatePassed(endDate, endTime)) {
+
+										if (dp.hasDatePassed(endDate, dp.parseTime(time))) {
 											endDate = dp.getNextDay(endDate);
 										}
+
+										endDate = dp.combineDateTime(endDate, dp.parseTime(time));
 									}
+									
 								} else if (times.length == 2) {
 									// Event
-									startTime = dp.parseTime(times[0]);
-									endTime = dp.parseTime(times[1]);
-
-									if (!commandType.equals("edit"))  {
+									if (commandType.equals("edit")) {
+										startTime = dp.parseTime(times[0]);
+										endTime = dp.parseTime(times[1]);
+									} else {
 										startDate = dp.getDefaultDate();
 										
-										if (dp.hasDatePassed(startDate, startTime)) {
+										if (dp.hasDatePassed(startDate, dp.parseTime(times[0]))) {
 											startDate = dp.getNextDay(startDate);
 										}
 										
 										endDate = startDate;
+										startDate = dp.combineDateTime(startDate, dp.parseTime(times[0]));
+										endDate = dp.combineDateTime(endDate, dp.parseTime(times[1])); 
 									}
+									
 								} else {
 									// Unrecognized format
 									createErrorTask("invalid time");
@@ -279,20 +276,22 @@ public class Parser {
 								if (dates.length == times.length) {
 									if (dates.length == 1) {
 										// Deadline
-										endDate = dp.parseDate(date);
-										endTime = dp.parseTime(time);
+										endDate = dp.combineDateTime(dp.parseDate(date), dp.parseTime(time));
 										
-										endDate = dp.combineDateTime(endDate, endTime);
+										if (commandType.equals("edit")) {
+											endTime = dp.parseTime(time);
+										}
+										
 									} else if (dates.length == 2) {
 										// Multiple day event
-										startDate = dp.parseDate(dates[0]);
-										endDate = dp.parseDate(dates[1]);
+										startDate = dp.combineDateTime(dp.parseDate(dates[0]), dp.parseTime(times[0]));
+										endDate = dp.combineDateTime(dp.parseDate(dates[1]), dp.parseTime(times[1]));
 										
-										startTime = dp.parseTime(times[0]);
-										endTime = dp.parseTime(times[1]);
+										if (commandType.equals("edit")) {
+											startTime = dp.parseTime(times[0]);
+											endTime = dp.parseTime(times[1]);
+										}
 										
-										startDate = dp.combineDateTime(startDate, startTime);
-										endDate = dp.combineDateTime(endDate, endTime);
 									} else {
 										// Unrecognized format
 										createErrorTask("invalid event format");
@@ -300,14 +299,14 @@ public class Parser {
 									}
 								} else if (dates.length == 1 && times.length == 2) {
 									// Same day event
-									startDate = dp.parseDate(date);
-									endDate = dp.parseDate(date);
+									startDate = dp.combineDateTime(dp.parseDate(date), dp.parseTime(times[0]));
+									endDate = dp.combineDateTime(dp.parseDate(date), dp.parseTime(times[1]));
 									
-									startTime = dp.parseTime(times[0]);
-									endTime = dp.parseTime(times[1]);
+									if (commandType.equals("edit")) {
+										startTime = dp.parseTime(times[0]);
+										endTime = dp.parseTime(times[1]);
+									}
 									
-									startDate = dp.combineDateTime(startDate, startTime);
-									endDate = dp.combineDateTime(endDate, endTime);
 								} else {
 									// Unrecognized format
 									createErrorTask("invalid event format");
@@ -489,9 +488,50 @@ public class Parser {
 	}
 	
 	private String extractParameter(String symbol, String commandArg) {
-		/* Parameter symbol must be at the start of command argument
-		 * or have a space preceding it to be valid
-		 */
+		boolean toCheck = true;
+		boolean isInParam = false;
+		String parameter = "";
+		char symbolChar = ' ';
+
+		if (symbol.isEmpty()) {
+			isInParam = true;
+		} else {
+			symbolChar = symbol.charAt(0);
+		}
+
+		for (int i = 0; i < commandArg.length(); i++) {
+			if (commandArg.charAt(i) == '"') {
+				toCheck = !toCheck;
+			} else {
+
+				if (isInParam) {
+					if (toCheck && commandArg.charAt(i) == ' ' && i + 1 != commandArg.length()) {
+						if (paramSymbols.contains(commandArg.charAt(i + 1) + "")) {
+							isInParam = false;
+							break;
+						} else {
+							parameter += commandArg.charAt(i);
+						}
+					} else {
+						parameter += commandArg.charAt(i);
+					}
+				} else {				
+					if (toCheck && commandArg.charAt(i) == symbolChar) {
+						if (i == 0 || commandArg.charAt(i - 1) == ' ') {
+							isInParam = true;
+						}
+					}
+				}
+			}
+		}
+		
+		return parameter;
+	}
+	
+	/*
+	private String extractParameter(String symbol, String commandArg) {
+		// Parameter symbol must be at the start of command argument
+		// or have a space preceding it to be valid
 		if (!commandArg.contains(symbol)) {
 			// Parameter not provided
 			return "";
@@ -546,6 +586,7 @@ public class Parser {
 			return commandArg.substring(0, splitPoint);
 		}
 	}
+	*/
 	
 	private boolean isInteger(String s) {
 		boolean isInt = true;
@@ -577,16 +618,7 @@ public class Parser {
 	}
 	
 	private boolean isValidSortCrit(String sortParam) {
-		boolean isValidSort = false;
-		
-		for (int i = 1; i < paramSymbols.length; i++) {
-			if (sortParam.equals(paramSymbols[i])) {
-				isValidSort = true;
-				break;
-			}
-		}
-		
-		return isValidSort;
+		return paramSymbols.substring(1).contains(sortParam);
 	}
 	
 	private String[] splitEventDate(String s) {

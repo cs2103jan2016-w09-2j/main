@@ -1,3 +1,5 @@
+//@@author a0124274l
+
 package tucklife.UI;
 
 import java.util.Scanner;

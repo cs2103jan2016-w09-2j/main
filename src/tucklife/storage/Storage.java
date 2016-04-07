@@ -1,4 +1,4 @@
-//@@author a0111101n
+//@@author A0111101N
 package tucklife.storage;
 
 
@@ -30,7 +30,7 @@ public class Storage {
 	private static final String RETURN_MESSAGE_FOR_NOTHING_TO_UNDO = "There is no previous action to undo!";
 	private static final String RETURN_MESSAGE_FOR_NOTHING_TO_REDO = "There is no previous action to redo!";
 	
-	private static final String STATUS_HEADER = "Tasks at a glance...";
+	private static final String STATUS_HEADER = "\n\n\n\n\n\n\n\n\n\nTasks at a glance...";
 	private static final String STATUS_OUTSTANDING = "Total outstanding tasks: %1$s";
 	private static final String STATUS_TODAY = "Tasks due today: %1$s";
 	private static final String STATUS_CURRENT = "Current task: {%1$s}";
@@ -146,7 +146,7 @@ public class Storage {
 		TaskList[] saveList = new TaskList[2];
 		saveList[0] = toDoList;
 		saveList[1] = doneList;
-		DataBox db = new DataBox(saveList, new PrefsStorage());
+		DataBox db = new DataBox(saveList, pf);
 		return db;
 	}
 	
@@ -215,6 +215,7 @@ public class Storage {
 			} catch (invalidDateException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				return "I GOT PROBLEM WITH DATE DUDE";
 			}
 		case QUEUE :
 			prepareForUndo();

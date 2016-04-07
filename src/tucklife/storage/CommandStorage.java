@@ -20,7 +20,7 @@ public class CommandStorage {
 	
 	private String[] commandTypes = { "add", "change", "complete", "delete", "demo", "display", "displaydone",
 									  "edit", "exit", "help", "queue", "redo",
-									  "save", "saveto", "setlimit", "setdefault", "undo" };
+									  "save", "saveto", "setlimit", "undo" };
 	
 	public CommandStorage() {
 		commandTable = new Hashtable<String, String>();

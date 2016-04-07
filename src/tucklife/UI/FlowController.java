@@ -32,27 +32,27 @@ public class FlowController {
 			String result, status;
 			
 			if (pt.getCommand().equals("save")) {
-				return executeSave();
+				result = executeSave();
 			} else if (pt.getCommand().equals("saveto")) {
-				return executeSaveTo(pt.getPath());				
+				result = executeSaveTo(pt.getPath());				
 			} else if (pt.getCommand().equals("help")) {
-				return es.getHelp();
+				result = es.getHelp();
 			} else if (pt.getCommand().equals("demo")) {
-				return es.getDemo(pt);
+				result = es.getDemo(pt);
 			} else if (pt.getCommand().equals("change")) {
-				return pt.getChangeMessage() + "\n" + executeSave();
+				result = pt.getChangeMessage() + "\n" + executeSave();
 			} else if (pt.getCommand().equals("exit")) {
 				executeSave();
 				System.exit(0);
 				return null;
 			} else if(pt.getCommand().equals("display") || pt.getCommand().equals("displaydone")){
-				return s.parseCommand(pt);
+				result = s.parseCommand(pt);
 			} else{
 				result = s.parseCommand(pt);
-				status = s.getStatus();
-				executeSave();
-				return status + "\n\n" + result;
 			}
+			status = s.getStatus();
+			executeSave();
+			return status + "\n\n" + result;
 		}
 	}
 	

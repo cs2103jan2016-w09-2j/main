@@ -12,10 +12,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import tucklife.parser.ProtoTask;
 
 public class ListStorage {
+	
+	private static final Logger EXTERNAL_LOG = Logger.getLogger(ExternalStorage.class.getName());
 	
 	private String targetFile;
 	private TaskList list;
@@ -33,6 +37,18 @@ public class ListStorage {
 	private static final String PRIORITY_MEDIUM = "Med";
 	private static final String PRIORITY_LOW = "Low";
 	
+	private static final String LOG_TASK_DATE_ERROR = "Error loading task dates";	
+	private static final String LOG_TASK_NAME = "Loaded task name: $1%s";
+	private static final String LOG_TASK_LOCATION = "Loaded task location: $1%s";
+	private static final String LOG_TASK_CATEGORY = "Loaded task category: $1%s";
+	private static final String LOG_TASK_PRIORITY = "Loaded task priority: $1%s";
+	private static final String LOG_TASK_ADDITIONAL = "Loaded task additional: $1%s";
+	private static final String LOG_TASK_QUEUE = "Loaded task queueNo: $1%s";
+	private static final String LOG_TASK_END = "Loaded task end: $1%s";
+	private static final String LOG_TASK_START = "Loaded task start: $1%s";
+	private static final String LOG_SAVE_TASK = "Saved task: $1%s";
+	private static final String LOG_SAVE_QUEUE = "Task queueNo: $1%s";
+	
 	protected ListStorage(String fileName){
 		targetFile = fileName;
 		list = new TaskList();
@@ -46,6 +62,8 @@ public class ListStorage {
 		FileInputStream fis;
 		InputStreamReader isr;
 		BufferedReader br;
+		
+		assert(targetFile != null);
 		
 		try{
 			fis = new FileInputStream(targetFile);
@@ -61,8 +79,8 @@ public class ListStorage {
 					try {
 						list.add(pt);
 					} catch (invalidDateException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						// should not happen if save was correct
+						EXTERNAL_LOG.log(Level.WARNING, LOG_TASK_DATE_ERROR);		
 					}
 				}			
 			}
@@ -73,7 +91,7 @@ public class ListStorage {
 			
 			hasLoadedCorrectly = true;
 		
-		// either file not created yet or TuckLife was moved
+		// either file not created yet or TuckLife/the files were moved
 		// ignore as new files will be created on save
 		} catch(FileNotFoundException fnfe){
 			hasLoadedCorrectly = true;
@@ -92,6 +110,8 @@ public class ListStorage {
 		
 		pt.setTaskDesc(taskDetails[0].trim());
 		
+		EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_NAME, taskDetails[0].trim()));
+		
 		for(int i = 1; i < taskDetails.length; i++){
 			String field = taskDetails[i].trim();
 			String[] fieldDetails = field.split(" ");
@@ -99,22 +119,28 @@ public class ListStorage {
 			
 			if(fieldHeader.equalsIgnoreCase(HEADER_CATEGORY)){
 				pt.setCategory(removeFirstWord(field));
+				EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_CATEGORY, removeFirstWord(field)));
 				
 			} else if(fieldHeader.equalsIgnoreCase(HEADER_PRIORITY)){
 				String p = fieldDetails[1];
 				if(p.equalsIgnoreCase(PRIORITY_HIGH)){
 					pt.setPriority(1);
+					EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_PRIORITY, PRIORITY_HIGH));
 				} else if(p.equalsIgnoreCase(PRIORITY_MEDIUM)){
 					pt.setPriority(2);
+					EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_PRIORITY, PRIORITY_MEDIUM));
 				} else if(p.equalsIgnoreCase(PRIORITY_LOW)){
 					pt.setPriority(3);
+					EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_PRIORITY, PRIORITY_LOW));
 				}
 				
 			} else if(fieldHeader.equalsIgnoreCase(HEADER_LOCATION)){
 				pt.setLocation(removeFirstWord(field));
+				EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_LOCATION, removeFirstWord(field)));
 				
 			} else if(fieldHeader.equalsIgnoreCase(HEADER_ADDITIONAL)){
 				pt.setAdditional(removeFirstWord(field));
+				EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_ADDITIONAL, removeFirstWord(field)));
 				
 			} else if(fieldHeader.equalsIgnoreCase(HEADER_DEADLINE)){
 				try{
@@ -122,19 +148,9 @@ public class ListStorage {
 					Calendar c = Calendar.getInstance();
 					c.setTime(sdf.parse(removeFirstWord(field)));
 					
-					Calendar cDate, cTime;
-					cDate = Calendar.getInstance();
-					cTime = Calendar.getInstance();
+					pt.setEndDate(c);
 					
-					cDate.set(Calendar.YEAR, c.get(Calendar.YEAR));
-					cDate.set(Calendar.MONTH, c.get(Calendar.MONTH));
-					cDate.set(Calendar.DATE, c.get(Calendar.DATE));
-					
-					cTime.set(Calendar.HOUR_OF_DAY, c.get(Calendar.HOUR_OF_DAY));
-					cTime.set(Calendar.MINUTE, c.get(Calendar.MINUTE));
-					
-					pt.setEndDate(cDate);
-					pt.setEndTime(cTime);
+					EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_END, c.getTime().toString()));
 				
 				// date is wrong - ignore it	
 				} catch(ParseException pe){
@@ -164,31 +180,11 @@ public class ListStorage {
 					cStart.setTime(sdf.parse(sDate));
 					cEnd.setTime(sdf.parse(eDate));
 					
-					Calendar cStartDate, cStartTime, cEndDate, cEndTime;
+					pt.setStartDate(cStart);
+					pt.setEndDate(cEnd);
 					
-					cStartDate = Calendar.getInstance();
-					cStartTime = Calendar.getInstance();
-					cEndDate = Calendar.getInstance();
-					cEndTime = Calendar.getInstance();
-					
-					cStartDate.set(Calendar.YEAR, cStart.get(Calendar.YEAR));
-					cStartDate.set(Calendar.MONTH, cStart.get(Calendar.MONTH));
-					cStartDate.set(Calendar.DATE, cStart.get(Calendar.DATE));
-					
-					cStartTime.set(Calendar.HOUR_OF_DAY, cStart.get(Calendar.HOUR_OF_DAY));
-					cStartTime.set(Calendar.MINUTE, cStart.get(Calendar.MINUTE));
-					
-					cEndDate.set(Calendar.YEAR, cEnd.get(Calendar.YEAR));
-					cEndDate.set(Calendar.MONTH, cEnd.get(Calendar.MONTH));
-					cEndDate.set(Calendar.DATE, cEnd.get(Calendar.DATE));
-					
-					cEndTime.set(Calendar.HOUR_OF_DAY, cEnd.get(Calendar.HOUR_OF_DAY));
-					cEndTime.set(Calendar.MINUTE, cEnd.get(Calendar.MINUTE));
-					
-					pt.setStartDate(cStartDate);
-					pt.setStartTime(cStartTime);
-					pt.setEndDate(cEndDate);
-					pt.setEndTime(cEndTime);
+					EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_START, cStart.getTime().toString()));
+					EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_END, cEnd.getTime().toString()));
 				
 				// dates is wrong - ignore them	
 				} catch(ParseException pe){
@@ -197,6 +193,7 @@ public class ListStorage {
 				
 			} else if(fieldHeader.equalsIgnoreCase(HEADER_QUEUE)){
 				pt.setPosition(Integer.parseInt(removeFirstWord(field)));
+				EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_QUEUE, Integer.parseInt(removeFirstWord(field))));
 			}
 		}
 		
@@ -252,8 +249,11 @@ public class ListStorage {
 				
 				bos.write(taskString.getBytes());
 				
+				EXTERNAL_LOG.log(Level.FINER, String.format(LOG_SAVE_TASK, taskString));
+				
 				if(t.getQueueID() != -1){
 					bos.write((" | " + HEADER_QUEUE + " " + Integer.toString(t.getQueueID())).getBytes());
+					EXTERNAL_LOG.log(Level.FINER, String.format(LOG_SAVE_QUEUE, Integer.toString(t.getQueueID())));
 				}
 				bos.write("\n".getBytes());
 			}

@@ -138,7 +138,7 @@ public class TaskTest {
 	
 	@Test
 	public void testEdit8() throws invalidDateException {
-		pt = p.parse("add company trip with boss $16/06 +1500");
+		pt = p.parse("add company trip with boss $17/06 +1500");
 		t = new Task(pt);
 		id = t.getId();
 		pt = p.parse(String.format("edit %1$s @mr4 $16/05",id));
@@ -178,6 +178,36 @@ public class TaskTest {
 		t.edit(pt);
 		String taskDisplayEdit = String.format("%1$s. company trip with boss | From: Mon, 16 May 2016 00:00 To: Tue, 17 May 2016 23:59 | Location: mr4",id);
 		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+	}
+	
+	@Test
+	public void testEdit12() throws invalidDateException {
+		pt = p.parse("add meeting with boss @mr3 +1200 to 1300 $16/05 to 17/05 #important &bring all documents");
+		t = new Task(pt);
+		id = t.getId();
+		pt = p.parse(String.format("edit %1$s @mr4 $16/05",id));
+		t.edit(pt);
+		String taskDisplayEdit = String.format("%1$s. meeting with boss | By: Mon, 16 May 2016 23:59 | Location: mr4",id);
+		assertEquals(pt.getStartDate(),null);
+		assertEquals(pt.getStartTime(),null);
+		assertEquals(pt.getEndTime(),null);
+		//assertEquals(pt.getEndDate(),null);
+		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+	}
+	
+	@Test
+	public void testEdit13() throws invalidDateException {
+		pt = p.parse("add meeting with boss @mr3 +1200 to 1300 $16/05 to 17/05 #important &bring all documents");
+		t = new Task(pt);
+		id = t.getId();
+		pt = p.parse(String.format("edit %1$s @mr4 +0900",id));
+		try {
+			t.edit(pt);
+		} catch (invalidDateException e) {
+			 String errorMessage = "Date is invalid";
+			 assertEquals("error thrown", e.getErrorMessage(), errorMessage);
+		}
+		
 	}
 	
 	@Test

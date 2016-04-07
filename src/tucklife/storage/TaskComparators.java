@@ -3,7 +3,7 @@ package tucklife.storage;
 import java.util.Comparator;
 import java.util.Calendar;
 
-public class taskComparators {
+public class TaskComparators {
 	
 	private int handleNullCases(Task task1, Task task2, String param1, String param2) {
 		if(param1 == null && param2 == null) {

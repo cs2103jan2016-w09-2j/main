@@ -528,7 +528,7 @@ public class Parser {
 			}
 		}
 		
-		return parameter;
+		return parameter.trim();
 	}
 	
 	/*

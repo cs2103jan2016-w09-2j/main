@@ -212,7 +212,7 @@ public class Task {
 		StringBuilder displayString = new StringBuilder();
 		
 		// display order:
-		// id. name | date | location | priority
+		// id. name | date | location
 		
 		displayString.append(idField());
 		displayString.append(" ");
@@ -222,9 +222,8 @@ public class Task {
 		
 		fields[0] = dateField();
 		fields[1] = locationField();
-		fields[2] = priorityField();
 		
-		for(int i = 0; i < 3; i++){
+		for(int i = 0; i < 2; i++){
 			if(fields[i] != null){
 				displayString.append(" | ");
 				displayString.append(fields[i]);
@@ -345,12 +344,16 @@ public class Task {
 	
 	protected String displayAll(){
 		String displayString = display();
-		String[] otherStuff = new String[2];
+		String[] otherStuff = new String[3];
 		
-		otherStuff[0] = categoryField();
-		otherStuff[1] = additionalField();
+		// other stuff is displayAll:
+		// priority | category | additional
 		
-		for(int i = 0; i < 2; i++){
+		otherStuff[0] = priorityField();
+		otherStuff[1] = categoryField();
+		otherStuff[2] = additionalField();
+		
+		for(int i = 0; i < 3; i++){
 			if(otherStuff[i] != null){
 				displayString += " | " + otherStuff[i];
 			}

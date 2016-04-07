@@ -25,6 +25,7 @@ public class Storage {
 	private static final String RETURN_MESSAGE_FOR_COMPLETE = "{%1$s} has been moved to TuckLife's done list!";
 	
 	private static final String RETURN_MESSAGE_FOR_NONEXISTENT_ID = "No task with id:%1$s in TuckLife's to-do list!";
+	private static final String RETURN_MESSAGE_FOR_NONEXISTENT_ID_DONELIST = "No task with id:%1$s in TuckLife's done list!";
 	private static final String RETURN_MESSAGE_FOR_OVERLOAD = "That day has been filled with %1$s tasks! It hit the limit! You should reschedule the task to another day. "
 			+ "Alternatively, you can either change the overload limit or turn it off.";
 	private static final String RETURN_MESSAGE_FOR_NOTHING_TO_UNDO = "There is no previous action to undo!";
@@ -47,7 +48,7 @@ public class Storage {
 	private static PrefsStorage pf;
 	
 	private enum COMMAND_TYPE {
-		ADD, DISPLAY, COMPLETE, DISPLAYDONE, DELETE, EDIT, INVALID, QUEUE, SETLIMIT, UNDO, REDO
+		ADD, DISPLAY, COMPLETE, DISPLAYDONE, DELETE, EDIT, INVALID, QUEUE, SETLIMIT, UNDO, REDO, UNCOMPLETE
 	}
 	
 	public String parseCommand(ProtoTask pt) {
@@ -222,6 +223,8 @@ public class Storage {
 			return queue(pt.getId(), pt.getPosition());
 		case SETLIMIT :
 			return setLimit(pt.getLimit());
+		case UNCOMPLETE :
+			return uncomplete(pt.getId());
 		case UNDO :
 			try {
 				return undo();
@@ -331,6 +334,17 @@ public class Storage {
 		} else {
 			return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID, taskID);
 		}
+	}
+	
+	private static String uncomplete(int taskID) {
+		if(doneList.contains(taskID)) {
+			Task uncompletedTask = doneList.delete(taskID);
+			uncompletedTask.setQueueID(-1);
+			toDoList.add(uncompletedTask);
+		} else {
+			return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID_DONELIST, taskID);
+		}
+		return null;
 	}
 	
 	private static String delete(int taskID) {

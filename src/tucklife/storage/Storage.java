@@ -200,9 +200,9 @@ public class Storage {
 			prepareForUndo();
 			return complete(pt.getId());
 		case DISPLAY :
-			return display(pt);
+			return display(pt, toDoList);
 		case DISPLAYDONE :
-			return displayDone();
+			return display(pt, doneList);
 		case DELETE :
 			prepareForUndo();
 			return delete(pt.getId());
@@ -321,7 +321,7 @@ public class Storage {
 	private static String complete(int taskID) {
 		if(toDoList.contains(taskID)){
 			Task completedTask = toDoList.delete(taskID);
-			completedTask.setQueueID(-1);
+			completedTask.setQueueID(-(doneList.size() + 1));
 			if(queueList.contains(taskID)) {
 				queueList.delete(taskID);
 				updateQueueIDs(0, 0);
@@ -354,10 +354,10 @@ public class Storage {
 		}
 	}
 	
-	private static String display(ProtoTask pt) {
+	private static String display(ProtoTask pt, TaskList taskList) {
 		if (pt.getSearchKey()!=null) {
-			toDoList.sort(null, true);
-			return toDoList.search(pt.getSearchKey());
+			taskList.sort(null, true);
+			return taskList.search(pt.getSearchKey());
 		}
 		
 		if(pt.getId() != -1) {
@@ -366,17 +366,17 @@ public class Storage {
 			String sortBy = pt.getSortCrit();
 			assert sortBy.equals("@") || sortBy.equals("!") || sortBy.equals("#") || sortBy.equals("$") || sortBy.equals("&") || sortBy.equals("+") || sortBy == null;
 			boolean isAscending = pt.getIsAscending();
-			toDoList.sort(sortBy,isAscending);
+			taskList.sort(sortBy,isAscending);
 			if (sortBy == null) {
-				return toDoList.displayDefault();
+				if(taskList == doneList) {
+					taskList.sort(null, true);
+					return taskList.display(20);
+				}
+				return taskList.displayDefault(20);
 			} else {
-				return toDoList.display();
+				return taskList.display(20);
 			}
 		}
-	}
-	
-	private static String displayDone() {
-		return doneList.display();
 	}
 	
 	private static String queue(int taskID, int pos) {
@@ -445,7 +445,7 @@ public class Storage {
 		status.append(String.format(STATUS_TODAY, Integer.toString(toDoList.tasksToday())));
 		status.append("\n");
 		if(queueList.size() != 0){
-			status.append(String.format(STATUS_CURRENT, queueList.display().split("\n")[0]));
+			status.append(String.format(STATUS_CURRENT, queueList.display(10).split("\n")[0]));
 		} else{
 			status.append(String.format(STATUS_CURRENT, STATUS_CURRENT_NONE));
 		}

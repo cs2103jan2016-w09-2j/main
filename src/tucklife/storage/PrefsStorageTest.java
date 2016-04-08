@@ -3,80 +3,109 @@ package tucklife.storage;
 
 import static org.junit.Assert.*;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 import org.junit.Before;
 import org.junit.Test;
 
+
 public class PrefsStorageTest {
 	
-	private PrefsStorage ps;
+	private PrefsStorage psNormal, psTester;
+	
+	private static final String TEST_PATH = "test\\";
+	private static final String TEST_NEWPATH_RELATIVE = "test\\relative\\";
+	private static final String TEST_NEWPATH_GLOBAL = "C:\\Users\\Ryan\\Desktop\\Holding Area\\";
+	private static final String FILENAME_PREFS_TEST = "prefsTest.txt";
+	private static final String FILENAME_PREFS = "prefs.txt";
 
 	@Before
 	public void setUp() throws Exception {
-		ps = new PrefsStorage();
+		psNormal = new PrefsStorage();
+		psTester = new PrefsStorage(TEST_PATH);
 	}
-
+	
+	// delete test\prefs.txt before starting
+	// test for file creation/loading
+	@Test
+	public void createAndLoadTest(){
+		// loading normal prefs.txt
+		assertEquals(true, psNormal.loadPreferences());
+		// creating a special test\prefs.txt
+		assertEquals(true, psTester.loadPreferences());
+	}
+	
+	// check that the used default values are okay 
 	@Test
 	public void defaultValuesTest() {
-		assertEquals(-1, ps.getDefPriority());
-		assertEquals("", ps.getDefAdditional());
-		assertEquals(true, ps.getReminderStatus());
+		assertEquals("", psTester.getSavePath());
+		assertEquals(50, psTester.getOverloadLimit());
 	}
 	
-	// remove prefs.txt before running to check for file creation
+	// save without changing anything
 	@Test
-	public void loadTest(){
-		assertEquals(true, ps.loadPreferences());
+	public void unchangedTest(){
+		psTester.loadPreferences();		
+		assertEquals(true, psTester.savePreferences());	
 	}
 	
-	// use the test prefs.txt to check for value loading
-	@Test
-	public void valueTest(){
-		ps.loadPreferences();
-		
-		assertEquals("Default additional information", ps.getDefAdditional());
-		assertEquals("DefCat", ps.getDefCategory());
-		assertEquals(2, ps.getDefPriority());
-		assertEquals("", ps.getDefLocation());
-		assertEquals(false, ps.getReminderStatus());
-		
-		// to replace this string when testing folder is put in
-		assertEquals("C:\\Users\\Ryan\\Desktop\\Holding Area\\", ps.getSavePath());
-		
-	}
-	
-	@Test
-	public void modifyTest(){
-		ps.loadPreferences();
-		
-		ps.setDefLocation("TestLoc");
-		ps.setOverloadLimit(25);
-		ps.setDefPriority(3);
-		ps.setReminderOn(true);
-		
-		// to replace this string also
-		ps.setSavePath("C:\\Users\\Ryan\\Desktop\\Holding Area\\test\\");
-		
-		assertEquals("TestLoc", ps.getDefLocation());
-		assertEquals(25, ps.getOverloadLimit());
-		assertEquals(3, ps.getDefPriority());
-		assertEquals(true, ps.getReminderStatus());
-		assertEquals("C:\\Users\\Ryan\\Desktop\\Holding Area\\test\\", ps.getSavePath());
-	}
-	
-	// unfortunately file needs to be visually inspected
+	// modify the parameters that we use and see that they are saved correctly
 	@Test
 	public void saveTest(){
-		ps.loadPreferences();
+		psTester.loadPreferences();
 		
-		ps.setDefLocation("TestLoc");
-		ps.setOverloadLimit(500);
-		ps.setDefPriority(3);
-		ps.setReminderOn(true);
+		psTester.setOverloadLimit(31);
+		psTester.setSavePath(TEST_NEWPATH_RELATIVE);
 		
-		// to replace this string also
-		ps.setSavePath("C:\\Users\\Ryan\\Desktop\\Holding Area\\test\\");
+		assertEquals(true, psTester.savePreferences());
+	}
+	
+	// check if loading an existing file works
+	@Test
+	public void loadValueTest(){
+		// copy the base test file into test\prefs.txt 
+		FileInputStream fis;
+		InputStreamReader isr;
+		BufferedReader br;
+				
+		FileOutputStream fos;
+		BufferedOutputStream bos;
+				
+		try{
+			fis = new FileInputStream(TEST_PATH + FILENAME_PREFS_TEST);
+			isr = new InputStreamReader(fis);
+			br = new BufferedReader(isr);
+					
+			fos = new FileOutputStream(TEST_PATH + FILENAME_PREFS);
+			bos = new BufferedOutputStream(fos);
+					
+			while(br.ready()){
+				String nextLine = br.readLine();
+				bos.write(nextLine.getBytes());
+				bos.write("\n".getBytes());			
+			}
+					
+			br.close();
+			isr.close();
+			fis.close();
+					
+			bos.close();
+			fos.close();
 		
-		assertEquals(true, ps.savePreferences());
+		// should not happen if test file is present
+		} catch(IOException ioe){
+			
+		}
+
+		psTester.loadPreferences();
+		
+		assertEquals(TEST_NEWPATH_GLOBAL, psTester.getSavePath());
+		assertEquals(74, psTester.getOverloadLimit());
 	}
 
 }

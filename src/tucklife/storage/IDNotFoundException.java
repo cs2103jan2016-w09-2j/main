@@ -30,5 +30,9 @@ class nothingToRedoException extends Exception {
 }
 
 class invalidDateException extends Exception {
+	private String errorMessage = "Date is invalid";
 	
+	public String getErrorMessage(){
+		return errorMessage;
+	}
 }

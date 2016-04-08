@@ -184,177 +184,198 @@ public class Parser {
 					String additional = extractParameter("&", commandArg);
 					
 					if (!location.isEmpty()) {
-						pt.setLocation(location);
+						if (location.equals(" ") && commandType.equals("edit")) {
+							pt.setLocation("");
+						} else {
+							pt.setLocation(location);
+						}
 					}
 					
 					if (!priority.isEmpty()) {
 						int priorityRank = convertPriority(priority);
 						
-						if (priorityRank == -1) {
-							createErrorTask("invalid priority");
-							break;
+						if (priority.equals(" ") && commandType.equals("edit")) {
+							pt.setPriority(0);
 						} else {
-							pt.setPriority(priorityRank);
+							if (priorityRank == -1) {
+								createErrorTask("invalid priority");
+								break;
+							} else {
+								pt.setPriority(priorityRank);
+							}
 						}
-						
 					}
 					
 					if (!cat.isEmpty()) {
-						pt.setCategory(cat);
+						if (cat.equals(" ") && commandType.equals("edit")) {
+							pt.setCategory("");
+						} else {
+							pt.setCategory(cat);
+						}
 					}
 					
 					if (!time.isEmpty() || !date.isEmpty()) {
 						dp = new DateParser();
-						Calendar startDate = null;
-						Calendar startTime = null;
-						Calendar endDate = null;
-						Calendar endTime = null;
-						String[] times, dates;
-						
-						try {
-							if (time.isEmpty()) {
-								// Time not specified
-								dates = splitEventDate(date);
-								
-								if (dates.length == 1) {
-									// Deadline
-									endDate = dp.combineDateTime(dp.parseDate(date), dp.getDefaultEndTime());
 
-								} else if (dates.length == 2) {
-									// Event
-									startDate = dp.combineDateTime(dp.parseDate(dates[0]), dp.getDefaultStartTime());
-									endDate = dp.combineDateTime(dp.parseDate(dates[1]), dp.getDefaultEndTime());
-									
-									if (endDate.before(startDate)) {
-										endDate = dp.getNextYear(endDate);
+						if ((time.equals(" ") || date.equals(" ")) && commandType.equals("edit")) {
+							pt.setEndDate(dp.getRemovalDate());
+							
+						} else {
+							Calendar startDate = null;
+							Calendar startTime = null;
+							Calendar endDate = null;
+							Calendar endTime = null;
+							String[] times, dates;
+
+							try {
+								if (time.isEmpty()) {
+									// Time not specified
+									dates = splitEventDate(date);
+
+									if (dates.length == 1) {
+										// Deadline
+										endDate = dp.combineDateTime(dp.parseDate(date), dp.getDefaultEndTime());
+
+									} else if (dates.length == 2) {
+										// Event
+										startDate = dp.combineDateTime(dp.parseDate(dates[0]), dp.getDefaultStartTime());
+										endDate = dp.combineDateTime(dp.parseDate(dates[1]), dp.getDefaultEndTime());
+
+										if (endDate.before(startDate)) {
+											endDate = dp.getNextYear(endDate);
+										}
+
+									} else {
+										// Unrecognized format
+										createErrorTask("invalid date");
+										break;
 									}
-									
+								} else if (date.isEmpty()) {
+									// Date not specified
+									times = splitEventDate(time);
+
+									if (times.length == 1) {
+										// Deadline
+										if (commandType.equals("edit"))  {
+											endTime = dp.parseTime(time);
+										} else {
+											endDate = dp.getDefaultDate();
+
+											if (dp.hasDatePassed(endDate, dp.parseTime(time))) {
+												endDate = dp.getNextDay(endDate);
+											}
+
+											endDate = dp.combineDateTime(endDate, dp.parseTime(time));
+										}
+
+									} else if (times.length == 2) {
+										// Event
+										if (commandType.equals("edit")) {
+											startTime = dp.parseTime(times[0]);
+											endTime = dp.parseTime(times[1]);
+
+											if (endTime.before(startTime)) {
+												endTime = dp.getNextDay(endTime);
+											}										
+										} else {
+											startDate = dp.getDefaultDate();
+
+											if (dp.hasDatePassed(startDate, dp.parseTime(times[0]))) {
+												startDate = dp.getNextDay(startDate);
+											}
+
+											endDate = startDate;
+											startDate = dp.combineDateTime(startDate, dp.parseTime(times[0]));
+											endDate = dp.combineDateTime(endDate, dp.parseTime(times[1]));
+
+											if (endDate.before(startDate)) {
+												endDate = dp.getNextDay(endDate);
+											}
+										}
+
+									} else {
+										// Unrecognized format
+										createErrorTask("invalid time");
+										break;
+									}
 								} else {
-									// Unrecognized format
-									createErrorTask("invalid date");
-									break;
-								}
-							} else if (date.isEmpty()) {
-								// Date not specified
-								times = splitEventDate(time);
-								
-								if (times.length == 1) {
-									// Deadline
-									if (commandType.equals("edit"))  {
-										endTime = dp.parseTime(time);
-									} else {
-										endDate = dp.getDefaultDate();
+									dates = splitEventDate(date);
+									times = splitEventDate(time);
 
-										if (dp.hasDatePassed(endDate, dp.parseTime(time))) {
-											endDate = dp.getNextDay(endDate);
-										}
+									if (dates.length == times.length) {
+										if (dates.length == 1) {
+											// Deadline
+											endDate = dp.combineDateTime(dp.parseDate(date), dp.parseTime(time));
 
-										endDate = dp.combineDateTime(endDate, dp.parseTime(time));
-									}
-									
-								} else if (times.length == 2) {
-									// Event
-									if (commandType.equals("edit")) {
-										startTime = dp.parseTime(times[0]);
-										endTime = dp.parseTime(times[1]);
-										
-										if (endTime.before(startTime)) {
-											endTime = dp.getNextDay(endTime);
-										}										
-									} else {
-										startDate = dp.getDefaultDate();
-										
-										if (dp.hasDatePassed(startDate, dp.parseTime(times[0]))) {
-											startDate = dp.getNextDay(startDate);
+											if (commandType.equals("edit")) {
+												endTime = dp.parseTime(time);
+											}
+
+										} else if (dates.length == 2) {
+											// Multiple day event
+											startDate = dp.combineDateTime(dp.parseDate(dates[0]), dp.parseTime(times[0]));
+											endDate = dp.combineDateTime(dp.parseDate(dates[1]), dp.parseTime(times[1]));
+
+											if (commandType.equals("edit")) {
+												startTime = dp.parseTime(times[0]);
+												endTime = dp.parseTime(times[1]);
+											}
+
+										} else {
+											// Unrecognized format
+											createErrorTask("invalid event format");
+											break;
 										}
-										
-										endDate = startDate;
-										startDate = dp.combineDateTime(startDate, dp.parseTime(times[0]));
-										endDate = dp.combineDateTime(endDate, dp.parseTime(times[1]));
-										
+									} else if (dates.length == 1 && times.length == 2) {
+										// Same day event
+										startDate = dp.combineDateTime(dp.parseDate(date), dp.parseTime(times[0]));
+										endDate = dp.combineDateTime(dp.parseDate(date), dp.parseTime(times[1]));
+
 										if (endDate.before(startDate)) {
 											endDate = dp.getNextDay(endDate);
 										}
-									}
-									
-								} else {
-									// Unrecognized format
-									createErrorTask("invalid time");
-									break;
-								}
-							} else {
-								dates = splitEventDate(date);
-								times = splitEventDate(time);
-								
-								if (dates.length == times.length) {
-									if (dates.length == 1) {
-										// Deadline
-										endDate = dp.combineDateTime(dp.parseDate(date), dp.parseTime(time));
-										
-										if (commandType.equals("edit")) {
-											endTime = dp.parseTime(time);
-										}
-										
-									} else if (dates.length == 2) {
-										// Multiple day event
-										startDate = dp.combineDateTime(dp.parseDate(dates[0]), dp.parseTime(times[0]));
-										endDate = dp.combineDateTime(dp.parseDate(dates[1]), dp.parseTime(times[1]));
-										
+
 										if (commandType.equals("edit")) {
 											startTime = dp.parseTime(times[0]);
 											endTime = dp.parseTime(times[1]);
 										}
-										
+
 									} else {
 										// Unrecognized format
 										createErrorTask("invalid event format");
 										break;
 									}
-								} else if (dates.length == 1 && times.length == 2) {
-									// Same day event
-									startDate = dp.combineDateTime(dp.parseDate(date), dp.parseTime(times[0]));
-									endDate = dp.combineDateTime(dp.parseDate(date), dp.parseTime(times[1]));
-									
-									if (endDate.before(startDate)) {
-										endDate = dp.getNextDay(endDate);
-									}
-									
-									if (commandType.equals("edit")) {
-										startTime = dp.parseTime(times[0]);
-										endTime = dp.parseTime(times[1]);
-									}
-									
-								} else {
-									// Unrecognized format
-									createErrorTask("invalid event format");
-									break;
 								}
+
+								// Setting the parameters in ProtoTask
+								if (startDate != null) {
+									pt.setStartDate(startDate);
+								}
+
+								if (startTime != null) {
+									pt.setStartTime(startTime);
+								}
+
+								if (endDate != null) {
+									pt.setEndDate(endDate);
+								}
+
+								if (endTime != null) {
+									pt.setEndTime(endTime);
+								}
+							} catch (InvalidDateException e) {
+								createErrorTask(e.getMessage());
+								break;
 							}
-							
-							// Setting the parameters in ProtoTask
-							if (startDate != null) {
-								pt.setStartDate(startDate);
-							}
-							
-							if (startTime != null) {
-								pt.setStartTime(startTime);
-							}
-							
-							if (endDate != null) {
-								pt.setEndDate(endDate);
-							}
-							
-							if (endTime != null) {
-								pt.setEndTime(endTime);
-							}
-						} catch (InvalidDateException e) {
-							createErrorTask(e.getMessage());
-							break;
 						}
 					}
 					
 					if (!additional.isEmpty()) {
-						pt.setAdditional(additional);
+						if (additional.equals(" ") && commandType.equals("edit")) {
+							pt.setAdditional("");
+						} else {
+							pt.setAdditional(additional);
+						}
 					}
 				}
 				break;
@@ -449,7 +470,7 @@ public class Parser {
 				// No break, display and displaydone have similar parameters
 
 			case "displaydone" :
-				String search = extractParameter("", commandArg);
+				String search = extractParameter("", commandArg).trim();
 				if (!search.isEmpty()) {
 					pt.setSearchKey(search);
 				}
@@ -508,6 +529,7 @@ public class Parser {
 	private String extractParameter(String symbol, String commandArg) {
 		boolean toCheck = true;
 		boolean isInParam = false;
+		boolean isEmpty = false;
 		String parameter = "";
 		char symbolChar = ' ';
 
@@ -531,6 +553,11 @@ public class Parser {
 							
 							if (commandArg.charAt(i + 1) != '-') {
 								isInParam = false;
+								
+								if (parameter.trim().isEmpty()) {
+									isEmpty = true;
+								}
+								
 								break;
 							} else {
 								parameter += commandArg.charAt(i);
@@ -551,68 +578,14 @@ public class Parser {
 			}
 		}
 		
-		return parameter.trim();
-	}
-	
-	/*
-	private String extractParameter(String symbol, String commandArg) {
-		// Parameter symbol must be at the start of command argument
-		// or have a space preceding it to be valid
-		if (!commandArg.contains(symbol)) {
-			// Parameter not provided
-			return "";
-		} else if (commandArg.indexOf(symbol) == 0) {
-			if (!symbol.isEmpty()) {
-				commandArg = commandArg.substring(1, commandArg.length());
-			}
-		} else if (!commandArg.contains(" " + symbol)) {
-			return "";
+		if (isEmpty) {
+			return " ";
+		} else if (isInParam && parameter.trim().isEmpty()) {
+			return " ";
 		} else {
-			commandArg = commandArg.substring(commandArg.indexOf(" " + symbol) + 2, commandArg.length());
-		}
-		
-		if (commandArg.isEmpty()) {
-			// Use default parameter
-			return "";
-		}
-		
-		int splitPoint = -1;
-		for (int i = 0; i < paramSymbols.length; i++) {
-			if (commandArg.indexOf(paramSymbols[i]) == 0) {
-				if (symbol.isEmpty()) {
-					// No description
-					splitPoint = 0;
-				} else if (commandArg.length() == 1){
-					// For sorting
-					splitPoint = 1;
-				}
-				break;
-			} else if (commandArg.contains(" " + paramSymbols[i])) {
-				if (i == 0) {
-					if (symbol.equals("-")) {
-						int index = commandArg.indexOf(" " + paramSymbols[i]);
-
-						if (splitPoint == -1 || splitPoint > index) {
-							splitPoint = index;
-						}
-					}
-				} else {
-					int index = commandArg.indexOf(" " + paramSymbols[i]);
-
-					if (splitPoint == -1 || splitPoint > index) {
-						splitPoint = index;
-					}
-				}
-			}
-		}
-
-		if (splitPoint == -1) {
-			return commandArg.substring(0, commandArg.length());
-		} else {
-			return commandArg.substring(0, splitPoint);
+			return parameter.trim();
 		}
 	}
-	*/
 	
 	private boolean isInteger(String s) {
 		boolean isInt = true;

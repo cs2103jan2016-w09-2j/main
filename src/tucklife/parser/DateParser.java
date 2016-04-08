@@ -458,4 +458,11 @@ public class DateParser {
 		
 		return next;
 	}
+	
+	public Calendar getRemovalDate() {
+		Calendar removalDate = Calendar.getInstance();
+		removalDate.set(Calendar.YEAR, 2000);
+		
+		return removalDate;
+	}
 }

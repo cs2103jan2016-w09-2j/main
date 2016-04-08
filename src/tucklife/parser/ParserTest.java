@@ -14,11 +14,13 @@ public class ParserTest {
 	
 	Parser p;
 	ProtoTask pt;
+	SimpleDateFormat sdf;
 
 	@Before
 	public void setUp() throws Exception {
 		p = new Parser();
 		p.loadCommands(new Hashtable<String, String>());
+		sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm");
 	}
 
 	@Test
@@ -71,7 +73,7 @@ public class ParserTest {
 		// Date - $
 		// Single date
 		assertEquals("Command type: add\nParameters:\nTask description: job interview\n"
-					 + "End date: Wed, 25 May 2016\nEnd time: 23:59\n",
+					 + "End date: Wed, 25 May 2016 23:59\n",
 					 p.parse("add job interview $25/5/16").toString());
 		
 		// Invalid dates
@@ -81,14 +83,14 @@ public class ParserTest {
 		// Event dates
 		// Using to
 		assertEquals("Command type: add\nParameters:\nTask description: work trip\n"
-					 + "Start date: Mon, 23 May 2016\nStart time: 00:00\n"
-					 + "End date: Fri, 27 May 2016\nEnd time: 23:59\n",
+					 + "Start date: Mon, 23 May 2016 00:00\n"
+					 + "End date: Fri, 27 May 2016 23:59\n",
 					 p.parse("add work trip $23may to 27may").toString());
 		
 		// Using dash
 		assertEquals("Command type: add\nParameters:\nTask description: work trip\n"
-					 + "Start date: Mon, 23 May 2016\nStart time: 00:00\n"
-					 + "End date: Fri, 27 May 2016\nEnd time: 23:59\n",
+					 + "Start date: Mon, 23 May 2016 00:00\n"
+					 + "End date: Fri, 27 May 2016 23:59\n",
 					 p.parse("add work trip $23may - 27may").toString());
 		
 		// Invalid event dates
@@ -105,8 +107,7 @@ public class ParserTest {
 		c.set(Calendar.MINUTE, 0);
 		
 		assertEquals("Command type: add\nParameters:\nTask description: evening run\nEnd date: "
-					 + new SimpleDateFormat("EEE, dd MMM yyyy").format(c.getTime()) + "\nEnd time: "
-					 + new SimpleDateFormat("HH:mm").format(c.getTime()) + "\n",
+					 + sdf.format(c.getTime()) + "\n",
 					 p.parse("add evening run +5pm").toString());
 		
 		// Invalid times
@@ -116,13 +117,13 @@ public class ParserTest {
 		// All parameters
 		assertEquals("Command type: add\nParameters:\nTask description: meeting with boss\n"
 					 + "Location: boss's office\nCategory: top secret project\nAdditional information: "
-					 + "BIG BOSS COMING!!!\nPriority: 1\nEnd date: Sat, 28 May 2016\nEnd time: 10:00\n",
+					 + "BIG BOSS COMING!!!\nPriority: 1\nEnd date: Sat, 28 May 2016 10:00\n",
 					 p.parse("add meeting with boss !high +10am $28-may-2016 @boss's office"
 							 + " &BIG BOSS COMING!!! #top secret project").toString());
 		
 		// Some parameters
 		assertEquals("Command type: add\nParameters:\nTask description: buy office supplies\n"
-					 + "Category: misc\nPriority: 2\nEnd date: Tue, 24 May 2016\nEnd time: 23:59\n",
+					 + "Category: misc\nPriority: 2\nEnd date: Tue, 24 May 2016 23:59\n",
 					 p.parse("add buy office supplies $24 may 16 #misc !medium").toString());
 	}
 	
@@ -269,7 +270,7 @@ public class ParserTest {
 					 p.parse("edit 15 &about sales performance. Prepare to present.").toString());
 
 		// Date - $
-		assertEquals("Command type: edit\nParameters:\nID: 15\nEnd date: Wed, 25 May 2016\n",
+		assertEquals("Command type: edit\nParameters:\nID: 15\nEnd date: Wed, 25 May 2016 23:59\n",
 					 p.parse("edit 15 $25/5/16").toString());
 
 		// Invalid dates
@@ -277,7 +278,13 @@ public class ParserTest {
 		assertTrue(p.parse("edit 15 $not a date").isError());
 
 		// Time - +
-		assertEquals("Command type: edit\nParameters:\nID: 15\nEnd time: 17:00\n",
+		// Getting the correct date based on current date
+		Calendar c  = Calendar.getInstance();
+		c.set(Calendar.HOUR_OF_DAY, 17);
+		c.set(Calendar.MINUTE, 0);
+		
+		assertEquals("Command type: edit\nParameters:\nID: 15\nEnd time: "
+					 + sdf.format(c.getTime()) + "\n",
 					 p.parse("edit 15 +5pm").toString());
 
 		// Invalid times
@@ -285,15 +292,19 @@ public class ParserTest {
 		assertTrue(p.parse("edit 15 +not a time").isError());
 
 		// All parameters
+		// Getting the correct date based on current date
+		c.set(Calendar.HOUR_OF_DAY, 10);
+		
 		assertEquals("Command type: edit\nParameters:\nTask description: meeting with boss\n"
 					 + "Location: boss's office\nCategory: top secret project\nAdditional information: "
-					 + "BIG BOSS COMING!!!\nPriority: 1\nID: 15\nEnd date: Sat, 28 May 2016\nEnd time: 10:00\n",
+					 + "BIG BOSS COMING!!!\nPriority: 1\nID: 15\nEnd date: Sat, 28 May 2016 10:00\n"
+					 + "End time: " + sdf.format(c.getTime()) + "\n",
 					 p.parse("edit 15 meeting with boss !high +10am $28-may-2016 @boss's office"
 							 + " &BIG BOSS COMING!!! #top secret project").toString());
 
 		// Some parameters
 		assertEquals("Command type: edit\nParameters:\nCategory: misc\n"
-					 + "Priority: 2\nID: 15\nEnd date: Tue, 24 May 2016\n",
+					 + "Priority: 2\nID: 15\nEnd date: Tue, 24 May 2016 23:59\n",
 					 p.parse("edit 15 $24 may 16 #misc !medium").toString());
 	}
 	
@@ -421,12 +432,6 @@ public class ParserTest {
 
 		// > 1 parameter
 		assertTrue(p.parse("delete 1 1").isError());
-	}
-	
-	@Test
-	public void testSetdefault() {
-		//TODO
-		// Not yet implemented
 	}
 	
 	@Test

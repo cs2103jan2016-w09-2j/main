@@ -503,10 +503,13 @@ public class Parser {
 			if (commandArg.charAt(i) == '"') {
 				toCheck = !toCheck;
 			} else {
-
 				if (isInParam) {
-					if (toCheck && commandArg.charAt(i) == ' ' && i + 1 != commandArg.length()) {
-						if (paramSymbols.contains(commandArg.charAt(i + 1) + "")) {
+					if (toCheck) {
+						if (i == 0 && paramSymbols.contains(commandArg.charAt(i) + "")) {
+							isInParam = false;
+							break;
+						} else if (commandArg.charAt(i) == ' ' && i + 1 != commandArg.length()
+								   && paramSymbols.contains(commandArg.charAt(i + 1) + "")) {
 							isInParam = false;
 							break;
 						} else {
@@ -525,7 +528,7 @@ public class Parser {
 			}
 		}
 		
-		return parameter;
+		return parameter.trim();
 	}
 	
 	/*

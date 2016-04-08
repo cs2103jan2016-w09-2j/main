@@ -103,14 +103,13 @@ public class Task {
 		this.startDate = task.getStartDate();
 		this.endDate = task.getEndDate();
 		checkValidDates(startDate, endDate);
-		this.floating = startDate == null && endDate == null; //task.isFloating();
+		this.floating = startDate == null && endDate == null;
 		this.id = globalID;
 		this.queueID = task.getPosition();
 		globalID++;
 		log.log( Level.FINE, "Task has been created via ProtoTask");
 	}
 	
-	/* unsure if needed*/
 	public Task(Task task){
 		//create the Task
 		this.location = task.getLocation();
@@ -120,10 +119,10 @@ public class Task {
 		this.name = task.getName();
 		this.startDate = task.getStartDate();
 		this.endDate = task.getEndDate();
-		this.floating = startDate == null && endDate == null; //task.isFloating();
+		this.floating = startDate == null && endDate == null;
 		this.id = task.getId();	
 		this.queueID = task.getQueueID();
-	}//*/
+	}
 	
 	protected Task edit(ProtoTask task) throws invalidDateException{
 		//edit task
@@ -133,21 +132,30 @@ public class Task {
 		this.additional = editParam(this.additional, task.getAdditional());
 		this.name = editParam(this.name, task.getTaskDesc());
 		
-		if(task.getEndTime() == null && task.getEndDate()!=null) {
-			this.endDate = combineDateTime(task.getEndDate(),this.endDate); //merge date and time
-			if(task.getStartDate()==null && /*task.getStartTime()==null && */this.startDate != null) {
+		editDate(task);
+		
+		this.floating = startDate == null && endDate == null;
+		this.id = task.getId() == -1 ? this.id : task.getId();
+		log.log( Level.FINE, "Task has been edited via ProtoTask");
+		return this;
+	}
+
+	private void editDate(ProtoTask task) throws invalidDateException {
+		if(task.getEndTime() == null && task.getEndDate()!=null) { //need to merge
+			this.endDate = mergeDateTime(task.getEndDate(),this.endDate); 
+			if(task.getStartDate()==null && this.startDate != null) { //no need to merge, can get the end date directly
 				this.endDate = task.getEndDate();
 			}
 		} else {
-			if(task.getEndTime()!=null && task.getEndDate()!=null) {
+			if(task.getEndTime()!=null && task.getEndDate()!=null) { //no need to merge, can get the end date directly
 				this.endDate = task.getEndDate();
 			}
 		}
 		
-		if(task.getStartTime() == null && task.getStartDate()!=null) {
-			this.startDate = combineDateTime(task.getStartDate(),this.startDate); //merge date and time
+		if(task.getStartTime() == null && task.getStartDate()!=null) { //need to merge
+			this.startDate = mergeDateTime(task.getStartDate(),this.startDate); 
 		} else {
-			if(task.getStartTime()!=null && task.getStartDate()!=null) {
+			if(task.getStartTime()!=null && task.getStartDate()!=null) { //no need to merge, can get the start date directly
 				this.startDate = task.getStartDate();
 			}
 			
@@ -159,13 +167,11 @@ public class Task {
 		if(task.getStartDate() == null && task.getEndDate() == null) { //only do such changes if there is a time but no date
 			
 			if(task.getStartTime() == null && task.getEndTime()!=null) { //current task must be a deadline else it does not make sense
-				if(this.startDate != null) {
-					throw new invalidDateException();
-				} else {
+				if(this.startDate == null) {
 					if(this.endDate == null) { //current task is a floating task
 						this.endDate = task.getEndTime(); //take deadline to be nearest time, similiar to the way add handles a single time
 					} else {
-						this.endDate = combineDateTime(this.endDate, task.getEndTime()); //change the time of the deadline
+						this.endDate = mergeDateTime(this.endDate, task.getEndTime()); //change the time of the deadline
 					}
 				} 
 				
@@ -176,21 +182,23 @@ public class Task {
 			}
 			
 			if(task.getStartTime()!=null && task.getEndTime()!=null) { //new edited task becomes an event
-				if(isFloating()) { //cant created an event from a floating task since you dont know the dates
-					throw new invalidDateException();
-				}
 				
 				if(this.startDate != null && this.startDate != this.endDate) {
-					this.startDate = combineDateTime(this.startDate,task.getStartTime());
-					this.endDate = combineDateTime(this.endDate,task.getEndTime());
+					this.startDate = mergeDateTime(this.startDate,task.getStartTime());
+					this.endDate = mergeDateTime(this.endDate,task.getEndTime());
 				} else {
 					if(onSameDay(task.getStartTime(),task.getEndTime())) {
-						this.startDate = combineDateTime(this.endDate,task.getStartTime());
-						this.endDate = combineDateTime(this.endDate,task.getEndTime());
+						this.startDate = mergeDateTime(this.endDate,task.getStartTime());
+						this.endDate = mergeDateTime(this.endDate,task.getEndTime());
 					} else {
-						this.startDate = combineDateTime(this.endDate,task.getStartTime());
-						this.endDate = combineDateTime(tomorrow(this.endDate),task.getEndTime());
+						this.startDate = mergeDateTime(this.endDate,task.getStartTime());
+						this.endDate = mergeDateTime(tomorrow(this.endDate),task.getEndTime());
 					}
+				}
+				
+				if(isFloating()) { //floating task to event
+					this.startDate = task.getStartTime();
+					this.endDate = task.getEndTime();
 				}
 			}
 		}
@@ -201,11 +209,6 @@ public class Task {
 			this.startDate = null;
 			this.endDate = null;
 		}
-		
-		this.floating = startDate == null && endDate == null; //task.isFloating();
-		this.id = task.getId() == -1 ? this.id : task.getId();
-		log.log( Level.FINE, "Task has been edited via ProtoTask");
-		return this;
 	}
 
 	private String editParam(String self, String change) {
@@ -233,6 +236,9 @@ public class Task {
 	}
 	
 	private Calendar tomorrow(Calendar endDate) {
+		if(endDate == null) {
+			return null;
+		}
 		endDate.add(Calendar.DATE, 1);
 		return endDate;
 	}
@@ -396,7 +402,7 @@ public class Task {
 		return displayString;
 	}
 	
-	private Calendar combineDateTime(Calendar date, Calendar time) {
+	private Calendar mergeDateTime(Calendar date, Calendar time) {
 		if(date == null) {
 			return null;
 		}
@@ -421,7 +427,7 @@ public class Task {
 			return;
 		}
 		if (end.before(start) && start!= null) {
-			throw new invalidDateException();
+			throw new invalidDateException(start,end);
 		}
 	}
 	

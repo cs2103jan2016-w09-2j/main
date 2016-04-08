@@ -19,7 +19,7 @@ public class Parser {
 	private final String ERROR_PARAMS_ID = "Format: %1$s <id>";
 	private final String ERROR_PARAMS_ADD = "Format: add <task description> (optional: $<date> "
 										  + "+<time> #<category> !<priority> @<location> &<additional>)";
-	private final String ERROR_PARAMS_EDIT = "Format: edit <id> (optional: <task description> "
+	private final String ERROR_PARAMS_EDIT = "Format: edit <id> (at least 1 of the following: <task description> "
 										   + "$<date> +<time> #<category> !<priority> @<location> &<additional>)";
 	private final String ERROR_PARAMS_DISPLAY = "Format: display (optional: <search term> +/-<sort order>)";
 	private final String ERROR_PARAMS_QUEUE = "Format: queue <id> <pos>";
@@ -225,6 +225,10 @@ public class Parser {
 									startDate = dp.combineDateTime(dp.parseDate(dates[0]), dp.getDefaultStartTime());
 									endDate = dp.combineDateTime(dp.parseDate(dates[1]), dp.getDefaultEndTime());
 									
+									if (endDate.before(startDate)) {
+										endDate = dp.getNextYear(endDate);
+									}
+									
 								} else {
 									// Unrecognized format
 									createErrorTask("invalid date");
@@ -253,6 +257,10 @@ public class Parser {
 									if (commandType.equals("edit")) {
 										startTime = dp.parseTime(times[0]);
 										endTime = dp.parseTime(times[1]);
+										
+										if (endTime.before(startTime)) {
+											endTime = dp.getNextDay(endTime);
+										}										
 									} else {
 										startDate = dp.getDefaultDate();
 										
@@ -262,7 +270,11 @@ public class Parser {
 										
 										endDate = startDate;
 										startDate = dp.combineDateTime(startDate, dp.parseTime(times[0]));
-										endDate = dp.combineDateTime(endDate, dp.parseTime(times[1])); 
+										endDate = dp.combineDateTime(endDate, dp.parseTime(times[1]));
+										
+										if (endDate.before(startDate)) {
+											endDate = dp.getNextDay(endDate);
+										}
 									}
 									
 								} else {
@@ -302,6 +314,10 @@ public class Parser {
 									// Same day event
 									startDate = dp.combineDateTime(dp.parseDate(date), dp.parseTime(times[0]));
 									endDate = dp.combineDateTime(dp.parseDate(date), dp.parseTime(times[1]));
+									
+									if (endDate.before(startDate)) {
+										endDate = dp.getNextDay(endDate);
+									}
 									
 									if (commandType.equals("edit")) {
 										startTime = dp.parseTime(times[0]);
@@ -513,12 +529,12 @@ public class Parser {
 						} else if (commandArg.charAt(i) == ' ' && i + 1 != commandArg.length()
 								   && paramSymbols.contains(commandArg.charAt(i + 1) + "")) {
 							
-							//if (commandArg.charAt(i + 1) != '-') {
+							if (commandArg.charAt(i + 1) != '-') {
 								isInParam = false;
 								break;
-							//} else {
-							//	parameter += commandArg.charAt(i);
-							//}
+							} else {
+								parameter += commandArg.charAt(i);
+							}
 						} else {
 							parameter += commandArg.charAt(i);
 						}

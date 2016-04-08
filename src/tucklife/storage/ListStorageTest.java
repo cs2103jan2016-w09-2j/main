@@ -3,8 +3,15 @@ package tucklife.storage;
 
 import static org.junit.Assert.*;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.logging.Level;
+
 import org.junit.Before;
 import org.junit.Test;
+
+import tucklife.parser.ProtoTask;
 
 public class ListStorageTest {
 	
@@ -14,9 +21,13 @@ public class ListStorageTest {
 	private static final String TEST_PATH = "test\\";
 	public static final String FILENAME_TODO = "todo.txt";
 	public static final String FILENAME_DONE = "done.txt";
+	public static final String FILENAME_TODO_TEST = "todoTest.txt";
+	public static final String FILENAME_DONE_TEST = "doneTest.txt";
 	
 	@Before
 	public void setUp() throws Exception {
+		
+		// make copies of the base test files
 		todo = new ListStorage(TEST_PATH + FILENAME_TODO);
 		done = new ListStorage(TEST_PATH + FILENAME_DONE);
 		todoList = todo.getList();

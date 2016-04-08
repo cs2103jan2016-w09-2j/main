@@ -221,6 +221,42 @@ public class StorageTest {
 	}
 	
 	@Test
+	public void testUncomplete() {
+		Storage.clear();
+		
+		TaskList td = Storage.getTD();
+		
+		ProtoTask pt1 = p.parse("add meeting @meeting room 7");
+		ProtoTask pt2 = p.parse("add staff retreat @botanic gardens $16/05 +0500 &Meet at 4am");
+		ProtoTask pt3 = p.parse("add interview intern @mr5 $13/12/16");
+		ProtoTask pt4 = p.parse("add financial report $01/05/16");
+		ProtoTask pt5 = p.parse("add client Meeting $09/05/16");
+		ProtoTask pt6 = p.parse("add payday $05/05/16 &buy teammeet beer");
+		ProtoTask pt7 = p.parse("add email boss $15/05 #siammeeting");
+		
+		s.parseCommand(pt1);
+		s.parseCommand(pt2);
+		s.parseCommand(pt3);
+		s.parseCommand(pt4);
+		s.parseCommand(pt5);
+		s.parseCommand(pt6);
+		s.parseCommand(pt7);
+		td = Storage.getTD();
+		assertEquals("added correctly", 7, td.size());
+		
+		ProtoTask complete = p.parse("complete 4");
+		s.parseCommand(complete);
+		
+		td = Storage.getTD();
+		assertEquals("uncompelete correctly", 6, td.size());
+		
+		ProtoTask uncomplete = p.parse("uncomplete 4");
+		s.parseCommand(uncomplete);
+		td = Storage.getTD();
+		assertEquals("uncompelete correctly", 7, td.size());
+	}
+	
+	@Test
 	public void testUndo() {
 		Storage.clear();
 		

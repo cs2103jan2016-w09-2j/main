@@ -258,6 +258,10 @@ public class Parser {
 										// Deadline
 										if (commandType.equals("edit"))  {
 											endTime = dp.parseTime(time);
+											
+											if (dp.hasDatePassed(endTime, endTime)) {
+												endTime = dp.getNextDay(endTime);
+											}
 										} else {
 											endDate = dp.getDefaultDate();
 

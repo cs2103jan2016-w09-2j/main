@@ -277,6 +277,11 @@ public class Parser {
 										if (commandType.equals("edit")) {
 											startTime = dp.parseTime(times[0]);
 											endTime = dp.parseTime(times[1]);
+											
+											if (dp.hasDatePassed(startTime, startTime)) {
+												startTime = dp.getNextDay(startTime);
+												endTime = dp.getNextDay(endTime);
+											}
 
 											if (endTime.before(startTime)) {
 												endTime = dp.getNextDay(endTime);

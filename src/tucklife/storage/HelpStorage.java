@@ -53,7 +53,7 @@ public class HelpStorage {
 			
 			while(br.ready()){
 				String[] nextLine = br.readLine().split(",");
-				helpDirectory.add(nextLine[1] + ": ");
+				helpDirectory.add(nextLine[1] + ":\n");
 				helpDirectory.add(nextLine[2]);
 			}
 			

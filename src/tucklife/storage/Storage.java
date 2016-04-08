@@ -23,19 +23,18 @@ public class Storage {
 			+ " Be aware that there are some days with more tasks than your new limit!";
 	private static final String RETURN_MESSAGE_FOR_SETLIMIT_OFF = "Limit has been turned off in TuckLife's to-do list!";
 	private static final String RETURN_MESSAGE_FOR_COMPLETE = "{%1$s} has been moved to TuckLife's done list!";
+	private static final String RETURN_MESSAGE_FOR_UNCOMPLETE = "{%1$s} has been moved to TuckLife's to-do list!";
 	
 	private static final String RETURN_MESSAGE_FOR_NONEXISTENT_ID = "No task with id:%1$s in TuckLife's to-do list!";
 	private static final String RETURN_MESSAGE_FOR_NONEXISTENT_ID_DONELIST = "No task with id:%1$s in TuckLife's done list!";
-	private static final String RETURN_MESSAGE_FOR_OVERLOAD = "That day has been filled with %1$s tasks! It hit the limit! You should reschedule the task to another day. "
-			+ "Alternatively, you can either change the overload limit or turn it off.";
-	private static final String RETURN_MESSAGE_FOR_NOTHING_TO_UNDO = "There is no previous action to undo!";
-	private static final String RETURN_MESSAGE_FOR_NOTHING_TO_REDO = "There is no previous action to redo!";
 	
 	private static final String STATUS_HEADER = "\n\n\n\n\n\n\n\n\n\nTasks at a glance...";
 	private static final String STATUS_OUTSTANDING = "Total outstanding tasks: %1$s";
 	private static final String STATUS_TODAY = "Tasks due today: %1$s";
 	private static final String STATUS_CURRENT = "Current task: {%1$s}";
 	private static final String STATUS_CURRENT_NONE = "None";
+	
+	private static final int defaultNumberOfDisplayedTasks = 20;
 	
 	private static TaskList toDoList;
 	private static TaskList doneList;
@@ -178,6 +177,8 @@ public class Storage {
 			return COMMAND_TYPE.SETLIMIT;
 		} else if (commandTypeString.equalsIgnoreCase("undo")) {
 			return COMMAND_TYPE.UNDO;
+		} else if (commandTypeString.equalsIgnoreCase("uncomplete")) {
+			return COMMAND_TYPE.UNCOMPLETE;
 		} else if (commandTypeString.equalsIgnoreCase("redo")) {
 			return COMMAND_TYPE.REDO;
 		} else {
@@ -192,7 +193,7 @@ public class Storage {
 				prepareForUndo();
 				return add(pt);
 			} catch (overloadException e) {
-				return String.format(RETURN_MESSAGE_FOR_OVERLOAD, e.getLimit());
+				return e.getReturnMsg();
 			} catch (invalidDateException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -212,7 +213,7 @@ public class Storage {
 				prepareForUndo();
 				return edit(pt.getId(), pt);
 			} catch (overloadException e) {
-				return String.format(RETURN_MESSAGE_FOR_OVERLOAD, e.getLimit());
+				return e.getReturnMsg();
 			} catch (invalidDateException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -224,18 +225,19 @@ public class Storage {
 		case SETLIMIT :
 			return setLimit(pt.getLimit());
 		case UNCOMPLETE :
+			prepareForUndo();
 			return uncomplete(pt.getId());
 		case UNDO :
 			try {
 				return undo();
 			} catch (nothingToUndoException e) {
-				return RETURN_MESSAGE_FOR_NOTHING_TO_UNDO;
+				return e.getReturnMsg();
 			}
 		case REDO :
 			try {
 				return redo();
 			} catch (nothingToRedoException e) {
-				return RETURN_MESSAGE_FOR_NOTHING_TO_REDO;
+				return e.getReturnMsg();
 			}
 		default:
 			//throw an error if the command is not recognized
@@ -312,13 +314,17 @@ public class Storage {
 	}
 	
 	private static String edit(int taskID, ProtoTask toEditTask) throws overloadException, invalidDateException {
-		Task newTask = new Task(toEditTask);
-		if(isOverloaded(newTask)) {
-			throw new overloadException(pf.getOverloadLimit());
+		if(toDoList.contains(taskID)){	
+			Task newTask = new Task(toEditTask);
+			if(isOverloaded(newTask)) {
+				throw new overloadException(pf.getOverloadLimit());
+			}
+			toDoList.edit(taskID, toEditTask);
+			String editedTaskDetails = toDoList.displayID(taskID);
+			return String.format(RETURN_MESSAGE_FOR_EDIT, editedTaskDetails);
+		} else {
+			return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID, taskID);
 		}
-		toDoList.edit(taskID, toEditTask);
-		String editedTaskDetails = toDoList.displayID(taskID);
-		return String.format(RETURN_MESSAGE_FOR_EDIT, editedTaskDetails);
 	}
 	
 	private static String complete(int taskID) {
@@ -341,10 +347,10 @@ public class Storage {
 			Task uncompletedTask = doneList.delete(taskID);
 			uncompletedTask.setQueueID(-1);
 			toDoList.add(uncompletedTask);
+			return String.format(RETURN_MESSAGE_FOR_UNCOMPLETE, uncompletedTask.displayAll());
 		} else {
 			return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID_DONELIST, taskID);
 		}
-		return null;
 	}
 	
 	private static String delete(int taskID) {
@@ -382,13 +388,15 @@ public class Storage {
 			boolean isAscending = pt.getIsAscending();
 			taskList.sort(sortBy,isAscending);
 			if (sortBy == null) {
+				/*
 				if(taskList == doneList) {
 					taskList.sort(null, true);
 					return taskList.display(20);
 				}
-				return taskList.displayDefault(20);
+				*/
+				return taskList.displayDefault(defaultNumberOfDisplayedTasks);
 			} else {
-				return taskList.display(20);
+				return taskList.display(defaultNumberOfDisplayedTasks);
 			}
 		}
 	}

@@ -67,8 +67,9 @@ public class TaskList {
 			sb.append("\n");
 		}
 		if (flag) {
-			int remaining = taskList.size() - i + 1;
-			sb.append(String.format("And %1$s other tasks\n",remaining));
+			int remaining = taskList.size() - i;
+			//sb.append(String.format("And %1$s other tasks\n",remaining));
+			sb = getRemainingString(sb, remaining, "And %1$s other task\n", "And %1$s other tasks\n");
 		}
 		return sb.toString();
 	}
@@ -81,7 +82,7 @@ public class TaskList {
 		
 		int qCounter = 0;
 		for (Task qTask:taskList) {
-			if (qTask.getQueueID() != -1) {
+			if (qTask.getQueueID() > 0) {
 				qCounter +=1;
 			}
 		}
@@ -90,10 +91,12 @@ public class TaskList {
 		int queueItemsToDisplay = itemsToDisplay /2;
 		int counter = 0;
 		Task task = taskList.get(0);
-		if (task.getQueueID() != -1) {
+		if (task.getQueueID() > 0) {
 			sb.append("Queue:\n");
 			for (Task qTask:taskList) {
-				if(counter>queueItemsToDisplay) {
+				if(counter >= queueItemsToDisplay) {
+					int remainingQTask = qCounter - queueItemsToDisplay;
+					sb = getRemainingString(sb, remainingQTask, "And %1$s other task in queue\n", "And %1$s other tasks in queue\n");
 					break;
 				}
 				if (qTask.getQueueID() != -1) {
@@ -104,18 +107,17 @@ public class TaskList {
 				}
 				counter++;
 			}
-			if(counter>queueItemsToDisplay) {
-				int remainingQTask = qCounter - counter;
-				sb.append(String.format("And %1$s other tasks\n",remainingQTask));
-			}
 			sb.append("\nOther Tasks:\n");
 			int remainingItemsToDisplay = itemsToDisplay - counter;
 			counter = 0;
 			for(Task oTask:taskList) {
-				if(counter>remainingItemsToDisplay) {
+				if(counter == remainingItemsToDisplay) {
+					int remainingOTask = rCounter - remainingItemsToDisplay;
+					sb = getRemainingString(sb, remainingOTask, "And %1$s other task\n", "And %1$s other tasks\n");
+					//sb.append(String.format("And %1$s other tasks\n",remainingOTask));
 					break;
 				}
-				if (oTask.getQueueID() != -1) {
+				if (oTask.getQueueID() > 0) {
 					continue;
 				} else {
 					sb.append(oTask.display());
@@ -123,15 +125,24 @@ public class TaskList {
 				}
 				counter++;
 			}
-			if(counter>remainingItemsToDisplay) {
-				int remainingOTask = rCounter - counter;
-				sb.append(String.format("And %1$s other tasks in queue\n",remainingOTask));
-			}
 		} else {
 			return display(itemsToDisplay);
 		}
 		
 		return sb.toString();
+	}
+
+	private StringBuilder getRemainingString(StringBuilder sb, int remainingTask, String case1, String case2) {
+		if (remainingTask == 1) { 
+			//sb.append(String.format("And %1$s other task in queue\n",remainingTask));
+			sb.append(String.format(case1,remainingTask));
+		} else {
+			if (remainingTask > 1) { 
+				//sb.append(String.format("And %1$s other task in queue\n",remainingTask));
+				sb.append(String.format(case2,remainingTask));
+			} 
+		}
+		return sb;
 	}
 	
 	protected String search(String searchKey) {

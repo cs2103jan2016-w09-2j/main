@@ -113,87 +113,101 @@ public class ListStorage {
 		EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_NAME, taskDetails[0].trim()));
 		
 		for(int i = 1; i < taskDetails.length; i++){
-			String field = taskDetails[i].trim();
-			String[] fieldDetails = field.split(" ");
-			String fieldHeader = fieldDetails[0];
+			processField(pt, taskDetails[i].trim());
+		}
+		
+		return pt;
+	}
+	
+	private ProtoTask processField(ProtoTask pt, String field){
+		String[] fieldDetails = field.split(" ");
+		String fieldHeader = fieldDetails[0];
+		
+		if(fieldHeader.equalsIgnoreCase(HEADER_CATEGORY)){
+			pt.setCategory(removeFirstWord(field));
+			EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_CATEGORY, removeFirstWord(field)));
 			
-			if(fieldHeader.equalsIgnoreCase(HEADER_CATEGORY)){
-				pt.setCategory(removeFirstWord(field));
-				EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_CATEGORY, removeFirstWord(field)));
+		} else if(fieldHeader.equalsIgnoreCase(HEADER_PRIORITY)){
+			String p = fieldDetails[1];
+			if(p.equalsIgnoreCase(PRIORITY_HIGH)){
+				pt.setPriority(1);
+				EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_PRIORITY, PRIORITY_HIGH));
+			} else if(p.equalsIgnoreCase(PRIORITY_MEDIUM)){
+				pt.setPriority(2);
+				EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_PRIORITY, PRIORITY_MEDIUM));
+			} else if(p.equalsIgnoreCase(PRIORITY_LOW)){
+				pt.setPriority(3);
+				EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_PRIORITY, PRIORITY_LOW));
+			}
+			
+		} else if(fieldHeader.equalsIgnoreCase(HEADER_LOCATION)){
+			pt.setLocation(removeFirstWord(field));
+			EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_LOCATION, removeFirstWord(field)));
+			
+		} else if(fieldHeader.equalsIgnoreCase(HEADER_ADDITIONAL)){
+			pt.setAdditional(removeFirstWord(field));
+			EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_ADDITIONAL, removeFirstWord(field)));
+			
+		} else if(fieldHeader.equalsIgnoreCase(HEADER_DEADLINE)){
+			processTime(false, pt, field);
+		} else if(fieldHeader.equalsIgnoreCase(HEADER_EVENT_START)){
+			processTime(true, pt, field);
+		} else if(fieldHeader.equalsIgnoreCase(HEADER_QUEUE)){
+			pt.setPosition(Integer.parseInt(removeFirstWord(field)));
+			EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_QUEUE, Integer.parseInt(removeFirstWord(field))));
+		}		
+		return pt;
+	}
+	
+	private ProtoTask processTime(boolean event, ProtoTask pt, String field){
+		
+		if(event){
+			String[] fieldDetails = field.split(" ");
+			StringBuilder startDate = new StringBuilder();
+			StringBuilder endDate = new StringBuilder();
+			
+			for(int j = 1; j <= 5; j++){
+				startDate.append(fieldDetails[j] + " ");
+			}
+			
+			for(int j = 7; j <= 11; j++){
+				endDate.append(fieldDetails[j] + " ");
+			}
+			
+			String sDate = startDate.toString();
+			String eDate = endDate.toString();
+			
+			try{
+				SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
+				Calendar cStart = Calendar.getInstance();
+				Calendar cEnd = Calendar.getInstance();
+				cStart.setTime(sdf.parse(sDate));
+				cEnd.setTime(sdf.parse(eDate));
 				
-			} else if(fieldHeader.equalsIgnoreCase(HEADER_PRIORITY)){
-				String p = fieldDetails[1];
-				if(p.equalsIgnoreCase(PRIORITY_HIGH)){
-					pt.setPriority(1);
-					EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_PRIORITY, PRIORITY_HIGH));
-				} else if(p.equalsIgnoreCase(PRIORITY_MEDIUM)){
-					pt.setPriority(2);
-					EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_PRIORITY, PRIORITY_MEDIUM));
-				} else if(p.equalsIgnoreCase(PRIORITY_LOW)){
-					pt.setPriority(3);
-					EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_PRIORITY, PRIORITY_LOW));
-				}
+				pt.setStartDate(cStart);
+				pt.setEndDate(cEnd);
 				
-			} else if(fieldHeader.equalsIgnoreCase(HEADER_LOCATION)){
-				pt.setLocation(removeFirstWord(field));
-				EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_LOCATION, removeFirstWord(field)));
+				EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_START, cStart.getTime().toString()));
+				EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_END, cEnd.getTime().toString()));
+			
+			// dates is wrong - ignore them	
+			} catch(ParseException pe){
+				// do nothing - wrong date is the same as no date
+			}
+			
+		} else{
+			try{
+				SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
+				Calendar c = Calendar.getInstance();
+				c.setTime(sdf.parse(removeFirstWord(field)));
 				
-			} else if(fieldHeader.equalsIgnoreCase(HEADER_ADDITIONAL)){
-				pt.setAdditional(removeFirstWord(field));
-				EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_ADDITIONAL, removeFirstWord(field)));
+				pt.setEndDate(c);
 				
-			} else if(fieldHeader.equalsIgnoreCase(HEADER_DEADLINE)){
-				try{
-					SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
-					Calendar c = Calendar.getInstance();
-					c.setTime(sdf.parse(removeFirstWord(field)));
-					
-					pt.setEndDate(c);
-					
-					EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_END, c.getTime().toString()));
-				
-				// date is wrong - ignore it	
-				} catch(ParseException pe){
-					// do nothing - wrong date is the same as no date
-				}
-				
-			} else if(fieldHeader.equalsIgnoreCase(HEADER_EVENT_START)){
-				
-				StringBuilder startDate = new StringBuilder();
-				StringBuilder endDate = new StringBuilder();
-				
-				for(int j = 1; j <= 5; j++){
-					startDate.append(fieldDetails[j] + " ");
-				}
-				
-				for(int j = 7; j <= 11; j++){
-					endDate.append(fieldDetails[j] + " ");
-				}
-				
-				String sDate = startDate.toString();
-				String eDate = endDate.toString();
-				
-				try{
-					SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
-					Calendar cStart = Calendar.getInstance();
-					Calendar cEnd = Calendar.getInstance();
-					cStart.setTime(sdf.parse(sDate));
-					cEnd.setTime(sdf.parse(eDate));
-					
-					pt.setStartDate(cStart);
-					pt.setEndDate(cEnd);
-					
-					EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_START, cStart.getTime().toString()));
-					EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_END, cEnd.getTime().toString()));
-				
-				// dates is wrong - ignore them	
-				} catch(ParseException pe){
-					// do nothing - wrong date is the same as no date
-				}
-				
-			} else if(fieldHeader.equalsIgnoreCase(HEADER_QUEUE)){
-				pt.setPosition(Integer.parseInt(removeFirstWord(field)));
-				EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_QUEUE, Integer.parseInt(removeFirstWord(field))));
+				EXTERNAL_LOG.log(Level.FINER, String.format(LOG_TASK_END, c.getTime().toString()));
+			
+			// date is wrong - ignore it	
+			} catch(ParseException pe){
+				// do nothing - wrong date is the same as no date
 			}
 		}
 		

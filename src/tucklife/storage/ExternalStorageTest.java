@@ -34,15 +34,23 @@ public class ExternalStorageTest {
 		es.load();
 		DataBox db = es.getLoadedData();
 		
-		assertEquals("Data saved successfully.", es.saveData(db));
+		assertEquals("Files saved.", es.saveData(db));
 	}
 	
 	@Test
-	public void DataBoxSaveToTest(){
+	public void DataBoxSavetoSuccessTest(){
 		es.load();
 		DataBox db = es.getLoadedData();
 		
-		assertEquals("Data saved successfully.", es.saveTo(db, "C:\\Users\\Ryan\\Desktop\\Holding Area\\"));
+		assertEquals("Files saved.", es.saveTo(db, "test\\"));
+	}
+	
+	@Test
+	public void DataBoxSavetoFailTest(){
+		es.load();
+		DataBox db = es.getLoadedData();
+		
+		assertEquals("Error saving files to new location. Files have been saved to previous location.", es.saveTo(db, "nyonexist\\"));
 	}
 
 }

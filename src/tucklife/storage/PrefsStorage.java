@@ -15,6 +15,7 @@ public class PrefsStorage {
 	private static final String FILE_BLANK = "Preferences:\n\n\n-1\n\n\n\n50\ntrue";
 	private static final String FILE_HEADER = "Preferences:";
 	
+	private String testPath;
 	private String savePath;
 	private int overloadLimit;
 	private boolean reminderOn;
@@ -36,6 +37,24 @@ public class PrefsStorage {
 		defCategory = "";
 		defTime = "";
 		defAdditional = "";
+		
+		testPath = "";
+	}
+	
+	// special constructor meant for testing only
+	protected PrefsStorage(String path){
+		// default values
+		savePath = "";
+		overloadLimit = 50;
+		reminderOn = true;
+		
+		defLocation = "";
+		defPriority = -1;
+		defCategory = "";
+		defTime = "";
+		defAdditional = "";
+		
+		testPath = path;
 	}
 	
 	protected boolean loadPreferences(){
@@ -54,7 +73,7 @@ public class PrefsStorage {
 	
 	private boolean loadPrefs() throws FileNotFoundException{
 		try{
-			FileInputStream fis = new FileInputStream(FILENAME_PREFS);
+			FileInputStream fis = new FileInputStream(testPath + FILENAME_PREFS);
 			InputStreamReader isr = new InputStreamReader(fis);
 			BufferedReader br = new BufferedReader(isr);
 			
@@ -104,7 +123,7 @@ public class PrefsStorage {
 	
 	private boolean writeBlankPrefs(){
 		try{
-			FileOutputStream fos = new FileOutputStream(FILENAME_PREFS);
+			FileOutputStream fos = new FileOutputStream(testPath + FILENAME_PREFS);
 			BufferedOutputStream bos = new BufferedOutputStream(fos);
 			
 			// write blank preferences
@@ -126,7 +145,7 @@ public class PrefsStorage {
 	
 	protected boolean savePreferences(){
 		try{
-			FileOutputStream fos = new FileOutputStream(FILENAME_PREFS);
+			FileOutputStream fos = new FileOutputStream(testPath + FILENAME_PREFS);
 			BufferedOutputStream bos = new BufferedOutputStream(fos);
 			
 			/* 

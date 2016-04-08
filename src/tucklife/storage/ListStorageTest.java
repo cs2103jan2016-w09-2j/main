@@ -3,8 +3,16 @@ package tucklife.storage;
 
 import static org.junit.Assert.*;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 import org.junit.Before;
 import org.junit.Test;
+
 
 public class ListStorageTest {
 	
@@ -12,25 +20,93 @@ public class ListStorageTest {
 	private TaskList todoList, doneList;
 	
 	private static final String TEST_PATH = "test\\";
-	public static final String FILENAME_TODO = "todo.txt";
-	public static final String FILENAME_DONE = "done.txt";
+	private static final String TEST_PATH_RELATIVE = "test\\relative\\";
+	private static final String FILENAME_TODO = "todo.txt";
+	private static final String FILENAME_DONE = "done.txt";
+	private static final String FILENAME_TODO_TEST = "todoTest.txt";
+	private static final String FILENAME_DONE_TEST = "doneTest.txt";
+	private static final String FILENAME_TODO_RES = "todoRes.txt";
+	private static final String FILENAME_DONE_RES = "doneRes.txt";
 	
 	@Before
 	public void setUp() throws Exception {
+		
+		// make copies of the base test files
+		FileInputStream fisTodo, fisDone;
+		InputStreamReader isrTodo, isrDone;
+		BufferedReader brTodo, brDone;
+		
+		FileOutputStream fosTodo, fosDone;
+		BufferedOutputStream bosTodo, bosDone;
+		
+		Task.resetGlobalId();
+		
+		try{
+			fisTodo = new FileInputStream(TEST_PATH + FILENAME_TODO_TEST);
+			isrTodo = new InputStreamReader(fisTodo);
+			brTodo = new BufferedReader(isrTodo);
+			
+			fosTodo = new FileOutputStream(TEST_PATH + FILENAME_TODO);
+			bosTodo = new BufferedOutputStream(fosTodo);
+			
+			while(brTodo.ready()){
+				String nextTask = brTodo.readLine();
+				
+				if(!nextTask.equals("")){
+					bosTodo.write(nextTask.getBytes());
+					bosTodo.write("\n".getBytes());
+				}			
+			}
+			
+			brTodo.close();
+			isrTodo.close();
+			fisTodo.close();
+			
+			bosTodo.close();
+			fosTodo.close();
+			
+			fisDone = new FileInputStream(TEST_PATH + FILENAME_DONE_TEST);
+			isrDone = new InputStreamReader(fisDone);
+			brDone = new BufferedReader(isrDone);
+			
+			fosDone = new FileOutputStream(TEST_PATH + FILENAME_DONE);
+			bosDone = new BufferedOutputStream(fosDone);
+			
+			while(brDone.ready()){
+				String nextTask = brDone.readLine();
+				
+				if(!nextTask.equals("")){
+					bosDone.write(nextTask.getBytes());
+					bosDone.write("\n".getBytes());
+				}			
+			}
+			
+			brDone.close();
+			isrDone.close();
+			fisDone.close();
+			
+			bosDone.close();
+			fosDone.close();
+		
+		// should not happen if test files are there - this will cause tests to fail
+		} catch(IOException ioe){
+			assert(true == false);
+		}
+	
 		todo = new ListStorage(TEST_PATH + FILENAME_TODO);
 		done = new ListStorage(TEST_PATH + FILENAME_DONE);
 		todoList = todo.getList();
 		doneList = done.getList();
 	}
 	
-	// test for file access/load
+	// checks if basic load function executed correctly
 	@Test
 	public void loadTest() {		
 		assertEquals(true, todo.getLoadStatus());
 		assertEquals(true, done.getLoadStatus());
 	}
 	
-	// loading for various task types - run separately from saveTest
+	// checks that each individual task type is handled correctly
 	@Test
 	public void taskTest(){
 		
@@ -103,9 +179,16 @@ public class ListStorageTest {
 		assertEquals("3. task11 | By: Mon, 11 Apr 2016 23:59 | Location: loc11 | Priority: Med | Category: cat11 | Additional: additional11", task);
 	}
 	
-	@Test // note - run separately from loadTest
-	public void saveTest(){
-		
+	// check that you can save without any changes
+	@Test
+	public void saveUnchangedTest(){
+		assertEquals(true, done.normalSave(doneList));
+		assertEquals(true, todo.normalSave(todoList));
+	}
+	
+	// check that you can save changes - files are named differently for the sake of comparison
+	@Test
+	public void saveChangedTest(){		
 		// simulate a complete
 		Task t = todoList.delete(4);
 		doneList.add(t);
@@ -113,8 +196,20 @@ public class ListStorageTest {
 		// simulate a delete
 		t = todoList.delete(3);
 		
-		assertEquals(true, done.normalSave(doneList));
-		assertEquals(true, todo.normalSave(todoList));
+		// save and compare doneRes and todoRes with doneExpected and todoExpected	
+		assertEquals(true, done.pathSave(TEST_PATH + FILENAME_DONE_RES, doneList));
+		assertEquals(true, todo.pathSave(TEST_PATH + FILENAME_TODO_RES, todoList));
 	}
+	
+	
+	// checks that a relative saveto path works.
+	@Test
+	public void savetoRelativeTest(){			
+		assertEquals(true, done.pathSave(TEST_PATH_RELATIVE + FILENAME_DONE, doneList));
+		assertEquals(true, todo.pathSave(TEST_PATH_RELATIVE + FILENAME_TODO, todoList));
+	}
+	
+	// unfortunately global saveto cannot be tested automatically 
+	// without prior knowledge of computer running test
 	
 }

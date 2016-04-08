@@ -197,7 +197,7 @@ public class Task {
 		
 		checkValidDates(startDate, endDate);
 		
-		if(task.getEndDate().get(Calendar.YEAR) == 2000) {
+		if(task.getEndDate() != null && task.getEndDate().get(Calendar.YEAR) == 2000) {
 			this.startDate = null;
 			this.endDate = null;
 		}

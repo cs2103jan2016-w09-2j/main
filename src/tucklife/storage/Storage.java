@@ -37,6 +37,8 @@ public class Storage {
 	private static final String STATUS_CURRENT = "Current task: {%1$s}";
 	private static final String STATUS_CURRENT_NONE = "None";
 	
+	private static final int defaultNumberOfDisplayedTasks = 20;
+	
 	private static TaskList toDoList;
 	private static TaskList doneList;
 	
@@ -312,13 +314,17 @@ public class Storage {
 	}
 	
 	private static String edit(int taskID, ProtoTask toEditTask) throws overloadException, invalidDateException {
-		Task newTask = new Task(toEditTask);
-		if(isOverloaded(newTask)) {
-			throw new overloadException(pf.getOverloadLimit());
+		if(toDoList.contains(taskID)){	
+			Task newTask = new Task(toEditTask);
+			if(isOverloaded(newTask)) {
+				throw new overloadException(pf.getOverloadLimit());
+			}
+			toDoList.edit(taskID, toEditTask);
+			String editedTaskDetails = toDoList.displayID(taskID);
+			return String.format(RETURN_MESSAGE_FOR_EDIT, editedTaskDetails);
+		} else {
+			return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID, taskID);
 		}
-		toDoList.edit(taskID, toEditTask);
-		String editedTaskDetails = toDoList.displayID(taskID);
-		return String.format(RETURN_MESSAGE_FOR_EDIT, editedTaskDetails);
 	}
 	
 	private static String complete(int taskID) {
@@ -382,13 +388,15 @@ public class Storage {
 			boolean isAscending = pt.getIsAscending();
 			taskList.sort(sortBy,isAscending);
 			if (sortBy == null) {
+				/*
 				if(taskList == doneList) {
 					taskList.sort(null, true);
 					return taskList.display(20);
 				}
-				return taskList.displayDefault(20);
+				*/
+				return taskList.displayDefault(defaultNumberOfDisplayedTasks);
 			} else {
-				return taskList.display(20);
+				return taskList.display(defaultNumberOfDisplayedTasks);
 			}
 		}
 	}

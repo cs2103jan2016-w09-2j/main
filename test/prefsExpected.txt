@@ -1,9 +1,9 @@
 Preferences:
-C:\Users\Ryan\Desktop\Holding Area\test\
-TestLoc
-3
-DefCat
+test\relative\
 
-Default additional information
-500
+-1
+
+
+
+31
 true

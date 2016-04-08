@@ -1,4 +1,4 @@
-//@@author a0111101n
+//@@author A0111101N
 package tucklife.storage;
 
 import java.text.SimpleDateFormat;
@@ -53,35 +53,84 @@ public class TaskList {
 		return displayString;
 	}
 	
-	protected String display() {
+	protected String display(int itemsToDisplay) {
 		StringBuilder sb = new StringBuilder();
-		
-		for (Task task:taskList) {
+		int i;
+		boolean flag = true;
+		if (taskList.size() <= itemsToDisplay) {
+			itemsToDisplay = taskList.size();
+			flag = false;
+		}
+		for (i = 0; i<itemsToDisplay; i++ ) {
+			Task task = taskList.get(i);
 			sb.append(task.display());
 			sb.append("\n");
+		}
+		if (flag) {
+			int remaining = taskList.size() - i + 1;
+			sb.append(String.format("And %1$s other tasks\n",remaining));
 		}
 		return sb.toString();
 	}
 	
-	protected String displayDefault() {
-		StringBuilder sb = new StringBuilder();
-		boolean qFlag = false;
-		boolean othersFlag = false;
-		for (Task task:taskList) {
-			if (task.getQueueID() == -1 && !qFlag) {
-				return display();
-			}
-			if(task.getQueueID() != -1 && !qFlag) {
-				sb.append("Queue:\n");
-				qFlag = true;
-			}
-			if(task.getQueueID() == -1 && !othersFlag) {
-				sb.append("\nOther Tasks:\n");
-				othersFlag = true;
-			}
-			sb.append(task.display());
-			sb.append("\n");
+	protected String displayDefault(int itemsToDisplay) {
+		if (taskList.size() == 0) {
+			return "No tasks to display!";
 		}
+		StringBuilder sb = new StringBuilder();
+		
+		int qCounter = 0;
+		for (Task qTask:taskList) {
+			if (qTask.getQueueID() != -1) {
+				qCounter +=1;
+			}
+		}
+		int rCounter = taskList.size() - qCounter;
+		
+		int queueItemsToDisplay = itemsToDisplay /2;
+		int counter = 0;
+		Task task = taskList.get(0);
+		if (task.getQueueID() != -1) {
+			sb.append("Queue:\n");
+			for (Task qTask:taskList) {
+				if(counter>queueItemsToDisplay) {
+					break;
+				}
+				if (qTask.getQueueID() != -1) {
+					sb.append(qTask.display());
+					sb.append("\n");
+				} else {
+					break;
+				}
+				counter++;
+			}
+			if(counter>queueItemsToDisplay) {
+				int remainingQTask = qCounter - counter;
+				sb.append(String.format("And %1$s other tasks\n",remainingQTask));
+			}
+			sb.append("\nOther Tasks:\n");
+			int remainingItemsToDisplay = itemsToDisplay - counter;
+			counter = 0;
+			for(Task oTask:taskList) {
+				if(counter>remainingItemsToDisplay) {
+					break;
+				}
+				if (oTask.getQueueID() != -1) {
+					continue;
+				} else {
+					sb.append(oTask.display());
+					sb.append("\n");
+				}
+				counter++;
+			}
+			if(counter>remainingItemsToDisplay) {
+				int remainingOTask = rCounter - counter;
+				sb.append(String.format("And %1$s other tasks in queue\n",remainingOTask));
+			}
+		} else {
+			return display(itemsToDisplay);
+		}
+		
 		return sb.toString();
 	}
 	
@@ -177,32 +226,32 @@ public class TaskList {
 	protected void sort(String sortBy , boolean isAscending) {
 		if (sortBy != null) {
 			if (sortBy.equals("@")) {
-				Collections.sort(taskList,new taskComparators().new ComparatorLocation());
+				Collections.sort(taskList,new TaskComparators().new ComparatorLocation());
 				log.log( Level.FINE, "tasklist has been sorted by location");
 			}
 			
 			if (sortBy.equals("!")) {
-				Collections.sort(taskList,new taskComparators().new ComparatorPriority());
+				Collections.sort(taskList,new TaskComparators().new ComparatorPriority());
 				log.log( Level.FINE, "tasklist has been sorted by priority");
 			}
 			
 			if (sortBy.equals("#")) {
-				Collections.sort(taskList,new taskComparators().new ComparatorCategory());
+				Collections.sort(taskList,new TaskComparators().new ComparatorCategory());
 				log.log( Level.FINE, "tasklist has been sorted by category");
 			}
 			
 			if (sortBy.equals("$")) {
-				Collections.sort(taskList,new taskComparators().new ComparatorTime());
+				Collections.sort(taskList,new TaskComparators().new ComparatorTime());
 				log.log( Level.FINE, "tasklist has been sorted by time");
 			}
 			
 			if (sortBy.equals("+")) { //is there actually a point doing this?? Im setting it to time for now
-				Collections.sort(taskList,new taskComparators().new ComparatorTime());
+				Collections.sort(taskList,new TaskComparators().new ComparatorTime());
 				log.log( Level.FINE, "tasklist has been sorted by time");
 			}
 			
 			if (sortBy.equals("&")) {
-				Collections.sort(taskList,new taskComparators().new ComparatorAdditional());
+				Collections.sort(taskList,new TaskComparators().new ComparatorAdditional());
 				log.log( Level.FINE, "tasklist has been sorted by additional information");
 			}
 			
@@ -212,7 +261,7 @@ public class TaskList {
 			}
 		}
 		else {
-			Collections.sort(taskList,new taskComparators().new ComparatorDefault());
+			Collections.sort(taskList,new TaskComparators().new ComparatorDefault());
 			log.log( Level.FINE, "tasklist has been sorted by queue number, then by time");
 			//Collections.reverse(taskList);
 		}

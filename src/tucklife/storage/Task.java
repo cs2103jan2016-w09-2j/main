@@ -1,4 +1,4 @@
-//@@author a0111101n
+//@@author A0111101N
 package tucklife.storage;
 
 import java.text.SimpleDateFormat;
@@ -127,11 +127,22 @@ public class Task {
 	
 	protected Task edit(ProtoTask task) throws invalidDateException{
 		//edit task
-		this.location = task.getLocation() == null ? this.location : task.getLocation();
-		this.priority = task.getPriority() == -1 ? this.priority : task.getPriority();
-		this.category = task.getCategory() == null ? this.category : task.getCategory();
-		this.additional = task.getAdditional() == null ? this.additional : task.getAdditional();
-		this.name = task.getTaskDesc() == null ? this.name : task.getTaskDesc();
+		this.location = editParam(this.location, task.getLocation());
+		this.priority = editParam(this.priority, task.getPriority());
+		this.category = editParam(this.category, task.getCategory());
+		this.additional = editParam(this.additional, task.getAdditional());
+		this.name = editParam(this.name, task.getTaskDesc());
+		
+		if(task.getEndTime() == null && task.getEndDate()!=null) {
+			this.endDate = combineDateTime(task.getEndDate(),this.endDate); //merge date and time
+			if(task.getStartDate()==null && /*task.getStartTime()==null && */this.startDate != null) {
+				this.endDate = task.getEndDate();
+			}
+		} else {
+			if(task.getEndTime()!=null && task.getEndDate()!=null) {
+				this.endDate = task.getEndDate();
+			}
+		}
 		
 		if(task.getStartTime() == null && task.getStartDate()!=null) {
 			this.startDate = combineDateTime(task.getStartDate(),this.startDate); //merge date and time
@@ -139,21 +150,11 @@ public class Task {
 			if(task.getStartTime()!=null && task.getStartDate()!=null) {
 				this.startDate = task.getStartDate();
 			}
+			
 			if(task.getStartTime() == null && task.getStartDate() == null) {
 				this.startDate = null;
 			}
 		}
-		
-		if(task.getEndTime() == null && task.getEndDate()!=null) {
-			this.endDate = combineDateTime(task.getEndDate(),this.endDate); //merge date and time
-		} else {
-			if(task.getEndTime()!=null && task.getEndDate()!=null) {
-				this.endDate = task.getEndDate();
-			}
-		}
-		
-		//this.startDate = task.getStartDate() == null ? this.startDate : task.getStartDate();
-		//this.endDate = task.getEndDate() == null ? this.endDate : task.getEndDate();
 		
 		if(task.getStartDate() == null && task.getEndDate() == null) { //only do such changes if there is a time but no date
 			
@@ -167,6 +168,11 @@ public class Task {
 						this.endDate = combineDateTime(this.endDate, task.getEndTime()); //change the time of the deadline
 					}
 				} 
+				
+				
+				if(task.getStartDate() == null) {
+					this.startDate = null;
+				}
 			}
 			
 			if(task.getStartTime()!=null && task.getEndTime()!=null) { //new edited task becomes an event
@@ -191,10 +197,39 @@ public class Task {
 		
 		checkValidDates(startDate, endDate);
 		
+		if(task.getEndDate().get(Calendar.YEAR) == 2000) {
+			this.startDate = null;
+			this.endDate = null;
+		}
+		
 		this.floating = startDate == null && endDate == null; //task.isFloating();
 		this.id = task.getId() == -1 ? this.id : task.getId();
 		log.log( Level.FINE, "Task has been edited via ProtoTask");
 		return this;
+	}
+
+	private String editParam(String self, String change) {
+		if(change != null) {
+			if(change.equals("")) {
+				return null;
+			} else {
+				return change;
+			}
+		} else {
+			return self;
+		}
+	}
+	
+	private int editParam(int self, int change) {
+		if(change != -1) {
+			if(change == 0) {
+				return 0;
+			} else {
+				return change;
+			}
+		} else {
+			return self;
+		}
 	}
 	
 	private Calendar tomorrow(Calendar endDate) {
@@ -211,7 +246,7 @@ public class Task {
 		StringBuilder displayString = new StringBuilder();
 		
 		// display order:
-		// id. name | date | location | priority
+		// id. name | date | location
 		
 		displayString.append(idField());
 		displayString.append(" ");
@@ -221,9 +256,8 @@ public class Task {
 		
 		fields[0] = dateField();
 		fields[1] = locationField();
-		fields[2] = priorityField();
 		
-		for(int i = 0; i < 3; i++){
+		for(int i = 0; i < 2; i++){
 			if(fields[i] != null){
 				displayString.append(" | ");
 				displayString.append(fields[i]);
@@ -344,12 +378,16 @@ public class Task {
 	
 	protected String displayAll(){
 		String displayString = display();
-		String[] otherStuff = new String[2];
+		String[] otherStuff = new String[3];
 		
-		otherStuff[0] = categoryField();
-		otherStuff[1] = additionalField();
+		// other stuff is displayAll:
+		// priority | category | additional
 		
-		for(int i = 0; i < 2; i++){
+		otherStuff[0] = priorityField();
+		otherStuff[1] = categoryField();
+		otherStuff[2] = additionalField();
+		
+		for(int i = 0; i < 3; i++){
 			if(otherStuff[i] != null){
 				displayString += " | " + otherStuff[i];
 			}

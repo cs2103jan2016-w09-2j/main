@@ -1,4 +1,4 @@
-//@@author a0111101n
+//@@author A0111101N
 package tucklife.storage;
 
 
@@ -25,12 +25,13 @@ public class Storage {
 	private static final String RETURN_MESSAGE_FOR_COMPLETE = "{%1$s} has been moved to TuckLife's done list!";
 	
 	private static final String RETURN_MESSAGE_FOR_NONEXISTENT_ID = "No task with id:%1$s in TuckLife's to-do list!";
+	private static final String RETURN_MESSAGE_FOR_NONEXISTENT_ID_DONELIST = "No task with id:%1$s in TuckLife's done list!";
 	private static final String RETURN_MESSAGE_FOR_OVERLOAD = "That day has been filled with %1$s tasks! It hit the limit! You should reschedule the task to another day. "
 			+ "Alternatively, you can either change the overload limit or turn it off.";
 	private static final String RETURN_MESSAGE_FOR_NOTHING_TO_UNDO = "There is no previous action to undo!";
 	private static final String RETURN_MESSAGE_FOR_NOTHING_TO_REDO = "There is no previous action to redo!";
 	
-	private static final String STATUS_HEADER = "Tasks at a glance...";
+	private static final String STATUS_HEADER = "\n\n\n\n\n\n\n\n\n\nTasks at a glance...";
 	private static final String STATUS_OUTSTANDING = "Total outstanding tasks: %1$s";
 	private static final String STATUS_TODAY = "Tasks due today: %1$s";
 	private static final String STATUS_CURRENT = "Current task: {%1$s}";
@@ -47,7 +48,7 @@ public class Storage {
 	private static PrefsStorage pf;
 	
 	private enum COMMAND_TYPE {
-		ADD, DISPLAY, COMPLETE, DISPLAYDONE, DELETE, EDIT, INVALID, QUEUE, SETLIMIT, UNDO, REDO
+		ADD, DISPLAY, COMPLETE, DISPLAYDONE, DELETE, EDIT, INVALID, QUEUE, SETLIMIT, UNDO, REDO, UNCOMPLETE
 	}
 	
 	public String parseCommand(ProtoTask pt) {
@@ -146,7 +147,7 @@ public class Storage {
 		TaskList[] saveList = new TaskList[2];
 		saveList[0] = toDoList;
 		saveList[1] = doneList;
-		DataBox db = new DataBox(saveList, new PrefsStorage());
+		DataBox db = new DataBox(saveList, pf);
 		return db;
 	}
 	
@@ -200,9 +201,9 @@ public class Storage {
 			prepareForUndo();
 			return complete(pt.getId());
 		case DISPLAY :
-			return display(pt);
+			return display(pt, toDoList);
 		case DISPLAYDONE :
-			return displayDone();
+			return display(pt, doneList);
 		case DELETE :
 			prepareForUndo();
 			return delete(pt.getId());
@@ -215,12 +216,15 @@ public class Storage {
 			} catch (invalidDateException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				return "I GOT PROBLEM WITH DATE DUDE";
 			}
 		case QUEUE :
 			prepareForUndo();
 			return queue(pt.getId(), pt.getPosition());
 		case SETLIMIT :
 			return setLimit(pt.getLimit());
+		case UNCOMPLETE :
+			return uncomplete(pt.getId());
 		case UNDO :
 			try {
 				return undo();
@@ -320,7 +324,7 @@ public class Storage {
 	private static String complete(int taskID) {
 		if(toDoList.contains(taskID)){
 			Task completedTask = toDoList.delete(taskID);
-			completedTask.setQueueID(-1);
+			completedTask.setQueueID(-(doneList.size() + 1));
 			if(queueList.contains(taskID)) {
 				queueList.delete(taskID);
 				updateQueueIDs(0, 0);
@@ -330,6 +334,17 @@ public class Storage {
 		} else {
 			return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID, taskID);
 		}
+	}
+	
+	private static String uncomplete(int taskID) {
+		if(doneList.contains(taskID)) {
+			Task uncompletedTask = doneList.delete(taskID);
+			uncompletedTask.setQueueID(-1);
+			toDoList.add(uncompletedTask);
+		} else {
+			return String.format(RETURN_MESSAGE_FOR_NONEXISTENT_ID_DONELIST, taskID);
+		}
+		return null;
 	}
 	
 	private static String delete(int taskID) {
@@ -353,10 +368,10 @@ public class Storage {
 		}
 	}
 	
-	private static String display(ProtoTask pt) {
+	private static String display(ProtoTask pt, TaskList taskList) {
 		if (pt.getSearchKey()!=null) {
-			toDoList.sort(null, true);
-			return toDoList.search(pt.getSearchKey());
+			taskList.sort(null, true);
+			return taskList.search(pt.getSearchKey());
 		}
 		
 		if(pt.getId() != -1) {
@@ -365,17 +380,17 @@ public class Storage {
 			String sortBy = pt.getSortCrit();
 			assert sortBy.equals("@") || sortBy.equals("!") || sortBy.equals("#") || sortBy.equals("$") || sortBy.equals("&") || sortBy.equals("+") || sortBy == null;
 			boolean isAscending = pt.getIsAscending();
-			toDoList.sort(sortBy,isAscending);
+			taskList.sort(sortBy,isAscending);
 			if (sortBy == null) {
-				return toDoList.displayDefault();
+				if(taskList == doneList) {
+					taskList.sort(null, true);
+					return taskList.display(20);
+				}
+				return taskList.displayDefault(20);
 			} else {
-				return toDoList.display();
+				return taskList.display(20);
 			}
 		}
-	}
-	
-	private static String displayDone() {
-		return doneList.display();
 	}
 	
 	private static String queue(int taskID, int pos) {
@@ -444,7 +459,7 @@ public class Storage {
 		status.append(String.format(STATUS_TODAY, Integer.toString(toDoList.tasksToday())));
 		status.append("\n");
 		if(queueList.size() != 0){
-			status.append(String.format(STATUS_CURRENT, queueList.display().split("\n")[0]));
+			status.append(String.format(STATUS_CURRENT, queueList.display(10).split("\n")[0]));
 		} else{
 			status.append(String.format(STATUS_CURRENT, STATUS_CURRENT_NONE));
 		}

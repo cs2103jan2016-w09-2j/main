@@ -7,7 +7,8 @@ import java.util.Hashtable;
 public class Parser {
 	
 	private String[] commandTypes = { "add", "change", "complete", "delete", "demo", "display", "displaydone",
-									  "edit", "exit", "help", "queue", "redo", "save", "saveto", "setlimit", "undo" };
+									  "edit", "exit", "help", "queue", "redo", "save", "saveto", "setlimit",
+									  "uncomplete", "undo" };
 	private String paramSymbols = "-+$#!&@";
 	private ProtoTask pt;
 	private DateParser dp;
@@ -87,7 +88,7 @@ public class Parser {
 		if (i == -1) {
 			return "";
 		} else {
-			return command.substring(i + 1, command.length());
+			return command.substring(i + 1, command.length()).trim();
 		}
 	}
 	
@@ -344,6 +345,7 @@ public class Parser {
 				
 			// Parameter: id
 			case "complete" :
+			case "uncomplete" :
 			case "delete" :
 				if (commandArg.isEmpty()) {
 					createErrorTask(ERROR_INVALID_PARAMS + "\n" + ERROR_PARAMS_ID);
@@ -510,8 +512,13 @@ public class Parser {
 							break;
 						} else if (commandArg.charAt(i) == ' ' && i + 1 != commandArg.length()
 								   && paramSymbols.contains(commandArg.charAt(i + 1) + "")) {
-							isInParam = false;
-							break;
+							
+							//if (commandArg.charAt(i + 1) != '-') {
+								isInParam = false;
+								break;
+							//} else {
+							//	parameter += commandArg.charAt(i);
+							//}
 						} else {
 							parameter += commandArg.charAt(i);
 						}

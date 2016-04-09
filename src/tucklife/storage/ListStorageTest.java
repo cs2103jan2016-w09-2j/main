@@ -162,11 +162,11 @@ public class ListStorageTest {
 		
 		// ninth task type - event (time only)
 		task = doneList.displayID(10);
-		assertEquals(" 10. task9 | From: Tue, 29 Mar 2016 09:00 To: Tue, 29 Mar 2016 10:00", task);
+		assertEquals("10. task9 | From: Tue, 29 Mar 2016 09:00 To: Tue, 29 Mar 2016 10:00", task);
 		
 		// tenth task type - event (both date and time)
 		task = doneList.displayID(12);
-		assertEquals(" 12. task10 | From: Wed, 10 Aug 2016 22:00 To: Fri, 12 Aug 2016 23:00", task);
+		assertEquals("12. task10 | From: Wed, 10 Aug 2016 22:00 To: Fri, 12 Aug 2016 23:00", task);
 		
 		// eleventh task type - queue ID
 		task = todoList.displayID(8);

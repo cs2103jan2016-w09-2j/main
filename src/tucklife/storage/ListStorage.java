@@ -256,9 +256,10 @@ public class ListStorage {
 			while(tasks.hasNext()){
 				Task t = tasks.next();
 				
-				String taskString = t.displayAll();
-				int idBreak = taskString.indexOf((int) ' ');
+				String taskString = t.displayAll().trim();
 				
+				// remove the id as we do not save it
+				int idBreak = taskString.indexOf((int) ' ');				
 				taskString = taskString.substring(idBreak + 1);
 				
 				bos.write(taskString.getBytes());

@@ -130,7 +130,7 @@ public class ListStorageTest {
 		
 		// first task type - no parameters
 		String task = doneList.displayID(9);
-		assertEquals("9. task1", task);
+		assertEquals(" 9. task1", task);
 		
 		// second task type - location parameter
 		task = doneList.displayID(11);
@@ -138,27 +138,27 @@ public class ListStorageTest {
 		
 		// third task type - priority parameter
 		task = todoList.displayID(7);
-		assertEquals("7. task3 | Priority: High", task);
+		assertEquals(" 7. task3 | Priority: High", task);
 		
 		// fourth task type - deadline parameter (day only)
 		task = todoList.displayID(2);
-		assertEquals("2. task4 | By: Mon, 4 Apr 2016 23:59", task);
+		assertEquals(" 2. task4 | By: Mon, 4 Apr 2016 23:59", task);
 		
 		// fifth task type - deadline parameter (time only)
 		task = todoList.displayID(1);
-		assertEquals("1. task5 | By: Tue, 29 Mar 2016 05:00", task);
+		assertEquals(" 1. task5 | By: Tue, 29 Mar 2016 05:00", task);
 			
 		// sixth task type - category parameter
 		task = todoList.displayID(5);
-		assertEquals("5. task6 | Category: cat6", task);
+		assertEquals(" 5. task6 | Category: cat6", task);
 		
 		// seventh task type - additional parameter
 		task = todoList.displayID(6);
-		assertEquals("6. task7 | Additional: additional7", task);
+		assertEquals(" 6. task7 | Additional: additional7", task);
 		
 		// eighth task type - event (days only)
 		task = todoList.displayID(4);
-		assertEquals("4. task8 | From: Mon, 8 Aug 2016 23:59 To: Wed, 10 Aug 2016 23:59", task);
+		assertEquals(" 4. task8 | From: Mon, 8 Aug 2016 23:59 To: Wed, 10 Aug 2016 23:59", task);
 		
 		// ninth task type - event (time only)
 		task = doneList.displayID(10);
@@ -170,13 +170,13 @@ public class ListStorageTest {
 		
 		// eleventh task type - queue ID
 		task = todoList.displayID(8);
-		assertEquals("8. task12", task);
+		assertEquals(" 8. task12", task);
 		Task t = todoList.delete(8);
 		assertEquals(1, t.getQueueID());
 		
 		// consolidation - all parameters
 		task = todoList.displayID(3);
-		assertEquals("3. task11 | By: Mon, 11 Apr 2016 23:59 | Location: loc11 | Priority: Med | Category: cat11 | Additional: additional11", task);
+		assertEquals(" 3. task11 | By: Mon, 11 Apr 2016 23:59 | Location: loc11 | Priority: Med | Category: cat11 | Additional: additional11", task);
 	}
 	
 	// check that you can save without any changes

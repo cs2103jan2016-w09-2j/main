@@ -1,13 +1,16 @@
 package tucklife.storage;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
+/*
 public class IDNotFoundException extends Exception {
 	
 	public int errorID;
 	public IDNotFoundException(int errorID) {
 		this.errorID = errorID;
 	}
-}
+}*/
 
 class overloadException extends Exception {
 	private int limit;
@@ -17,10 +20,6 @@ class overloadException extends Exception {
 	public overloadException(int limit) {
 		this.limit = limit;
 	}
-	/*
-	public int getLimit() {
-		return limit;
-	}*/
 	public String getReturnMsg() {
 		return String.format(RETURN_MESSAGE_FOR_OVERLOAD, this.limit);
 	}
@@ -41,9 +40,32 @@ class nothingToRedoException extends Exception {
 }
 
 class invalidDateException extends Exception {
-	private String errorMessage = "Date is invalid";
+	//private String errorMessage = "Date is invalid";
 	
-	public String getErrorMessage(){
-		return errorMessage;
+	private SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
+	Calendar start;
+	Calendar end;
+	Calendar deadline;
+	
+	public invalidDateException(Calendar start, Calendar end) {
+		this.start = start;
+		this.end = end;
+	}
+	
+	public invalidDateException(Calendar start, Calendar end, Calendar deadline) {
+		this.start = start;
+		this.end = end;
+		this.deadline = deadline;
+	}
+	
+	public String getReturnMsg(){
+		String startDate = sdf.format(start.getTime());
+		String endDate = sdf.format(end.getTime());
+		if(this.deadline == null) {
+			return startDate + " is before " + endDate + "!";
+		} else {
+			String deadlineDate = sdf.format(deadline.getTime());
+			return "Task is currently an event from " + startDate + " to " + endDate + ", unable to change it to a deadline by " + deadlineDate + "!";
+		}
 	}
 }

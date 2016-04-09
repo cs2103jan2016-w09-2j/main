@@ -134,11 +134,9 @@ public class TaskList {
 
 	private StringBuilder getRemainingString(StringBuilder sb, int remainingTask, String case1, String case2) {
 		if (remainingTask == 1) { 
-			//sb.append(String.format("And %1$s other task in queue\n",remainingTask));
 			sb.append(String.format(case1,remainingTask));
 		} else {
 			if (remainingTask > 1) { 
-				//sb.append(String.format("And %1$s other task in queue\n",remainingTask));
 				sb.append(String.format(case2,remainingTask));
 			} 
 		}
@@ -274,7 +272,6 @@ public class TaskList {
 		else {
 			Collections.sort(taskList,new TaskComparators().new ComparatorDefault());
 			log.log( Level.FINE, "tasklist has been sorted by queue number, then by time");
-			//Collections.reverse(taskList);
 		}
 	}
 	

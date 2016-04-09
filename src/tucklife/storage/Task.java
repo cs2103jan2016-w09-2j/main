@@ -41,6 +41,9 @@ public class Task {
 	private static final String PRIORITY_MEDIUM = "Med";
 	private static final String PRIORITY_LOW = "Low";
 	
+	private static final String TASK_NAME_EXTENDER = "...";
+	private static final String TASK_FIELD_SEPERATOR = " | ";
+	
 	public static void resetGlobalId() {
 		globalID = 1;
 	}
@@ -252,20 +255,20 @@ public class Task {
 		StringBuilder displayString = new StringBuilder();
 		
 		// display order:
-		// id. name | date | location
+		// id. truncated name | date | location
 		
 		displayString.append(idField());
 		displayString.append(" ");
-		displayString.append(name);
+		displayString.append(nameField(true));
 		
-		String[] fields = new String[4];
+		String[] fields = new String[2];
 		
 		fields[0] = dateField();
 		fields[1] = locationField();
 		
 		for(int i = 0; i < 2; i++){
 			if(fields[i] != null){
-				displayString.append(" | ");
+				displayString.append(TASK_FIELD_SEPERATOR);
 				displayString.append(fields[i]);
 			}
 		}
@@ -320,7 +323,23 @@ public class Task {
 	}
 	
 	private String idField(){
-		return Integer.toString(id) + ".";
+		String rawId = Integer.toString(id);
+		int padSize = Integer.toString(globalID).length();
+		
+		String paddedId = String.format("%" + Integer.toString(padSize) + "s", rawId);
+		
+		return paddedId + ".";
+	}
+	
+	private String nameField(boolean truncated){
+		if(truncated){
+			// truncates long names
+			if(name.length() > 15){
+				return name.substring(0, 12) + TASK_NAME_EXTENDER;
+			}
+		} 
+		
+		return name;
 	}
 	
 	private String dateField(){
@@ -383,23 +402,31 @@ public class Task {
 	}
 	
 	protected String displayAll(){
-		String displayString = display();
-		String[] otherStuff = new String[3];
+		StringBuilder fullDisplayString = new StringBuilder();
 		
-		// other stuff is displayAll:
-		// priority | category | additional
+		// displayAll order:
+		// id. full name | date | location | priority | category | additional
 		
-		otherStuff[0] = priorityField();
-		otherStuff[1] = categoryField();
-		otherStuff[2] = additionalField();
+		fullDisplayString.append(idField());
+		fullDisplayString.append(" ");
+		fullDisplayString.append(nameField(false));
 		
-		for(int i = 0; i < 3; i++){
-			if(otherStuff[i] != null){
-				displayString += " | " + otherStuff[i];
+		String[] fields = new String[5];
+		
+		fields[0] = dateField();
+		fields[1] = locationField();
+		fields[2] = priorityField();
+		fields[3] = categoryField();
+		fields[4] = additionalField();
+		
+		for(int i = 0; i < 5; i++){
+			if(fields[i] != null){
+				fullDisplayString.append(TASK_FIELD_SEPERATOR);
+				fullDisplayString.append(fields[i]);
 			}
 		}
 		
-		return displayString;
+		return fullDisplayString.toString();
 	}
 	
 	private Calendar mergeDateTime(Calendar date, Calendar time) {

@@ -11,6 +11,7 @@ import tucklife.storage.internal.StorageExceptions.NothingToRedoException;
 import tucklife.storage.internal.StorageExceptions.NothingToUndoException;
 import tucklife.storage.internal.StorageExceptions.OverloadException;
 import tucklife.storage.DataBox;
+import tucklife.storage.TaskList;
 
 public class FlowController {
 
@@ -147,6 +148,8 @@ public class FlowController {
 		}
 	}
 	
+	
+	// @@author A0121352X
 	public String executeSave() {
 		DataBox db = s.save();
 		db.setCommands(p.getCommands());
@@ -157,5 +160,11 @@ public class FlowController {
 		DataBox db = s.save();
 		db.setCommands(p.getCommands());
 		return es.saveTo(db, path);
+	}
+	
+	//@@author A0111101N
+	//for testing purposes only
+	public static Storage getStorage(){
+		return s;
 	}
 }

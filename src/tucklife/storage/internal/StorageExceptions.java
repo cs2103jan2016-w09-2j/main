@@ -1,4 +1,4 @@
-package tucklife.storage;
+package tucklife.storage.internal;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

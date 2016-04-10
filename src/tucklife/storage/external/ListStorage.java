@@ -1,5 +1,5 @@
 // @@author A0121352X
-package tucklife.storage;
+package tucklife.storage.external;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -16,7 +16,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import tucklife.parser.ProtoTask;
-import tucklife.storage.StorageExceptions.InvalidDateException;
+import tucklife.storage.Task;
+import tucklife.storage.TaskList;
+import tucklife.storage.internal.StorageExceptions;
+import tucklife.storage.internal.StorageExceptions.InvalidDateException;
 
 public class ListStorage {
 	

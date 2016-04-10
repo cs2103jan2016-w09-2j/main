@@ -10,7 +10,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import tucklife.parser.ProtoTask;
-import tucklife.storage.StorageExceptions.InvalidDateException;
+import tucklife.storage.internal.Storage;
+import tucklife.storage.internal.StorageExceptions.InvalidDateException;
 
 
 public class TaskList {

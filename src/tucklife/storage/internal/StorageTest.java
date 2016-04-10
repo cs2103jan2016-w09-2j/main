@@ -1,5 +1,5 @@
 //@@author A0111101N
-package tucklife.storage;
+package tucklife.storage.internal;
 
 import static org.junit.Assert.*;
 
@@ -12,6 +12,8 @@ import org.junit.Test;
 import tucklife.UI.FlowController;
 import tucklife.parser.Parser;
 import tucklife.parser.ProtoTask;
+import tucklife.storage.Task;
+import tucklife.storage.TaskList;
 
 public class StorageTest {
 	

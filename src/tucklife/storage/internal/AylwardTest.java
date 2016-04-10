@@ -1,6 +1,6 @@
 //@@author A0124274L
 
-package tucklife.storage;
+package tucklife.storage.internal;
 
 import static org.junit.Assert.*;
 

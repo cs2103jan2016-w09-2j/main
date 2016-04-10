@@ -1,5 +1,5 @@
 //@@author A0111101N
-package tucklife.storage;
+package tucklife.storage.internal;
 
 
 import java.text.SimpleDateFormat;
@@ -8,10 +8,13 @@ import java.util.Iterator;
 import java.util.logging.Logger;
 
 import tucklife.parser.ProtoTask;
-import tucklife.storage.StorageExceptions.InvalidDateException;
-import tucklife.storage.StorageExceptions.NothingToRedoException;
-import tucklife.storage.StorageExceptions.NothingToUndoException;
-import tucklife.storage.StorageExceptions.OverloadException;
+import tucklife.storage.external.PrefsStorage;
+import tucklife.storage.internal.StorageExceptions.InvalidDateException;
+import tucklife.storage.internal.StorageExceptions.NothingToRedoException;
+import tucklife.storage.internal.StorageExceptions.NothingToUndoException;
+import tucklife.storage.internal.StorageExceptions.OverloadException;
+import tucklife.storage.DataBox;
+import tucklife.storage.Task;
 import tucklife.storage.TaskList;
 
 public class Storage {

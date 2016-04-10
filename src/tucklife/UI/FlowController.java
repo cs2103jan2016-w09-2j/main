@@ -54,8 +54,6 @@ public class FlowController {
 				executeSave();
 				System.exit(0);
 				return null;
-			} else if(pt.getCommand().equals("display") || pt.getCommand().equals("displaydone")){
-				result = parseCommand(pt);
 			} else{
 				result = parseCommand(pt);
 			}
@@ -65,6 +63,7 @@ public class FlowController {
 		}
 	}
 	
+	//@@author A0111101N
 	public String parseCommand(ProtoTask pt) {
 		COMMAND_TYPE ct = determineCommandType(pt.getCommand());
 		String returnMessage = parseCommand(pt,ct);
@@ -103,7 +102,6 @@ public class FlowController {
 		switch (commandType) {
 		case ADD :
 			try {
-				//state.prepareForUndo(toDoList, doneList);
 				return s.add(pt);
 			} catch (OverloadException e) {
 				return e.getReturnMsg();
@@ -111,18 +109,15 @@ public class FlowController {
 				return e.getReturnMsg();
 			}
 		case COMPLETE :
-			//state.prepareForUndo(toDoList, doneList);
 			return s.complete(pt.getId());
 		case DISPLAY :
 			return s.display(pt, "toDoList");
 		case DISPLAYDONE :
 			return s.display(pt, "doneList");
 		case DELETE :
-			//state.prepareForUndo(toDoList, doneList);
 			return s.delete(pt.getId());
 		case EDIT :
 			try {
-				//state.prepareForUndo(toDoList, doneList);
 				return s.edit(pt.getId(), pt);
 			} catch (OverloadException e) {
 				return e.getReturnMsg();
@@ -130,12 +125,10 @@ public class FlowController {
 				return e.getReturnMsg();
 			}
 		case QUEUE :
-			//state.prepareForUndo(toDoList, doneList);
 			return s.queue(pt.getId(), pt.getPosition());
 		case SETLIMIT :
 			return s.setLimit(pt.getLimit());
 		case UNCOMPLETE :
-			//state.prepareForUndo(toDoList, doneList);
 			return s.uncomplete(pt.getId());
 		case UNDO :
 			try {
@@ -150,7 +143,6 @@ public class FlowController {
 				return e.getReturnMsg();
 			}
 		default:
-			//throw an error if the command is not recognized
 			throw new Error("Unrecognized command type");
 		}
 	}

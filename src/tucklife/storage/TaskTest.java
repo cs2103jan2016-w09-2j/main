@@ -33,7 +33,7 @@ public class TaskTest {
 		Task t = new Task(pt);
 		assertEquals("fail to create task", t.getName(), "meeting");
 		assertEquals("unable to get correct location", t.getLocation(), null);
-		pt = p.parse("add meeting with boss @mr3");
+		pt = p.parse("add meeting aylward @mr3");
 		t = new Task(pt);
 		assertEquals("unable to get correct location", t.getLocation(), "mr3");
 	}
@@ -45,87 +45,87 @@ public class TaskTest {
 		id = t.getId();
 		String taskDisplay = String.format("%1$s. meeting",id);
 		assertEquals("fail to display", t.display(), taskDisplay);
-		pt = p.parse("add meeting with boss @mr3 +1200 $16/05 #important &bring all documents");
+		pt = p.parse("add meeting aylward @mr3 +1200 $16/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
-		taskDisplay = String.format("%1$s. meeting with boss | By: Mon, 16 May 2016 12:00 | Location: mr3",id);
+		taskDisplay = String.format("%1$s. meeting aylward | By: Mon, 16 May 2016 12:00 | Location: mr3",id);
 		assertEquals("fail to display properly", t.display(), taskDisplay);
-		taskDisplay = String.format("%1$s. meeting with boss | By: Mon, 16 May 2016 12:00 | Location: mr3 | Category: important | Additional: bring all documents",id);
+		taskDisplay = String.format("%1$s. meeting aylward | By: Mon, 16 May 2016 12:00 | Location: mr3 | Category: important | Additional: bring all documents",id);
 		assertEquals("fail to display all properly", taskDisplay, t.displayAll());
 	}
 	
 	@Test
 	public void testEditRemoveParam() throws InvalidDateException {
-		pt = p.parse("add meeting with boss @mr3 +1200 $16/05 #important &bring all documents");
+		pt = p.parse("add meeting aylward @mr3 +1200 $16/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
-		String taskDisplay = String.format("%1$s. meeting with boss | By: Mon, 16 May 2016 12:00 | Location: mr3",id);
+		String taskDisplay = String.format("%1$s. meeting aylward | By: Mon, 16 May 2016 12:00 | Location: mr3",id);
 		pt = p.parse(String.format("edit %1$s @ +1300 $17/05 &",id));
 		t.edit(pt);
-		String taskDisplayEdit = String.format("%1$s. meeting with boss | By: Tue, 17 May 2016 13:00",id);
+		String taskDisplayEdit = String.format("%1$s. meeting aylward | By: Tue, 17 May 2016 13:00",id);
 		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
-		taskDisplay = String.format("%1$s. meeting with boss | By: Tue, 17 May 2016 13:00 | Category: important",id);
+		taskDisplay = String.format("%1$s. meeting aylward | By: Tue, 17 May 2016 13:00 | Category: important",id);
 		assertEquals("fail to display all properly", t.displayAll(), taskDisplay);
 	}
 	
 	@Test
 	public void testEditRemoveParamFloating() throws InvalidDateException {
-		pt = p.parse("add meeting with boss @mr3 +1200 $16/05 #important &bring all documents");
+		pt = p.parse("add meeting aylward @mr3 +1200 $16/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
-		String taskDisplay = String.format("%1$s. meeting with boss | By: Mon, 16 May 2016 12:00 | Location: mr3",id);
+		String taskDisplay = String.format("%1$s. meeting aylward | By: Mon, 16 May 2016 12:00 | Location: mr3",id);
 		pt = p.parse(String.format("edit %1$s @mr4 &bring yourself +",id));
 		t.edit(pt);
-		String taskDisplayEdit = String.format("%1$s. meeting with boss | Location: mr4",id);
+		String taskDisplayEdit = String.format("%1$s. meeting aylward | Location: mr4",id);
 		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
-		taskDisplay = String.format("%1$s. meeting with boss | Location: mr4 | Category: important | Additional: bring yourself",id);
+		taskDisplay = String.format("%1$s. meeting aylward | Location: mr4 | Category: important | Additional: bring yourself",id);
 		assertEquals("fail to display all properly", t.displayAll(), taskDisplay);
 	}
 	
 	@Test
 	public void testEditDisplayAll() throws InvalidDateException {
-		pt = p.parse("add meeting with boss @mr3 +1200 $16/05 #important &bring all documents");
+		pt = p.parse("add meeting aylward @mr3 +1200 $16/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
-		String taskDisplay = String.format("%1$s. meeting with boss | By: Mon, 16 May 2016 12:00 | Location: mr3",id);
+		String taskDisplay = String.format("%1$s. meeting aylward | By: Mon, 16 May 2016 12:00 | Location: mr3",id);
 		pt = p.parse(String.format("edit %1$s @mr4 +1300 &bring yourself",id));
 		t.edit(pt);
-		String taskDisplayEdit = String.format("%1$s. meeting with boss | By: Mon, 16 May 2016 13:00 | Location: mr4",id);
+		String taskDisplayEdit = String.format("%1$s. meeting aylward | By: Mon, 16 May 2016 13:00 | Location: mr4",id);
 		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
-		taskDisplay = String.format("%1$s. meeting with boss | By: Mon, 16 May 2016 13:00 | Location: mr4 | Category: important | Additional: bring yourself",id);
+		taskDisplay = String.format("%1$s. meeting aylward | By: Mon, 16 May 2016 13:00 | Location: mr4 | Category: important | Additional: bring yourself",id);
 		assertEquals("fail to display all properly", t.displayAll(), taskDisplay);
 	}
 	
 	@Test
 	public void testEditEventToEventWithoutDate2() throws InvalidDateException {
-		pt = p.parse("add meeting with boss @mr3 +1200 to 1300 $16/05 #important &bring all documents");
+		pt = p.parse("add meeting aylward @mr3 +1200 to 1300 $16/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
 		pt = p.parse(String.format("edit %1$s @mr4 +1100 to 1200",id));
 		t.edit(pt);
-		String taskDisplayEdit = String.format("%1$s. meeting with boss | From: Mon, 16 May 2016 11:00 To: Mon, 16 May 2016 12:00 | Location: mr4",id);
+		String taskDisplayEdit = String.format("%1$s. meeting aylward | From: Mon, 16 May 2016 11:00 To: Mon, 16 May 2016 12:00 | Location: mr4",id);
 		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
 	}
 	
 	@Test
 	public void testEditEventToEventWithoutDate() throws InvalidDateException {
-		pt = p.parse("add meeting with boss @mr3 +1200 to 1300 $16/05 to 17/05 #important &bring all documents");
+		pt = p.parse("add meeting aylward @mr3 +1200 to 1300 $16/05 to 17/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
 		pt = p.parse(String.format("edit %1$s @mr4 +0900 to 1000",id));
 		t.edit(pt);
-		String taskDisplayEdit = String.format("%1$s. meeting with boss | From: Mon, 16 May 2016 09:00 To: Tue, 17 May 2016 10:00 | Location: mr4",id);
+		String taskDisplayEdit = String.format("%1$s. meeting aylward | From: Mon, 16 May 2016 09:00 To: Tue, 17 May 2016 10:00 | Location: mr4",id);
 		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
 	}
 	
 	@Test
 	public void testEditEventToDeadline() throws InvalidDateException {
-		pt = p.parse("add meeting with boss @mr3 +1200 to 1300 $16/05 to 17/05 #important &bring all documents");
+		pt = p.parse("add meeting aylward @mr3 +1200 to 1300 $16/05 to 17/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
 		pt = p.parse(String.format("edit %1$s @mr4 +0900 $16/05",id));
 		t.edit(pt);
-		String taskDisplayEdit = String.format("%1$s. meeting with boss | By: Mon, 16 May 2016 09:00 | Location: mr4",id);
+		String taskDisplayEdit = String.format("%1$s. meeting aylward | By: Mon, 16 May 2016 09:00 | Location: mr4",id);
 		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
 	}
 	
@@ -198,12 +198,12 @@ public class TaskTest {
 	
 	@Test
 	public void testEditEventToDeadlineWithoutTime() throws InvalidDateException {
-		pt = p.parse("add meeting with boss @mr3 +1200 to 1300 $16/05 to 17/05 #important &bring all documents");
+		pt = p.parse("add meeting aylward @mr3 +1200 to 1300 $16/05 to 17/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
 		pt = p.parse(String.format("edit %1$s @mr4 $16/05",id));
 		t.edit(pt);
-		String taskDisplayEdit = String.format("%1$s. meeting with boss | By: Mon, 16 May 2016 23:59 | Location: mr4",id);
+		String taskDisplayEdit = String.format("%1$s. meeting aylward | By: Mon, 16 May 2016 23:59 | Location: mr4",id);
 		assertEquals(pt.getStartDate(),null);
 		assertEquals(pt.getStartTime(),null);
 		assertEquals(pt.getEndTime(),null);
@@ -213,7 +213,7 @@ public class TaskTest {
 	/*
 	@Test
 	public void testEditEventToSingleTimeInvalid() throws InvalidDateException {
-		pt = p.parse("add meeting with boss @mr3 +1200 to 1300 $16/05 to 17/05 #important &bring all documents");
+		pt = p.parse("add meeting aylward @mr3 +1200 to 1300 $16/05 to 17/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
 		pt = p.parse(String.format("edit %1$s @mr4 +0900",id));
@@ -229,34 +229,34 @@ public class TaskTest {
 	
 	@Test
 	public void testEditDeadlineToDeadlineWithoutDate() throws InvalidDateException {
-		pt = p.parse("add meeting with boss @mr3 $16/05 +2100 #important &bring all documents");
+		pt = p.parse("add meeting aylward @mr3 $16/05 +2100 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
 		pt = p.parse(String.format("edit %1$s @mr4 +0900",id));
 		t.edit(pt);
-		String taskDisplayEdit = String.format("%1$s. meeting with boss | By: Mon, 16 May 2016 09:00 | Location: mr4",id);
+		String taskDisplayEdit = String.format("%1$s. meeting aylward | By: Mon, 16 May 2016 09:00 | Location: mr4",id);
 		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
 	}
 	
 	@Test
 	public void testEditDeadlineToEventWithoutDate() throws InvalidDateException {
-		pt = p.parse("add meeting with boss @mr3 $16/05 +2100 #important &bring all documents");
+		pt = p.parse("add meeting aylward @mr3 $16/05 +2100 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
 		pt = p.parse(String.format("edit %1$s @mr4 +0900 to 1700",id));
 		t.edit(pt);
-		String taskDisplayEdit = String.format("%1$s. meeting with boss | From: Mon, 16 May 2016 09:00 To: Mon, 16 May 2016 17:00 | Location: mr4",id);
+		String taskDisplayEdit = String.format("%1$s. meeting aylward | From: Mon, 16 May 2016 09:00 To: Mon, 16 May 2016 17:00 | Location: mr4",id);
 		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
 	}
 	
 	@Test
 	public void testEditDeadlineToEventWithoutDate2() throws InvalidDateException {
-		pt = p.parse("add meeting with boss @mr3 $16/05 +2100 #important &bring all documents");
+		pt = p.parse("add meeting aylward @mr3 $16/05 +2100 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
 		pt = p.parse(String.format("edit %1$s @mr4 +2200 to 1000",id));
 		t.edit(pt);
-		String taskDisplayEdit = String.format("%1$s. meeting with boss | From: Mon, 16 May 2016 22:00 To: Tue, 17 May 2016 10:00 | Location: mr4",id);
+		String taskDisplayEdit = String.format("%1$s. meeting aylward | From: Mon, 16 May 2016 22:00 To: Tue, 17 May 2016 10:00 | Location: mr4",id);
 		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
 	}
 	

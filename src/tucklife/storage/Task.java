@@ -442,6 +442,7 @@ public class Task {
 		return fullDisplayString.toString();
 	}
 	
+	//@@author A0111101N
 	private Calendar mergeDateTime(Calendar date, Calendar time) {
 		if(date == null) {
 			return null;
@@ -467,7 +468,6 @@ public class Task {
 			return;
 		}
 		if (end.before(start) && start!= null) {
-			//throw new StorageExceptions().new InvalidDateException(start,end);
 			throw new StorageExceptions.InvalidDateException(start,end);
 		}
 	}

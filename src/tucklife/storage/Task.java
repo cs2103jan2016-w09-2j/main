@@ -313,9 +313,9 @@ public class Task {
 			if (fields[i] != null) {
 				displayString.append(TASK_FIELD_SEPERATOR);
 				displayString.append(fields[i]);
-			} else {
+			} /*else {
 				displayString.append(TASK_FIELD_SEPERATOR + "                          ");
-			}
+			}*/
 		}
 
 		return displayString.toString();

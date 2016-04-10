@@ -1,10 +1,13 @@
 // @@author A0121352X
-package tucklife.storage;
+package tucklife.storage.external;
 
 import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import tucklife.storage.DataBox;
+import tucklife.storage.TaskList;
 
 public class ExternalStorageTest {
 	

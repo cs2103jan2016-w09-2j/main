@@ -347,6 +347,8 @@ public class Task {
 			// truncates long names
 			if(name.length() > 15){
 				return name.substring(0, 12) + TASK_NAME_EXTENDER;
+			} else{
+				return String.format("%-15s", name);
 			}
 		} 
 		

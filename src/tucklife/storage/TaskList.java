@@ -237,32 +237,32 @@ public class TaskList {
 	public void sort(String sortBy , boolean isAscending) {
 		if (sortBy != null) {
 			if (sortBy.equals("@")) {
-				Collections.sort(taskList,new TaskComparators().new ComparatorLocation());
+				Collections.sort(taskList,new TaskComparators.ComparatorLocation());
 				log.log( Level.FINE, "tasklist has been sorted by location");
 			}
 			
 			if (sortBy.equals("!")) {
-				Collections.sort(taskList,new TaskComparators().new ComparatorPriority());
+				Collections.sort(taskList,new TaskComparators.ComparatorPriority());
 				log.log( Level.FINE, "tasklist has been sorted by priority");
 			}
 			
 			if (sortBy.equals("#")) {
-				Collections.sort(taskList,new TaskComparators().new ComparatorCategory());
+				Collections.sort(taskList,new TaskComparators.ComparatorCategory());
 				log.log( Level.FINE, "tasklist has been sorted by category");
 			}
 			
 			if (sortBy.equals("$")) {
-				Collections.sort(taskList,new TaskComparators().new ComparatorTime());
+				Collections.sort(taskList,new TaskComparators.ComparatorTime());
 				log.log( Level.FINE, "tasklist has been sorted by time");
 			}
 			
 			if (sortBy.equals("+")) { //is there actually a point doing this?? Im setting it to time for now
-				Collections.sort(taskList,new TaskComparators().new ComparatorTime());
+				Collections.sort(taskList,new TaskComparators.ComparatorTime());
 				log.log( Level.FINE, "tasklist has been sorted by time");
 			}
 			
 			if (sortBy.equals("&")) {
-				Collections.sort(taskList,new TaskComparators().new ComparatorAdditional());
+				Collections.sort(taskList,new TaskComparators.ComparatorAdditional());
 				log.log( Level.FINE, "tasklist has been sorted by additional information");
 			}
 			
@@ -272,7 +272,7 @@ public class TaskList {
 			}
 		}
 		else {
-			Collections.sort(taskList,new TaskComparators().new ComparatorDefault());
+			Collections.sort(taskList,new TaskComparators.ComparatorDefault());
 			log.log( Level.FINE, "tasklist has been sorted by queue number, then by time");
 		}
 	}

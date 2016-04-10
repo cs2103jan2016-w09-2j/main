@@ -5,7 +5,7 @@ import java.util.Calendar;
 
 public class TaskComparators {
 	
-	private int handleNullCases(Task task1, Task task2, String param1, String param2) {
+	private static int handleNullCases(Task task1, Task task2, String param1, String param2) {
 		if(param1 == null && param2 == null) {
 			return new ComparatorName().compare(task1, task2);
 		}
@@ -23,8 +23,7 @@ public class TaskComparators {
 		return param1.compareTo(param2);
 	}
 	
-	class ComparatorLocation implements Comparator<Task>
-    {
+	public static class ComparatorLocation implements Comparator<Task> {
 
      @Override
      public int compare(Task t1, Task t2) {
@@ -34,8 +33,7 @@ public class TaskComparators {
          }
     }
 	
-	class ComparatorPriority implements Comparator<Task>
-    {
+	public static class ComparatorPriority implements Comparator<Task> {
 
      @Override
      public int compare(Task t1, Task t2) {
@@ -50,8 +48,7 @@ public class TaskComparators {
          }
     }
 	
-	class ComparatorCategory implements Comparator<Task>
-    {
+	public static class ComparatorCategory implements Comparator<Task> {
 
      @Override
      public int compare(Task t1, Task t2) {
@@ -61,7 +58,7 @@ public class TaskComparators {
          }
     }
 	
-	class ComparatorAdditional implements Comparator<Task>
+	public static class ComparatorAdditional implements Comparator<Task>
     {
 
      @Override
@@ -73,8 +70,7 @@ public class TaskComparators {
          }
     }
 	
-	class ComparatorName implements Comparator<Task>
-    {
+	public static class ComparatorName implements Comparator<Task> {
 
      @Override
      public int compare(Task t1, Task t2) {
@@ -85,8 +81,7 @@ public class TaskComparators {
          }
     }
 	
-	class ComparatorDefault implements Comparator<Task>
-    {
+	public static class ComparatorDefault implements Comparator<Task> {
 
      @Override
      public int compare(Task t1, Task t2) {
@@ -108,8 +103,7 @@ public class TaskComparators {
          }
     }
 	
-	class ComparatorTime implements Comparator<Task>
-    {
+	public static class ComparatorTime implements Comparator<Task> {
 
      @Override
      public int compare(Task t1, Task t2) {

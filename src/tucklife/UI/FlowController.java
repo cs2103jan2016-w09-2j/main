@@ -15,7 +15,7 @@ import tucklife.storage.DataBox;
 public class FlowController {
 
 	private static Parser p = new Parser();
-	private static Storage s = new Storage();
+	private static Storage s;
 	private static ExternalStorage es = new ExternalStorage();
 	
 	private enum COMMAND_TYPE {
@@ -26,7 +26,8 @@ public class FlowController {
 		es.load();
 		DataBox db = es.getLoadedData();
 		p.loadCommands(db.getCommands());
-		s.load(db);
+		//s.load(db);
+		s = new Storage(db);
 	}
 
 	public String execute(String command){

@@ -64,6 +64,14 @@ public class Storage {
 	}
 	*/
 	
+	public Storage(DataBox db) {
+		TaskList[] loadList = db.getLists();
+		toDoList = loadList[0];
+		doneList = loadList[1];
+		queueList = state.getQueueListFromToDoList(toDoList);
+		pf = db.getPrefs();
+	}
+	
 	public String undo() throws NothingToUndoException{
 		if (state.getUndoSaveState().size() == 0) {
 			throw new StorageExceptions.NothingToUndoException();
@@ -96,13 +104,6 @@ public class Storage {
 		return db;
 	}
 	
-	public void load(DataBox db) {
-		TaskList[] loadList = db.getLists();
-		toDoList = loadList[0];
-		doneList = loadList[1];
-		queueList = state.getQueueListFromToDoList(toDoList);
-		pf = db.getPrefs();
-	}
 	/*
 	private static COMMAND_TYPE determineCommandType(String commandTypeString) {
 		if (commandTypeString.equalsIgnoreCase("add")) {
@@ -208,7 +209,7 @@ public class Storage {
 	private boolean isOverloaded(Task newTask) {
 		
 		//dont count floating tasks and events
-		if(isNotDeadline(newTask)) {
+		if(!newTask.isDeadline()) {
 			return false;
 		}
 		
@@ -230,7 +231,7 @@ public class Storage {
 			Task t = taskListIter.next();
 			
 			//dont count floating tasks and events
-			if(isNotDeadline(t)) {
+			if(!t.isDeadline()) {
 				continue;
 			} 
 			
@@ -256,10 +257,6 @@ public class Storage {
 			}
 		}
 		return hasHitLimit;
-	}
-
-	private static boolean isNotDeadline(Task t) {
-		return t.isFloating() || t.getStartDate() != null;
 	}
 	
 	public String edit(int taskID, ProtoTask toEditTask) throws OverloadException, InvalidDateException {

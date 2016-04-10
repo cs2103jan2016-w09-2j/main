@@ -9,18 +9,19 @@ import java.util.Hashtable;
 import org.junit.Before;
 import org.junit.Test;
 
+import tucklife.UI.FlowController;
 import tucklife.parser.Parser;
 import tucklife.parser.ProtoTask;
 
 public class StorageTest {
 	
 	Parser p;
-	Storage s;
+	FlowController fc;
 	
 	@Before
 	public void setUp() throws Exception {
 		p = new Parser();
-		s = new Storage();
+		fc = new FlowController();
 		Hashtable<String,String> ht = new Hashtable<String,String>();
 		p.loadCommands(ht);
 	}
@@ -40,15 +41,15 @@ public class StorageTest {
 		
 		ProtoTask pt4 = p.parse("display");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		assertEquals("not sorted",s.parseCommand(pt4),"3. interview intern\n1. meeting | Location: as4-mr3\n2. staff retreat | Location: sentosa\n");
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		assertEquals("not sorted",fc.parseCommand(pt4),"3. interview intern\n1. meeting | Location: as4-mr3\n2. staff retreat | Location: sentosa\n");
 		
 		ProtoTask pt5 = p.parse("display +@");
-		assertEquals("sorted ascending",s.parseCommand(pt5),"1. meeting | Location: as4-mr3\n2. staff retreat | Location: sentosa\n3. interview intern\n");
+		assertEquals("sorted ascending",fc.parseCommand(pt5),"1. meeting | Location: as4-mr3\n2. staff retreat | Location: sentosa\n3. interview intern\n");
 		ProtoTask pt6 = p.parse("display -@");
-		assertEquals("sorted descending",s.parseCommand(pt6),"3. interview intern\n2. staff retreat | Location: sentosa\n1. meeting | Location: as4-mr3\n");
+		assertEquals("sorted descending",fc.parseCommand(pt6),"3. interview intern\n2. staff retreat | Location: sentosa\n1. meeting | Location: as4-mr3\n");
 	}
 	
 	@Test
@@ -64,13 +65,13 @@ public class StorageTest {
 		ProtoTask pt5 = p.parse("add 4th task $16/05 +2359");
 		ProtoTask pt6 = p.parse("add overload $16/05 +2300");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
 
-		assertEquals("able to add",s.parseCommand(pt5),"{4. 4th task | By: Mon, 16 May 2016 23:59} has been added to TuckLife's to-do list!");
-		assertEquals("unable to add, hit limit",s.parseCommand(pt6),"That day has been filled with 4 tasks! It hit the limit! You should reschedule the task to another day. Alternatively, you can either change the overload limit or turn it off.");
+		assertEquals("able to add",fc.parseCommand(pt5),"{4. 4th task | By: Mon, 16 May 2016 23:59} has been added to TuckLife's to-do list!");
+		assertEquals("unable to add, hit limit",fc.parseCommand(pt6),"That day has been filled with 4 tasks! It hit the limit! You should reschedule the task to another day. Alternatively, you can either change the overload limit or turn it off.");
 	}
 	
 	@Test
@@ -87,14 +88,14 @@ public class StorageTest {
 		ProtoTask pt6 = p.parse("add overload $17/05 +2300");
 		ProtoTask pt7 = p.parse("edit 5 $16/05");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
 
-		assertEquals("able to add",s.parseCommand(pt5),"{4. 4th task | By: Mon, 16 May 2016 23:59} has been added to TuckLife's to-do list!");
-		assertEquals("able to add",s.parseCommand(pt6),"{5. overload | By: Tue, 17 May 2016 23:00} has been added to TuckLife's to-do list!");
-		assertEquals("unable to add, hit limit",s.parseCommand(pt7),"That day has been filled with 4 tasks! It hit the limit! You should reschedule the task to another day. Alternatively, you can either change the overload limit or turn it off.");
+		assertEquals("able to add",fc.parseCommand(pt5),"{4. 4th task | By: Mon, 16 May 2016 23:59} has been added to TuckLife's to-do list!");
+		assertEquals("able to add",fc.parseCommand(pt6),"{5. overload | By: Tue, 17 May 2016 23:00} has been added to TuckLife's to-do list!");
+		assertEquals("unable to add, hit limit",fc.parseCommand(pt7),"That day has been filled with 4 tasks! It hit the limit! You should reschedule the task to another day. Alternatively, you can either change the overload limit or turn it off.");
 	}
 	
 	@Test
@@ -115,18 +116,18 @@ public class StorageTest {
 		ProtoTask pt9 = p.parse("add holiday $10/05 to 16/05 &to siam stupid stuff");
 		ProtoTask pt10 = p.parse("add meeting $16/05 +2pm to 3pm");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
 		
-		s.parseCommand(pt9);
+		fc.parseCommand(pt9);
 
-		assertEquals("able to add",s.parseCommand(pt5),"{5. 4th task | By: Mon, 16 May 2016 23:59} has been added to TuckLife's to-do list!");
-		assertEquals("able to add",s.parseCommand(pt6),"{6. redundant | By: Tue, 17 May 2016 23:00} has been added to TuckLife's to-do list!");
-		assertEquals("unable to add, hit limit",s.parseCommand(pt7),"That day has been filled with 4 tasks! It hit the limit! You should reschedule the task to another day. Alternatively, you can either change the overload limit or turn it off.");
-		assertEquals("able to add, hit limit",s.parseCommand(pt8),"{8. safety awareness week | From: Mon, 9 May 2016 00:00 To: Mon, 16 May 2016 23:59 | Category: gg} has been added to TuckLife's to-do list!");
-		assertEquals("unable to add, hit limit",s.parseCommand(pt10),"{9. meeting | From: Mon, 16 May 2016 14:00 To: Mon, 16 May 2016 15:00} has been added to TuckLife's to-do list!");
+		assertEquals("able to add",fc.parseCommand(pt5),"{5. 4th task | By: Mon, 16 May 2016 23:59} has been added to TuckLife's to-do list!");
+		assertEquals("able to add",fc.parseCommand(pt6),"{6. redundant | By: Tue, 17 May 2016 23:00} has been added to TuckLife's to-do list!");
+		assertEquals("unable to add, hit limit",fc.parseCommand(pt7),"That day has been filled with 4 tasks! It hit the limit! You should reschedule the task to another day. Alternatively, you can either change the overload limit or turn it off.");
+		assertEquals("able to add, hit limit",fc.parseCommand(pt8),"{8. safety awareness week | From: Mon, 9 May 2016 00:00 To: Mon, 16 May 2016 23:59 | Category: gg} has been added to TuckLife's to-do list!");
+		assertEquals("unable to add, hit limit",fc.parseCommand(pt10),"{9. meeting | From: Mon, 16 May 2016 14:00 To: Mon, 16 May 2016 15:00} has been added to TuckLife's to-do list!");
 		
 	}
 	
@@ -145,19 +146,19 @@ public class StorageTest {
 		ProtoTask pt6 = p.parse("add payday $05/05/16 &buy teammeet beer");
 		ProtoTask pt7 = p.parse("add email boss $15/05 #siammeeting");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
-		s.parseCommand(pt5);
-		s.parseCommand(pt6);
-		s.parseCommand(pt7);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
+		fc.parseCommand(pt5);
+		fc.parseCommand(pt6);
+		fc.parseCommand(pt7);
 		
 		assertEquals("added correctly", 7, td.size());
 		
 		ProtoTask search = p.parse("display meeting");
-		s.parseCommand(search);
-		assertEquals("search correctly", "Exact Match\n5. client meeting | By: Mon, 9 May 2016 23:59\n1. meeting | Location: meeting room 7\n\nPartial Match\n7. email boss | By: Sun, 15 May 2016 23:59 | Category: siammeeting\n",s.parseCommand(search));
+		fc.parseCommand(search);
+		assertEquals("search correctly", "Exact Match\n5. client meeting | By: Mon, 9 May 2016 23:59\n1. meeting | Location: meeting room 7\n\nPartial Match\n7. email boss | By: Sun, 15 May 2016 23:59 | Category: siammeeting\n",fc.parseCommand(search));
 	}
 	
 	@Test
@@ -175,19 +176,19 @@ public class StorageTest {
 		ProtoTask pt6 = p.parse("add payday $05/05/16 &buy teammeet beer");
 		ProtoTask pt7 = p.parse("add email boss $15/05 #siammeeting");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
-		s.parseCommand(pt5);
-		s.parseCommand(pt6);
-		s.parseCommand(pt7);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
+		fc.parseCommand(pt5);
+		fc.parseCommand(pt6);
+		fc.parseCommand(pt7);
 		
 		assertEquals("added correctly", 7, td.size());
 		
 		ProtoTask search = p.parse("display meet");
-		s.parseCommand(search);
-		assertEquals("search correctly", "Exact Match\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens | Additional: meet at 4am\n\nPartial Match\n6. payday | By: Thu, 5 May 2016 23:59 | Additional: buy teammeet beer\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59 | Category: siammeeting\n1. meeting | Location: meeting room 7\n", s.parseCommand(search));
+		fc.parseCommand(search);
+		assertEquals("search correctly", "Exact Match\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens | Additional: meet at 4am\n\nPartial Match\n6. payday | By: Thu, 5 May 2016 23:59 | Additional: buy teammeet beer\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59 | Category: siammeeting\n1. meeting | Location: meeting room 7\n", fc.parseCommand(search));
 	}
 	
 	@Test
@@ -205,19 +206,19 @@ public class StorageTest {
 		ProtoTask pt6 = p.parse("add payday $05/05/16 &buy teammeet beer");
 		ProtoTask pt7 = p.parse("add email boss $15/05 #siammeeting");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
-		s.parseCommand(pt5);
-		s.parseCommand(pt6);
-		s.parseCommand(pt7);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
+		fc.parseCommand(pt5);
+		fc.parseCommand(pt6);
+		fc.parseCommand(pt7);
 		
 		assertEquals("added correctly", 7, td.size());
 		
 		ProtoTask search = p.parse("display meet");
-		s.parseCommand(search);
-		assertEquals("search correctly", "Exact Match\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens | Additional: Meet at 4am\n\nPartial Match\n6. payday | By: Thu, 5 May 2016 23:59 | Additional: buy teammeet beer\n5. client Meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59 | Category: siammeeting\n1. meeting | Location: meeting room 7\n", s.parseCommand(search));
+		fc.parseCommand(search);
+		assertEquals("search correctly", "Exact Match\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens | Additional: Meet at 4am\n\nPartial Match\n6. payday | By: Thu, 5 May 2016 23:59 | Additional: buy teammeet beer\n5. client Meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59 | Category: siammeeting\n1. meeting | Location: meeting room 7\n", fc.parseCommand(search));
 	}
 	
 	@Test
@@ -234,24 +235,24 @@ public class StorageTest {
 		ProtoTask pt6 = p.parse("add payday $05/05/16 &buy teammeet beer");
 		ProtoTask pt7 = p.parse("add email boss $15/05 #siammeeting");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
-		s.parseCommand(pt5);
-		s.parseCommand(pt6);
-		s.parseCommand(pt7);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
+		fc.parseCommand(pt5);
+		fc.parseCommand(pt6);
+		fc.parseCommand(pt7);
 		td = Storage.getTD();
 		assertEquals("added correctly", 7, td.size());
 		
 		ProtoTask complete = p.parse("complete 4");
-		s.parseCommand(complete);
+		fc.parseCommand(complete);
 		
 		td = Storage.getTD();
 		assertEquals("uncompelete correctly", 6, td.size());
 		
 		ProtoTask uncomplete = p.parse("uncomplete 4");
-		s.parseCommand(uncomplete);
+		fc.parseCommand(uncomplete);
 		td = Storage.getTD();
 		assertEquals("uncompelete correctly", 7, td.size());
 	}
@@ -266,14 +267,14 @@ public class StorageTest {
 		
 		ProtoTask ptDisplay = p.parse("display ++");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
 		
-		assertEquals("check display",s.parseCommand(ptDisplay),"2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
+		assertEquals("check display",fc.parseCommand(ptDisplay),"2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
 		ProtoTask pt5 = p.parse("undo");	
-		s.parseCommand(pt5);
-		assertEquals("check display change",s.parseCommand(ptDisplay),"2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n1. meeting | Location: meeting room 7\n");
+		fc.parseCommand(pt5);
+		assertEquals("check display change",fc.parseCommand(ptDisplay),"2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n1. meeting | Location: meeting room 7\n");
 	}
 	
 	@Test
@@ -291,24 +292,24 @@ public class StorageTest {
 		ProtoTask pt6 = p.parse("add payday $05/05/16");
 		ProtoTask pt7 = p.parse("add email boss $15/05");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
-		s.parseCommand(pt5);
-		s.parseCommand(pt6);
-		s.parseCommand(pt7);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
+		fc.parseCommand(pt5);
+		fc.parseCommand(pt6);
+		fc.parseCommand(pt7);
 		
 		assertEquals("added correctly", 7, td.size());
 		
 		ProtoTask undo = p.parse("undo");
-		s.parseCommand(undo);
+		fc.parseCommand(undo);
 		td = Storage.getTD();
 		assertEquals("able to undo once", 6, td.size());
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(undo);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(undo);
 		td = Storage.getTD();
 		assertEquals("able to handle non-consecutive undos", 8, td.size());
 	}
@@ -330,24 +331,24 @@ public class StorageTest {
 		
 		ProtoTask ptDisplay = p.parse("display");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
-		s.parseCommand(pt5);
-		s.parseCommand(pt6);
-		s.parseCommand(pt7);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
+		fc.parseCommand(pt5);
+		fc.parseCommand(pt6);
+		fc.parseCommand(pt7);
 		
 		assertEquals("added correctly", 7, td.size());
 		
 		ProtoTask undo = p.parse("undo");
-		s.parseCommand(undo);
+		fc.parseCommand(undo);
 		td = Storage.getTD();
 		assertEquals("able to undo once", 6, td.size());
-		s.parseCommand(undo);
+		fc.parseCommand(undo);
 		td = Storage.getTD();
 		assertEquals("able to undo multiple times", 5, td.size());
-		s.parseCommand(undo);
+		fc.parseCommand(undo);
 		td = Storage.getTD();
 		assertEquals("able to undo multiple times", 4, td.size());
 	}
@@ -362,17 +363,17 @@ public class StorageTest {
 		
 		ProtoTask ptDisplay = p.parse("display");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
 		
-		assertEquals("check display",s.parseCommand(ptDisplay),"2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
+		assertEquals("check display",fc.parseCommand(ptDisplay),"2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
 		ProtoTask pt4 = p.parse("queue 1");
-		s.parseCommand(pt4);
-		assertEquals("task is queued",s.parseCommand(ptDisplay),"Queue:\n1. meeting | Location: meeting room 7\n\nOther Tasks:\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n");
+		fc.parseCommand(pt4);
+		assertEquals("task is queued",fc.parseCommand(ptDisplay),"Queue:\n1. meeting | Location: meeting room 7\n\nOther Tasks:\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n");
 		ProtoTask pt5 = p.parse("undo");	
-		s.parseCommand(pt5);
-		assertEquals("task is unqueued",s.parseCommand(ptDisplay),"2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
+		fc.parseCommand(pt5);
+		assertEquals("task is unqueued",fc.parseCommand(ptDisplay),"2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
 	}
 	
 	@Test
@@ -385,19 +386,19 @@ public class StorageTest {
 		
 		ProtoTask ptDisplay = p.parse("display ++");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
 
-		assertEquals("check display",s.parseCommand(ptDisplay),"2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
+		assertEquals("check display",fc.parseCommand(ptDisplay),"2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
 		
 		ProtoTask ptDO = p.parse("undo");	
-		s.parseCommand(ptDO);
-		assertEquals("check display change",s.parseCommand(ptDisplay),"2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n1. meeting | Location: meeting room 7\n");
+		fc.parseCommand(ptDO);
+		assertEquals("check display change",fc.parseCommand(ptDisplay),"2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n1. meeting | Location: meeting room 7\n");
 		
 		ptDO = p.parse("redo");
-		s.parseCommand(ptDO);
-		assertEquals("check display",s.parseCommand(ptDisplay),"2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
+		fc.parseCommand(ptDO);
+		assertEquals("check display",fc.parseCommand(ptDisplay),"2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
 		
 	}
 	
@@ -418,34 +419,34 @@ public class StorageTest {
 		
 		ProtoTask ptDisplay = p.parse("display");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
-		s.parseCommand(pt5);
-		s.parseCommand(pt6);
-		s.parseCommand(pt7);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
+		fc.parseCommand(pt5);
+		fc.parseCommand(pt6);
+		fc.parseCommand(pt7);
 		
 		assertEquals("added correctly", 7, td.size());
 		
 		ProtoTask undo = p.parse("undo");
-		s.parseCommand(undo);
+		fc.parseCommand(undo);
 		td = Storage.getTD();
 		assertEquals("able to undo once", 6, td.size());
-		s.parseCommand(undo);
+		fc.parseCommand(undo);
 		td = Storage.getTD();
 		assertEquals("able to undo multiple times", 5, td.size());
-		s.parseCommand(undo);
+		fc.parseCommand(undo);
 		td = Storage.getTD();
 		assertEquals("able to undo multiple times", 4, td.size());
 		ProtoTask redo = p.parse("redo");
-		s.parseCommand(redo);
+		fc.parseCommand(redo);
 		td = Storage.getTD();
 		assertEquals("able to undo once", 5, td.size());
-		s.parseCommand(redo);
+		fc.parseCommand(redo);
 		td = Storage.getTD();
 		assertEquals("able to undo multiple times", 6, td.size());
-		s.parseCommand(redo);
+		fc.parseCommand(redo);
 		td = Storage.getTD();
 		assertEquals("able to undo multiple times", 7, td.size());
 	}
@@ -467,34 +468,34 @@ public class StorageTest {
 		
 		ProtoTask ptDisplay = p.parse("display");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
-		s.parseCommand(pt5);
-		s.parseCommand(pt6);
-		s.parseCommand(pt7);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
+		fc.parseCommand(pt5);
+		fc.parseCommand(pt6);
+		fc.parseCommand(pt7);
 		
 		assertEquals("added correctly", 7, td.size());
 		
 		ProtoTask undo = p.parse("undo");
-		s.parseCommand(undo);
+		fc.parseCommand(undo);
 		td = Storage.getTD();
 		assertEquals("able to undo once", 6, td.size());
-		s.parseCommand(undo);
+		fc.parseCommand(undo);
 		td = Storage.getTD();
 		assertEquals("able to undo multiple times", 5, td.size());
-		s.parseCommand(undo);
+		fc.parseCommand(undo);
 		td = Storage.getTD();
 		assertEquals("able to undo multiple times", 4, td.size());
-		s.parseCommand(pt5);
+		fc.parseCommand(pt5);
 		ProtoTask redo = p.parse("redo");
-		assertEquals("previous command not undo", s.parseCommand(redo), "There is no previous action to redo!");
+		assertEquals("previous command not undo", fc.parseCommand(redo), "There is no previous action to redo!");
 	}
 	
 	@Test
 	public void testQueue1() {
-		s.clear();
+		Storage.clear();
 		
 		TaskList td = Storage.getTD();
 		Task t;
@@ -509,22 +510,22 @@ public class StorageTest {
 		
 		ProtoTask ptDisplay = p.parse("display");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
-		s.parseCommand(pt5);
-		s.parseCommand(pt6);
-		s.parseCommand(pt7);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
+		fc.parseCommand(pt5);
+		fc.parseCommand(pt6);
+		fc.parseCommand(pt7);
 		
-		assertEquals("check normal display without queue",s.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
+		assertEquals("check normal display without queue",fc.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
 		
 		ProtoTask pt8 = p.parse("queue 4");
 		ProtoTask pt9 = p.parse("queue 6");
 		ProtoTask pt10 = p.parse("queue 5");
-		s.parseCommand(pt8);
-		s.parseCommand(pt9);
-		s.parseCommand(pt10);
+		fc.parseCommand(pt8);
+		fc.parseCommand(pt9);
+		fc.parseCommand(pt10);
 		t = td.get(5);
 		assertEquals("task is added to back of queue", 3, t.getQueueID());
 	}
@@ -546,15 +547,15 @@ public class StorageTest {
 		
 		ProtoTask ptDisplay = p.parse("display");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
-		s.parseCommand(pt5);
-		s.parseCommand(pt6);
-		s.parseCommand(pt7);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
+		fc.parseCommand(pt5);
+		fc.parseCommand(pt6);
+		fc.parseCommand(pt7);
 		
-		assertEquals("check normal display without queue",s.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
+		assertEquals("check normal display without queue",fc.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
 		
 		ProtoTask pt8 = p.parse("queue 4");
 		ProtoTask pt9 = p.parse("queue 6");
@@ -562,12 +563,12 @@ public class StorageTest {
 		ProtoTask pt11 = p.parse("queue 7 1");
 		ProtoTask pt12 = p.parse("queue 2 4");
 		ProtoTask pt13 = p.parse("queue 1 100");
-		s.parseCommand(pt8);
+		fc.parseCommand(pt8);
 		t = td.get(4);
 		assertEquals("queue id is updated", 1, t.getQueueID());
-		s.parseCommand(pt9);
-		s.parseCommand(pt10);
-		s.parseCommand(pt11);
+		fc.parseCommand(pt9);
+		fc.parseCommand(pt10);
+		fc.parseCommand(pt11);
 		assertEquals("queue id is updated", 2, t.getQueueID());
 	}
 	
@@ -588,26 +589,26 @@ public class StorageTest {
 		
 		ProtoTask ptDisplay = p.parse("display");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
-		s.parseCommand(pt5);
-		s.parseCommand(pt6);
-		s.parseCommand(pt7);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
+		fc.parseCommand(pt5);
+		fc.parseCommand(pt6);
+		fc.parseCommand(pt7);
 		
-		assertEquals("check normal display without queue",s.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
+		assertEquals("check normal display without queue",fc.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
 		
 		ProtoTask pt8 = p.parse("queue 4");
 		ProtoTask pt9 = p.parse("queue 6");
 		ProtoTask pt10 = p.parse("queue 5");
-		s.parseCommand(pt8);
-		s.parseCommand(pt9);
-		s.parseCommand(pt10);
+		fc.parseCommand(pt8);
+		fc.parseCommand(pt9);
+		fc.parseCommand(pt10);
 		t = td.get(5);
 		assertEquals("task is added to back of queue", 3, t.getQueueID());
 		ProtoTask pt11 = p.parse("queue 7 1");
-		s.parseCommand(pt11);
+		fc.parseCommand(pt11);
 		t = td.get(7);
 		assertEquals("task is added to head of queue", 1, t.getQueueID());
 	}
@@ -629,26 +630,26 @@ public class StorageTest {
 		
 		ProtoTask ptDisplay = p.parse("display");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
-		s.parseCommand(pt5);
-		s.parseCommand(pt6);
-		s.parseCommand(pt7);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
+		fc.parseCommand(pt5);
+		fc.parseCommand(pt6);
+		fc.parseCommand(pt7);
 		
-		assertEquals("check normal display without queue",s.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
+		assertEquals("check normal display without queue",fc.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
 		
 		ProtoTask pt8 = p.parse("queue 4");
 		ProtoTask pt9 = p.parse("queue 6");
 		ProtoTask pt10 = p.parse("queue 5");
 		ProtoTask pt11 = p.parse("queue 7 1");
 		ProtoTask pt12 = p.parse("queue 2 4");
-		s.parseCommand(pt8);
-		s.parseCommand(pt9);
-		s.parseCommand(pt10);
-		s.parseCommand(pt11);
-		s.parseCommand(pt12);
+		fc.parseCommand(pt8);
+		fc.parseCommand(pt9);
+		fc.parseCommand(pt10);
+		fc.parseCommand(pt11);
+		fc.parseCommand(pt12);
 		t = td.get(2);
 		assertEquals("task is added to middle of queue", 4, t.getQueueID());
 	}
@@ -670,15 +671,15 @@ public class StorageTest {
 		
 		ProtoTask ptDisplay = p.parse("display");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
-		s.parseCommand(pt5);
-		s.parseCommand(pt6);
-		s.parseCommand(pt7);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
+		fc.parseCommand(pt5);
+		fc.parseCommand(pt6);
+		fc.parseCommand(pt7);
 		
-		assertEquals("check normal display without queue",s.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
+		assertEquals("check normal display without queue",fc.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
 		
 		ProtoTask pt8 = p.parse("queue 4");
 		ProtoTask pt9 = p.parse("queue 6");
@@ -686,12 +687,12 @@ public class StorageTest {
 		ProtoTask pt11 = p.parse("queue 7 1");
 		ProtoTask pt12 = p.parse("queue 2 4");
 		ProtoTask pt13 = p.parse("queue 1 100");
-		s.parseCommand(pt8);
-		s.parseCommand(pt9);
-		s.parseCommand(pt10);
-		s.parseCommand(pt11);
-		s.parseCommand(pt12);
-		s.parseCommand(pt13);
+		fc.parseCommand(pt8);
+		fc.parseCommand(pt9);
+		fc.parseCommand(pt10);
+		fc.parseCommand(pt11);
+		fc.parseCommand(pt12);
+		fc.parseCommand(pt13);
 		t = td.get(1);
 		assertEquals("task is added to end of queue when pos > max queue", 6, t.getQueueID());
 	}
@@ -713,15 +714,15 @@ public class StorageTest {
 		
 		ProtoTask ptDisplay = p.parse("display");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
-		s.parseCommand(pt5);
-		s.parseCommand(pt6);
-		s.parseCommand(pt7);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
+		fc.parseCommand(pt5);
+		fc.parseCommand(pt6);
+		fc.parseCommand(pt7);
 		
-		assertEquals("check normal display without queue",s.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
+		assertEquals("check normal display without queue",fc.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
 		
 		ProtoTask pt8 = p.parse("queue 4");
 		ProtoTask pt9 = p.parse("queue 6");
@@ -729,14 +730,14 @@ public class StorageTest {
 		ProtoTask pt11 = p.parse("queue 7 1");
 		ProtoTask pt12 = p.parse("queue 2 4");
 		ProtoTask pt13 = p.parse("queue 1 100");
-		s.parseCommand(pt8);
-		s.parseCommand(pt9);
-		s.parseCommand(pt10);
-		s.parseCommand(pt11);
-		s.parseCommand(pt12);
-		s.parseCommand(pt13);
+		fc.parseCommand(pt8);
+		fc.parseCommand(pt9);
+		fc.parseCommand(pt10);
+		fc.parseCommand(pt11);
+		fc.parseCommand(pt12);
+		fc.parseCommand(pt13);
 		ProtoTask pt14 = p.parse("delete 2");
-		s.parseCommand(pt14);
+		fc.parseCommand(pt14);
 		t = td.get(5);
 		assertEquals("queue id is update after deletion", 4, t.getQueueID());
 	}
@@ -758,15 +759,15 @@ public class StorageTest {
 		
 		ProtoTask ptDisplay = p.parse("display");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
-		s.parseCommand(pt5);
-		s.parseCommand(pt6);
-		s.parseCommand(pt7);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
+		fc.parseCommand(pt5);
+		fc.parseCommand(pt6);
+		fc.parseCommand(pt7);
 		
-		assertEquals("check normal display without queue",s.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
+		assertEquals("check normal display without queue",fc.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
 		
 		ProtoTask pt8 = p.parse("queue 4");
 		ProtoTask pt9 = p.parse("queue 6");
@@ -774,14 +775,14 @@ public class StorageTest {
 		ProtoTask pt11 = p.parse("queue 7 1");
 		ProtoTask pt12 = p.parse("queue 2 4");
 		ProtoTask pt13 = p.parse("queue 1 100");
-		s.parseCommand(pt8);
-		s.parseCommand(pt9);
-		s.parseCommand(pt10);
-		s.parseCommand(pt11);
-		s.parseCommand(pt12);
-		s.parseCommand(pt13);
+		fc.parseCommand(pt8);
+		fc.parseCommand(pt9);
+		fc.parseCommand(pt10);
+		fc.parseCommand(pt11);
+		fc.parseCommand(pt12);
+		fc.parseCommand(pt13);
 		ProtoTask pt14 = p.parse("complete 2");
-		s.parseCommand(pt14);
+		fc.parseCommand(pt14);
 		t = td.get(5);
 		assertEquals("queue id is updated after completion", 4, t.getQueueID());
 	}
@@ -803,15 +804,15 @@ public class StorageTest {
 		
 		ProtoTask ptDisplay = p.parse("display");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
-		s.parseCommand(pt5);
-		s.parseCommand(pt6);
-		s.parseCommand(pt7);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
+		fc.parseCommand(pt5);
+		fc.parseCommand(pt6);
+		fc.parseCommand(pt7);
 		
-		assertEquals("check normal display without queue",s.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
+		assertEquals("check normal display without queue",fc.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
 		
 		ProtoTask pt8 = p.parse("queue 4");
 		ProtoTask pt9 = p.parse("queue 6");
@@ -819,15 +820,15 @@ public class StorageTest {
 		ProtoTask pt11 = p.parse("queue 7 1");
 		ProtoTask pt12 = p.parse("queue 2 4");
 		ProtoTask pt13 = p.parse("queue 1 100");
-		s.parseCommand(pt8);
-		s.parseCommand(pt9);
-		s.parseCommand(pt10);
-		s.parseCommand(pt11);
-		s.parseCommand(pt12);
-		s.parseCommand(pt13);
+		fc.parseCommand(pt8);
+		fc.parseCommand(pt9);
+		fc.parseCommand(pt10);
+		fc.parseCommand(pt11);
+		fc.parseCommand(pt12);
+		fc.parseCommand(pt13);
 		t = td.get(2);
 		ProtoTask pt14 = p.parse("complete 2");
-		s.parseCommand(pt14);
+		fc.parseCommand(pt14);
 		assertEquals("queue id of completed is updated to default", -1, t.getQueueID());
 	}
 	
@@ -848,15 +849,15 @@ public class StorageTest {
 		
 		ProtoTask ptDisplay = p.parse("display");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
-		s.parseCommand(pt5);
-		s.parseCommand(pt6);
-		s.parseCommand(pt7);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
+		fc.parseCommand(pt5);
+		fc.parseCommand(pt6);
+		fc.parseCommand(pt7);
 		
-		assertEquals("check normal display without queue",s.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
+		assertEquals("check normal display without queue",fc.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
 		
 		ProtoTask pt8 = p.parse("queue 4");
 		ProtoTask pt9 = p.parse("queue 6");
@@ -864,22 +865,22 @@ public class StorageTest {
 		ProtoTask pt11 = p.parse("queue 7 1");
 		ProtoTask pt12 = p.parse("queue 2 4");
 		ProtoTask pt13 = p.parse("queue 1 100");
-		s.parseCommand(pt8);
-		s.parseCommand(pt9);
-		s.parseCommand(pt10);
-		s.parseCommand(pt11);
-		s.parseCommand(pt12);
-		s.parseCommand(pt13);
+		fc.parseCommand(pt8);
+		fc.parseCommand(pt9);
+		fc.parseCommand(pt10);
+		fc.parseCommand(pt11);
+		fc.parseCommand(pt12);
+		fc.parseCommand(pt13);
 		
-		assertEquals("check normal display without queue","Queue:\n7. email boss | By: Sun, 15 May 2016 23:59\n4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n5. client meeting | By: Mon, 9 May 2016 23:59\n1. meeting | Location: meeting room 7\n\nOther Tasks:\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n",s.parseCommand(ptDisplay));
+		assertEquals("check normal display without queue","Queue:\n7. email boss | By: Sun, 15 May 2016 23:59\n4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n5. client meeting | By: Mon, 9 May 2016 23:59\n1. meeting | Location: meeting room 7\n\nOther Tasks:\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n",fc.parseCommand(ptDisplay));
 	}
 	
 	
 	@Test
 	public void testQueueWithUndo() {
-		s.clear();
+		Storage.clear();
 		
-		TaskList td = s.getTD();
+		TaskList td = Storage.getTD();
 		Task t;
 		
 		ProtoTask pt1 = p.parse("add meeting @meeting room 7");
@@ -892,15 +893,15 @@ public class StorageTest {
 		
 		ProtoTask ptDisplay = p.parse("display");
 		
-		s.parseCommand(pt1);
-		s.parseCommand(pt2);
-		s.parseCommand(pt3);
-		s.parseCommand(pt4);
-		s.parseCommand(pt5);
-		s.parseCommand(pt6);
-		s.parseCommand(pt7);
+		fc.parseCommand(pt1);
+		fc.parseCommand(pt2);
+		fc.parseCommand(pt3);
+		fc.parseCommand(pt4);
+		fc.parseCommand(pt5);
+		fc.parseCommand(pt6);
+		fc.parseCommand(pt7);
 		
-		assertEquals("check normal display without queue",s.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
+		assertEquals("check normal display without queue",fc.parseCommand(ptDisplay),"4. financial report | By: Sun, 1 May 2016 23:59\n6. payday | By: Thu, 5 May 2016 23:59\n5. client meeting | By: Mon, 9 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview intern | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting | Location: meeting room 7\n");
 		
 		ProtoTask pt8 = p.parse("queue 4");
 		ProtoTask pt9 = p.parse("queue 6");
@@ -908,15 +909,15 @@ public class StorageTest {
 		ProtoTask pt11 = p.parse("queue 7 1");
 		ProtoTask pt12 = p.parse("queue 2 2");
 		ProtoTask ptUndo = p.parse("undo");
-		s.parseCommand(pt8);
-		s.parseCommand(pt9);
-		s.parseCommand(pt10);
-		s.parseCommand(pt11);
-		s.parseCommand(pt12);
+		fc.parseCommand(pt8);
+		fc.parseCommand(pt9);
+		fc.parseCommand(pt10);
+		fc.parseCommand(pt11);
+		fc.parseCommand(pt12);
 		t = td.get(4);
 		assertEquals("correct id", 3, t.getQueueID());
-		s.parseCommand(ptUndo);
-		td = s.getTD();
+		fc.parseCommand(ptUndo);
+		td = Storage.getTD();
 		t = td.get(6);
 		assertEquals("correct id", 3, t.getQueueID());
 	}

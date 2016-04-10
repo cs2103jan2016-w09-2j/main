@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import tucklife.parser.ProtoTask;
+import tucklife.storage.StorageExceptions.InvalidDateException;
 
 public class ListStorage {
 	
@@ -78,7 +79,7 @@ public class ListStorage {
 					
 					try {
 						list.add(pt);
-					} catch (invalidDateException e) {
+					} catch (InvalidDateException e) {
 						// should not happen if save was correct
 						EXTERNAL_LOG.log(Level.WARNING, LOG_TASK_DATE_ERROR);		
 					}

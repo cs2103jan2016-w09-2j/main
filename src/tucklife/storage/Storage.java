@@ -8,6 +8,10 @@ import java.util.Iterator;
 import java.util.logging.Logger;
 
 import tucklife.parser.ProtoTask;
+import tucklife.storage.StorageExceptions.InvalidDateException;
+import tucklife.storage.StorageExceptions.NothingToRedoException;
+import tucklife.storage.StorageExceptions.NothingToUndoException;
+import tucklife.storage.StorageExceptions.OverloadException;
 import tucklife.storage.TaskList;
 
 public class Storage {
@@ -45,6 +49,7 @@ public class Storage {
 
 	private static PrefsStorage pf;
 	
+	/*
 	private enum COMMAND_TYPE {
 		ADD, DISPLAY, COMPLETE, DISPLAYDONE, DELETE, EDIT, INVALID, QUEUE, SETLIMIT, UNDO, REDO, UNCOMPLETE
 	}
@@ -54,10 +59,11 @@ public class Storage {
 		String returnMessage = parseCommand(pt,ct);
 		return returnMessage;
 	}
+	*/
 	
-	private static String undo() throws nothingToUndoException{
+	public String undo() throws NothingToUndoException{
 		if (state.getUndoSaveState().size() == 0) {
-			throw new nothingToUndoException();
+			throw new StorageExceptions.NothingToUndoException();
 		}
 		state.storeRedoSaveState(toDoList, doneList);
 		TaskList[] tl = state.restoreSaveState("undo");
@@ -67,9 +73,9 @@ public class Storage {
 		return "undone";
 	}
 	
-	private static String redo() throws nothingToRedoException{
+	public String redo() throws NothingToRedoException{
 		if (state.getRedoSaveState().size() == 0) {
-			throw new nothingToRedoException();
+			throw new StorageExceptions.NothingToRedoException();
 		}
 		state.storeUndoSaveState(toDoList, doneList);
 		TaskList[] tl = state.restoreSaveState("redo");
@@ -94,7 +100,7 @@ public class Storage {
 		queueList = state.getQueueListFromToDoList(toDoList);
 		pf = db.getPrefs();
 	}
-	
+	/*
 	private static COMMAND_TYPE determineCommandType(String commandTypeString) {
 		if (commandTypeString.equalsIgnoreCase("add")) {
 			return COMMAND_TYPE.ADD;
@@ -178,8 +184,10 @@ public class Storage {
 			throw new Error("Unrecognized command type");
 		}
 	}
+	*/
 	
-	private static String add(ProtoTask task) throws overloadException, invalidDateException{
+	public String add(ProtoTask task) throws OverloadException, InvalidDateException{
+		state.prepareForUndo(toDoList, doneList);
 		Task newTask = new Task(task);
 		if (newTask.isFloating()) {
 			toDoList.add(newTask);
@@ -187,14 +195,14 @@ public class Storage {
 		}
 		toDoList.sort("$",true);
 		if(isOverloaded(newTask)) {
-			throw new overloadException(pf.getOverloadLimit());
+			throw new StorageExceptions.OverloadException(pf.getOverloadLimit());
 		}
 		
 		toDoList.add(newTask);
 		return String.format(RETURN_MESSAGE_FOR_ADD, newTask.displayAll());
 	}
 
-	private static boolean isOverloaded(Task newTask) {
+	private boolean isOverloaded(Task newTask) {
 		
 		//dont count floating tasks and events
 		if(isNotDeadline(newTask)) {
@@ -251,11 +259,12 @@ public class Storage {
 		return t.isFloating() || t.getStartDate() != null;
 	}
 	
-	private static String edit(int taskID, ProtoTask toEditTask) throws overloadException, invalidDateException {
+	public String edit(int taskID, ProtoTask toEditTask) throws OverloadException, InvalidDateException {
+		state.prepareForUndo(toDoList, doneList);
 		if(toDoList.contains(taskID)){	
 			Task newTask = new Task(toEditTask);
 			if(isOverloaded(newTask)) {
-				throw new overloadException(pf.getOverloadLimit());
+				throw new StorageExceptions.OverloadException(pf.getOverloadLimit());
 			}
 			toDoList.edit(taskID, toEditTask);
 			String editedTaskDetails = toDoList.displayID(taskID);
@@ -265,7 +274,8 @@ public class Storage {
 		}
 	}
 	
-	private static String complete(int taskID) {
+	public String complete(int taskID) {
+		state.prepareForUndo(toDoList, doneList);
 		if(toDoList.contains(taskID)){
 			Task completedTask = toDoList.delete(taskID);
 			completedTask.setQueueID(-(doneList.size() + 1));
@@ -280,7 +290,8 @@ public class Storage {
 		}
 	}
 	
-	private static String uncomplete(int taskID) {
+	public String uncomplete(int taskID) {
+		state.prepareForUndo(toDoList, doneList);
 		if(doneList.contains(taskID)) {
 			Task uncompletedTask = doneList.delete(taskID);
 			uncompletedTask.setQueueID(-1);
@@ -291,7 +302,8 @@ public class Storage {
 		}
 	}
 	
-	private static String delete(int taskID) {
+	public String delete(int taskID) {
+		state.prepareForUndo(toDoList, doneList);
 		if(toDoList.contains(taskID)){
 			Task deletedTask = toDoList.delete(taskID);
 			if(queueList.contains(taskID)) {
@@ -304,7 +316,7 @@ public class Storage {
 		}
 	}
 	
-	private static String displayID(int taskID) {
+	public String displayID(int taskID) {
 		if(toDoList.contains(taskID)){
 			return toDoList.displayID(taskID);
 		} else {
@@ -312,7 +324,13 @@ public class Storage {
 		}
 	}
 	
-	private static String display(ProtoTask pt, TaskList taskList) {
+	public String display(ProtoTask pt, String tl) {
+		TaskList taskList;
+		if(tl.equals("toDoList")) {
+			taskList = toDoList;
+		} else {
+			taskList = doneList;
+		}
 		if (pt.getSearchKey()!=null) {
 			taskList.sort(null, true);
 			return taskList.search(pt.getSearchKey());
@@ -333,7 +351,8 @@ public class Storage {
 		}
 	}
 	
-	private static String queue(int taskID, int pos) {
+	public String queue(int taskID, int pos) {
+		state.prepareForUndo(toDoList, doneList);
 		if(toDoList.contains(taskID)){
 			boolean isPosDefault = pos == -1;
 			boolean isPosTooLarge = pos>queueList.size();
@@ -363,7 +382,7 @@ public class Storage {
 		}
 	}
 
-	private static int updateQueueIDs(int taskID, int pos) {
+	private int updateQueueIDs(int taskID, int pos) {
 		Iterator<Task> qIter = queueList.iterator();
 		int count = 1;
 		while(qIter.hasNext()) {
@@ -377,7 +396,7 @@ public class Storage {
 		return pos;
 	}
 	
-	private static String setLimit(int limit) {
+	public static String setLimit(int limit) {
 		assert limit >= 0;
 		pf.setOverloadLimit(limit);
 		if(limit == 0) {

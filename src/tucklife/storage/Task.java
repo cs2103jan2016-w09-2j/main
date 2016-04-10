@@ -356,7 +356,7 @@ public class Task {
 	}
 	
 	private String dateField(){
-		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
+		SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm");
 		if(endDate == null){
 			return null;
 			

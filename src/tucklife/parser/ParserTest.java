@@ -128,6 +128,53 @@ public class ParserTest {
 	}
 	
 	@Test
+	public void testChange() {
+		// < 2 parameters
+		assertTrue(p.parse("change").isError());
+		assertTrue(p.parse("change sth").isError());
+		
+		// 2 parameters
+		
+		// Old command is invalid
+		assertTrue(p.parse("change sth sthelse").isError());
+		
+		// Old command is valid
+		
+		// Old command is default command name
+		// New command is not used
+		// (Valid)
+		assertEquals("Command type: change\nParameters:\n"
+					 + "Change message: 'delete' has been changed to 'dl'!\n",
+					 p.parse("change delete dl").toString());
+		
+		// Checking that new command indeed works
+		assertEquals("Command type: delete\nParameters:\nID: 1\n", p.parse("dl 1").toString());
+		
+		// Checking that old command still works too
+		assertEquals("Command type: delete\nParameters:\nID: 1\n", p.parse("delete 1").toString());
+		
+		// New command has already been set
+		assertEquals("Command type: change\nParameters:\n"
+					 + "Change message: 'delete' is the same as 'dl'! No change occurred.\n",
+					 p.parse("change delete dl").toString());
+		
+		assertEquals("Command type: change\nParameters:\n"
+				 + "Change message: 'dl' is the same as 'dl'! No change occurred.\n",
+				 p.parse("change dl dl").toString());
+		
+		// New command is a default command name
+		assertTrue(p.parse("change help add").isError());
+		
+		// New command is a used alias
+		assertTrue(p.parse("change help dl").isError());
+		
+		// Old command is alias
+		assertEquals("Command type: change\nParameters:\n"
+					 + "Change message: 'dl' has been changed to 'del'!\n",
+					 p.parse("change dl del").toString());
+	}
+	
+	@Test
 	public void testComplete() {
 		// 0 parameters
 		assertTrue(p.parse("complete").isError());
@@ -279,12 +326,16 @@ public class ParserTest {
 
 		// Time - +
 		// Getting the correct date based on current date
-		Calendar c  = Calendar.getInstance();
-		c.set(Calendar.HOUR_OF_DAY, 17);
-		c.set(Calendar.MINUTE, 0);
+		Calendar c1  = Calendar.getInstance();
+		if (c1.get(Calendar.HOUR_OF_DAY) > 16) {
+			c1.add(Calendar.DATE, 1);
+		}
+		
+		c1.set(Calendar.HOUR_OF_DAY, 17);
+		c1.set(Calendar.MINUTE, 0);
 		
 		assertEquals("Command type: edit\nParameters:\nID: 15\nEnd time: "
-					 + sdf.format(c.getTime()) + "\n",
+					 + sdf.format(c1.getTime()) + "\n",
 					 p.parse("edit 15 +5pm").toString());
 
 		// Invalid times
@@ -293,12 +344,14 @@ public class ParserTest {
 
 		// All parameters
 		// Getting the correct date based on current date
-		c.set(Calendar.HOUR_OF_DAY, 10);
+		Calendar c2 = Calendar.getInstance();
+		c2.set(Calendar.HOUR_OF_DAY, 10);
+		c2.set(Calendar.MINUTE, 0);
 		
 		assertEquals("Command type: edit\nParameters:\nTask description: meeting with boss\n"
 					 + "Location: boss's office\nCategory: top secret project\nAdditional information: "
 					 + "BIG BOSS COMING!!!\nPriority: 1\nID: 15\nEnd date: Sat, 28 May 2016 10:00\n"
-					 + "End time: " + sdf.format(c.getTime()) + "\n",
+					 + "End time: " + sdf.format(c2.getTime()) + "\n",
 					 p.parse("edit 15 meeting with boss !high +10am $28-may-2016 @boss's office"
 							 + " &BIG BOSS COMING!!! #top secret project").toString());
 

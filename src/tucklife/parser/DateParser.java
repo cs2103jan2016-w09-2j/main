@@ -150,18 +150,22 @@ public class DateParser {
 	private static final String TIME_24H = "[0-2]\\d[0-5]\\d";
 	
 	public DateParser() {
-		calendar = Calendar.getInstance();
-		timeHour = calendar.get(Calendar.HOUR_OF_DAY);
-		timeMin = calendar.get(Calendar.MINUTE);
+		reset();
 	}
 	
 	public Calendar getDate() {
 		return calendar;
 	}
 	
+	public void reset() {
+		calendar = Calendar.getInstance();
+		timeHour = calendar.get(Calendar.HOUR_OF_DAY);
+		timeMin = calendar.get(Calendar.MINUTE);
+	}
+	
 	public Calendar parseDate(String rawDate) throws InvalidDateException {
 		SimpleDateFormat sdf;
-		calendar = Calendar.getInstance();
+		reset();
 		
 		if (rawDate.equalsIgnoreCase("today")) {
 			return calendar;
@@ -307,8 +311,12 @@ public class DateParser {
 				Date date = sdf.parse(rawDate);
 				calendar.setTime(date);
 				
-				if (!hasYear && isPastDate()) {
-					calendar.add(Calendar.YEAR, 1);
+				if (isPastDate()) {
+					if (hasYear) {
+						throw new InvalidDateException("date has passed. You can't travel back in time!");
+					} else {
+						calendar.add(Calendar.YEAR, 1);
+					}
 				}
 				
 				return calendar;
@@ -319,7 +327,7 @@ public class DateParser {
 	}
 	
 	public Calendar parseTime(String rawTime) throws InvalidDateException {
-		calendar = Calendar.getInstance();
+		reset();
 		is12Hour = false;
 		
 		/* ****************************
@@ -402,8 +410,8 @@ public class DateParser {
 		return timeOfDay.equalsIgnoreCase("pm");
 	}
 	
-	// Check if date has passed
-	public boolean hasDatePassed(Calendar date, Calendar time) {
+	// Check if date is over
+	public boolean isDateOver(Calendar date, Calendar time) {
 		Calendar curr = Calendar.getInstance();
 		Calendar combined = combineDateTime(date, time);
 		return combined.before(curr);

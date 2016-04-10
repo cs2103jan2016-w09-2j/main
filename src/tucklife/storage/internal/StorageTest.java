@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import tucklife.UI.FlowController;
 import tucklife.parser.Parser;
-import tucklife.parser.String;
+//import tucklife.parser.String;
 import tucklife.storage.Task;
 import tucklife.storage.TaskList;
 
@@ -19,6 +19,8 @@ public class StorageTest {
 	
 	Parser p;
 	FlowController fc;
+	Storage s;
+	String status;
 	
 	@Before
 	public void setUp() throws Exception {
@@ -31,6 +33,7 @@ public class StorageTest {
 	@Test
 	public void testSortLocation() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		String command1 = "add meeting @as4-mr3";
 		String command2 = "add staff retreat @sentosa";
@@ -41,12 +44,19 @@ public class StorageTest {
 		fc.execute(command1);
 		fc.execute(command2);
 		fc.execute(command3);
-		assertEquals("not sorted",fc.execute(command4),"3. interview in...\n1. meeting         | Location: as4-mr3\n2. staff retreat   | Location: sentosa\n");
+		
+		status = s.getStatus() + "\n\n";
+		assertEquals("not sorted",fc.execute(command4),status + "3. interview in...\n1. meeting         | Location: as4-mr3\n2. staff retreat   | Location: sentosa\n");
 		
 		String command5 = "display +@";
-		assertEquals("sorted ascending",fc.execute(command5),"1. meeting         | Location: as4-mr3\n2. staff retreat   | Location: sentosa\n3. interview in...\n");
+		
+		status = s.getStatus() + "\n\n";
+		assertEquals("sorted ascending",fc.execute(command5),status + "1. meeting         | Location: as4-mr3\n2. staff retreat   | Location: sentosa\n3. interview in...\n");
+		
 		String command6 = "display -@";
-		assertEquals("sorted descending",fc.execute(command6),"3. interview in...\n2. staff retreat   | Location: sentosa\n1. meeting         | Location: as4-mr3\n");
+		
+		status = s.getStatus() + "\n\n";
+		assertEquals("sorted descending",fc.execute(command6),status + "3. interview in...\n2. staff retreat   | Location: sentosa\n1. meeting         | Location: as4-mr3\n");
 	}
 	
 	@Test

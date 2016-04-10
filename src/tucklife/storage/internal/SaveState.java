@@ -1,7 +1,10 @@
-package tucklife.storage;
+package tucklife.storage.internal;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import tucklife.storage.Task;
+import tucklife.storage.TaskList;
 
 public class SaveState {
 

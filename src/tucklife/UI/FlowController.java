@@ -4,12 +4,12 @@ package tucklife.UI;
 
 import tucklife.parser.Parser;
 import tucklife.parser.ProtoTask;
-import tucklife.storage.ExternalStorage;
-import tucklife.storage.Storage;
-import tucklife.storage.StorageExceptions.InvalidDateException;
-import tucklife.storage.StorageExceptions.NothingToRedoException;
-import tucklife.storage.StorageExceptions.NothingToUndoException;
-import tucklife.storage.StorageExceptions.OverloadException;
+import tucklife.storage.external.ExternalStorage;
+import tucklife.storage.internal.Storage;
+import tucklife.storage.internal.StorageExceptions.InvalidDateException;
+import tucklife.storage.internal.StorageExceptions.NothingToRedoException;
+import tucklife.storage.internal.StorageExceptions.NothingToUndoException;
+import tucklife.storage.internal.StorageExceptions.OverloadException;
 import tucklife.storage.DataBox;
 
 public class FlowController {

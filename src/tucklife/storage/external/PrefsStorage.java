@@ -1,5 +1,5 @@
 // @@author A0121352X
-package tucklife.storage;
+package tucklife.storage.external;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -25,7 +25,7 @@ public class PrefsStorage {
 	private String defCategory;
 	private String defAdditional;
 	
-	protected PrefsStorage(){
+	public PrefsStorage(){
 		// default values
 		savePath = "";
 		overloadLimit = 50;

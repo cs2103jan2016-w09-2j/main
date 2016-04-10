@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import tucklife.parser.Parser;
 import tucklife.parser.ProtoTask;
-import tucklife.storage.StorageExceptions.InvalidDateException;
+import tucklife.storage.internal.StorageExceptions.InvalidDateException;
 
 public class TaskTest {
 

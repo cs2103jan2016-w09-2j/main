@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import tucklife.parser.ProtoTask;
+import tucklife.storage.StorageExceptions.InvalidDateException;
 
 public class Task {
 	
@@ -96,7 +97,7 @@ public class Task {
 		this.queueID = id;
 	}
 	
-	public Task(ProtoTask task) throws invalidDateException{
+	public Task(ProtoTask task) throws InvalidDateException{
 		//create the Task
 		this.location = task.getLocation();
 		this.priority = task.getPriority();
@@ -127,7 +128,7 @@ public class Task {
 		this.queueID = task.getQueueID();
 	}
 	
-	protected Task edit(ProtoTask task) throws invalidDateException{
+	protected Task edit(ProtoTask task) throws InvalidDateException{
 		//edit task
 		this.location = editParam(this.location, task.getLocation());
 		this.priority = editParam(this.priority, task.getPriority());
@@ -143,7 +144,7 @@ public class Task {
 		return this;
 	}
 
-	private void editDate(ProtoTask task) throws invalidDateException {
+	private void editDate(ProtoTask task) throws InvalidDateException {
 		if(task.getEndTime() == null && task.getEndDate()!=null) { //need to merge
 			this.endDate = mergeDateTime(task.getEndDate(),this.endDate); 
 			if(task.getStartDate()==null && this.startDate != null) { //no need to merge, can get the end date directly
@@ -449,12 +450,13 @@ public class Task {
 		return c;
 	}
 	
-	private void checkValidDates(Calendar start, Calendar end) throws invalidDateException{
+	private void checkValidDates(Calendar start, Calendar end) throws InvalidDateException{
 		if(end == null) {
 			return;
 		}
 		if (end.before(start) && start!= null) {
-			throw new invalidDateException(start,end);
+			//throw new StorageExceptions().new InvalidDateException(start,end);
+			throw new StorageExceptions.InvalidDateException(start,end);
 		}
 	}
 	

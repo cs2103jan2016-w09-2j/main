@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import tucklife.parser.ProtoTask;
+import tucklife.storage.StorageExceptions.InvalidDateException;
 
 
 public class TaskList {
@@ -164,7 +165,7 @@ public class TaskList {
 		return sb.toString();
 	}
 	
-	protected void add(ProtoTask task) throws invalidDateException {
+	protected void add(ProtoTask task) throws InvalidDateException {
 		Task newTask = new Task(task);
 		taskList.add(newTask);
 		log.log( Level.FINE, "{0} added to tasklist via ProtoTask", newTask.getName());
@@ -203,7 +204,7 @@ public class TaskList {
 		return t;
 	}
 	
-	protected void edit(int taskID, ProtoTask toEditTask) throws invalidDateException {
+	protected void edit(int taskID, ProtoTask toEditTask) throws InvalidDateException {
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {
 				int taskIndex = taskList.indexOf(task);

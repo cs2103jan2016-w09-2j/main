@@ -35,7 +35,7 @@ public class TaskList {
 		taskList = new ArrayList<Task>();
 	}
 	
-	protected boolean contains(int taskID){
+	public boolean contains(int taskID){
 		boolean containsID = false;
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {
@@ -45,7 +45,7 @@ public class TaskList {
 		return containsID;
 	}
 	
-	protected String displayID(int taskID) {
+	public String displayID(int taskID) {
 		String displayString = "";
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {
@@ -55,7 +55,7 @@ public class TaskList {
 		return displayString;
 	}
 	
-	protected String display(int itemsToDisplay) {
+	public String display(int itemsToDisplay) {
 		StringBuilder sb = new StringBuilder();
 		int i;
 		boolean flag = true;
@@ -76,7 +76,7 @@ public class TaskList {
 		return sb.toString();
 	}
 	
-	protected String displayDefault(int itemsToDisplay) {
+	public String displayDefault(int itemsToDisplay) {
 		if (taskList.size() == 0) {
 			return "No tasks to display!";
 		}
@@ -145,7 +145,7 @@ public class TaskList {
 		return sb;
 	}
 	
-	protected String search(String searchKey) {
+	public String search(String searchKey) {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("Exact Match\n");
@@ -166,27 +166,27 @@ public class TaskList {
 		return sb.toString();
 	}
 	
-	protected void add(ProtoTask task) throws InvalidDateException {
+	public void add(ProtoTask task) throws InvalidDateException {
 		Task newTask = new Task(task);
 		taskList.add(newTask);
 		log.log( Level.FINE, "{0} added to tasklist via ProtoTask", newTask.getName());
 	}
 	
-	protected void add(Task task) {
+	public void add(Task task) {
 		taskList.add(task);
 		log.log( Level.FINE, "{0} added to tasklist via Task", task.getName());
 	}
 	
-	protected void add(int index, Task task) {
+	public void add(int index, Task task) {
 		taskList.add(index, task);
 		log.log( Level.FINE, "{0} added to tasklist via index:{1} and Task", new Object[]{task.getName(), index});
 	}
 	
-	protected int size() {
+	public int size() {
 		return taskList.size();
 	}
 	
-	protected Task delete(int taskID) {
+	public Task delete(int taskID) {
 		Task removed = null; 
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {
@@ -199,13 +199,13 @@ public class TaskList {
 		return removed;
 	}
 	
-	protected Task remove(int index) {
+	public Task remove(int index) {
 		Task t = taskList.remove(index);
 		log.log( Level.FINE, "{0} has been removed", t.getName());
 		return t;
 	}
 	
-	protected void edit(int taskID, ProtoTask toEditTask) throws InvalidDateException {
+	public void edit(int taskID, ProtoTask toEditTask) throws InvalidDateException {
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {
 				int taskIndex = taskList.indexOf(task);
@@ -216,7 +216,7 @@ public class TaskList {
 		}
 	}
 	
-	protected Task get(int taskID) {
+	public Task get(int taskID) {
 		Task getTask = null; 
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {
@@ -234,35 +234,35 @@ public class TaskList {
 		return taskList.iterator();
 	}
 	
-	protected void sort(String sortBy , boolean isAscending) {
+	public void sort(String sortBy , boolean isAscending) {
 		if (sortBy != null) {
 			if (sortBy.equals("@")) {
-				Collections.sort(taskList,new TaskComparators().new ComparatorLocation());
+				Collections.sort(taskList,new TaskComparators.ComparatorLocation());
 				log.log( Level.FINE, "tasklist has been sorted by location");
 			}
 			
 			if (sortBy.equals("!")) {
-				Collections.sort(taskList,new TaskComparators().new ComparatorPriority());
+				Collections.sort(taskList,new TaskComparators.ComparatorPriority());
 				log.log( Level.FINE, "tasklist has been sorted by priority");
 			}
 			
 			if (sortBy.equals("#")) {
-				Collections.sort(taskList,new TaskComparators().new ComparatorCategory());
+				Collections.sort(taskList,new TaskComparators.ComparatorCategory());
 				log.log( Level.FINE, "tasklist has been sorted by category");
 			}
 			
 			if (sortBy.equals("$")) {
-				Collections.sort(taskList,new TaskComparators().new ComparatorTime());
+				Collections.sort(taskList,new TaskComparators.ComparatorTime());
 				log.log( Level.FINE, "tasklist has been sorted by time");
 			}
 			
 			if (sortBy.equals("+")) { //is there actually a point doing this?? Im setting it to time for now
-				Collections.sort(taskList,new TaskComparators().new ComparatorTime());
+				Collections.sort(taskList,new TaskComparators.ComparatorTime());
 				log.log( Level.FINE, "tasklist has been sorted by time");
 			}
 			
 			if (sortBy.equals("&")) {
-				Collections.sort(taskList,new TaskComparators().new ComparatorAdditional());
+				Collections.sort(taskList,new TaskComparators.ComparatorAdditional());
 				log.log( Level.FINE, "tasklist has been sorted by additional information");
 			}
 			
@@ -272,12 +272,12 @@ public class TaskList {
 			}
 		}
 		else {
-			Collections.sort(taskList,new TaskComparators().new ComparatorDefault());
+			Collections.sort(taskList,new TaskComparators.ComparatorDefault());
 			log.log( Level.FINE, "tasklist has been sorted by queue number, then by time");
 		}
 	}
 	
-	protected int tasksToday(){
+	public int tasksToday(){
 		Calendar c = Calendar.getInstance();
 		int count = 0;
 		

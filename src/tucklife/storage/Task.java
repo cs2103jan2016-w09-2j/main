@@ -25,6 +25,7 @@ public class Task {
 	private Calendar endDate; //either deadline or end time for event. if null, means it is a floating task
 	
 	private boolean floating;
+	private boolean deadline;
 	
 	private static int globalID = 1;
 
@@ -99,6 +100,10 @@ public class Task {
 		this.queueID = id;
 	}
 	
+	public boolean isDeadline() {
+		return deadline;
+	}
+	
 	public Task(ProtoTask task) throws InvalidDateException{
 		//create the Task
 		this.location = task.getLocation();
@@ -110,6 +115,7 @@ public class Task {
 		this.endDate = task.getEndDate();
 		checkValidDates(startDate, endDate);
 		this.floating = startDate == null && endDate == null;
+		this.deadline = !this.floating && this.startDate == null;
 		this.id = globalID;
 		this.queueID = task.getPosition();
 		globalID++;
@@ -126,11 +132,12 @@ public class Task {
 		this.startDate = task.getStartDate();
 		this.endDate = task.getEndDate();
 		this.floating = startDate == null && endDate == null;
+		this.deadline = this.floating || this.startDate == null;
 		this.id = task.getId();	
 		this.queueID = task.getQueueID();
 	}
 	
-	protected Task edit(ProtoTask task) throws InvalidDateException{
+	public Task edit(ProtoTask task) throws InvalidDateException{
 		//edit task
 		this.location = editParam(this.location, task.getLocation());
 		this.priority = editParam(this.priority, task.getPriority());
@@ -141,6 +148,7 @@ public class Task {
 		editDate(task);
 		
 		this.floating = startDate == null && endDate == null;
+		this.deadline = this.floating || this.startDate == null;
 		this.id = task.getId() == -1 ? this.id : task.getId();
 		log.log( Level.FINE, "Task has been edited via ProtoTask");
 		return this;
@@ -254,7 +262,7 @@ public class Task {
 		return sdf.format(startTime.getTime()).equals(sdf.format(endTime.getTime()));
 	}
 
-	protected String display(){
+	public String display(){
 		StringBuilder displayString = new StringBuilder();
 		
 		// display order:
@@ -279,7 +287,7 @@ public class Task {
 		return displayString.toString();
 	}
 	
-	protected boolean containsExact(String searchKey) {
+	public boolean containsExact(String searchKey) {
 		String[] fields = new String[6];
 		
 		fields[0] = dateField();
@@ -302,7 +310,7 @@ public class Task {
 		return false;
 	}
 	
-	protected boolean containsPartial(String searchKey) {
+	public boolean containsPartial(String searchKey) {
 		if(this.containsExact(searchKey)) {
 			return false;
 		}
@@ -404,7 +412,7 @@ public class Task {
 		}
 	}
 	
-	protected String displayAll(){
+	public String displayAll(){
 		StringBuilder fullDisplayString = new StringBuilder();
 		
 		// displayAll order:

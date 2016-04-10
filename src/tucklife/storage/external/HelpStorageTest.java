@@ -1,5 +1,5 @@
 // @@author A0121352X
-package tucklife.storage;
+package tucklife.storage.external;
 
 import static org.junit.Assert.*;
 

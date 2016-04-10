@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import tucklife.parser.Parser;
 import tucklife.parser.ProtoTask;
+import tucklife.storage.internal.StorageExceptions;
+import tucklife.storage.internal.StorageExceptions.InvalidDateException;
 
 public class TaskListTest {
 	
@@ -29,7 +31,7 @@ public class TaskListTest {
 	}
 	
 	@Test
-	public void testAdd() throws invalidDateException {
+	public void testAdd() throws StorageExceptions.InvalidDateException {
 		tl = new TaskList();
 		pt = p.parse("add meeting");
 		tl.add(pt);
@@ -43,7 +45,7 @@ public class TaskListTest {
 	}
 	
 	@Test
-	public void testContains() throws invalidDateException {
+	public void testContains() throws InvalidDateException {
 		tl = new TaskList();
 		pt = p.parse("add meeting");
 		t = new Task(pt);
@@ -59,7 +61,7 @@ public class TaskListTest {
 	}
 	
 	@Test
-	public void testDelete() throws invalidDateException {
+	public void testDelete() throws InvalidDateException {
 		tl = new TaskList();
 		pt = p.parse("add meeting");
 		t = new Task(pt);
@@ -76,7 +78,7 @@ public class TaskListTest {
 	}
 	
 	@Test
-	public void testEdit() throws invalidDateException {
+	public void testEdit() throws InvalidDateException {
 		tl = new TaskList();
 		pt = p.parse("add meeting @mr4 $16/05 +1300 #intern");
 		t = new Task(pt);
@@ -94,7 +96,7 @@ public class TaskListTest {
 	}
 	
 	@Test
-	public void testSort() throws invalidDateException {
+	public void testSort() throws InvalidDateException {
 		tl = new TaskList();
 		pt = p.parse("add meeting @a");
 		t = new Task(pt);

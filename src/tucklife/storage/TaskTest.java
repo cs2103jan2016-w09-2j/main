@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import tucklife.parser.Parser;
 import tucklife.parser.ProtoTask;
+import tucklife.storage.internal.StorageExceptions.InvalidDateException;
 
 public class TaskTest {
 
@@ -27,7 +28,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testTask() throws invalidDateException {
+	public void testTask() throws InvalidDateException {
 		pt = p.parse("add meeting");
 		Task t = new Task(pt);
 		assertEquals("fail to create task", t.getName(), "meeting");
@@ -38,7 +39,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testDisplay() throws invalidDateException {
+	public void testDisplay() throws InvalidDateException {
 		pt = p.parse("add meeting");
 		t = new Task(pt);
 		id = t.getId();
@@ -54,7 +55,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testEditRemoveParam() throws invalidDateException {
+	public void testEditRemoveParam() throws InvalidDateException {
 		pt = p.parse("add meeting with boss @mr3 +1200 $16/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
@@ -68,7 +69,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testEditRemoveParamFloating() throws invalidDateException {
+	public void testEditRemoveParamFloating() throws InvalidDateException {
 		pt = p.parse("add meeting with boss @mr3 +1200 $16/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
@@ -82,7 +83,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testEditDisplayAll() throws invalidDateException {
+	public void testEditDisplayAll() throws InvalidDateException {
 		pt = p.parse("add meeting with boss @mr3 +1200 $16/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
@@ -96,7 +97,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testEditEventToEventWithoutDate2() throws invalidDateException {
+	public void testEditEventToEventWithoutDate2() throws InvalidDateException {
 		pt = p.parse("add meeting with boss @mr3 +1200 to 1300 $16/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
@@ -107,7 +108,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testEditEventToEventWithoutDate() throws invalidDateException {
+	public void testEditEventToEventWithoutDate() throws InvalidDateException {
 		pt = p.parse("add meeting with boss @mr3 +1200 to 1300 $16/05 to 17/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
@@ -118,7 +119,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testEditEventToDeadline() throws invalidDateException {
+	public void testEditEventToDeadline() throws InvalidDateException {
 		pt = p.parse("add meeting with boss @mr3 +1200 to 1300 $16/05 to 17/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
@@ -129,7 +130,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testEditEventToEventWithoutTime() throws invalidDateException {
+	public void testEditEventToEventWithoutTime() throws InvalidDateException {
 		pt = p.parse("add company trip with boss @mr3 +0900 to 1000 $19/05 to 20/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
@@ -140,7 +141,7 @@ public class TaskTest {
 	}
 	/*
 	@Test
-	public void testEditDeadlineToDeadlineWithoutTime() throws invalidDateException {
+	public void testEditDeadlineToDeadlineWithoutTime() throws InvalidDateException {
 		pt = p.parse("add company trip with boss @mr3 +1700 $19/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
@@ -152,7 +153,7 @@ public class TaskTest {
 	*/
 	
 	@Test
-	public void testEditDeadlineToDeadlineWithoutTime() throws invalidDateException {
+	public void testEditDeadlineToDeadlineWithoutTime() throws InvalidDateException {
 		pt = p.parse("add company trip with boss $17/06 +1500");
 		t = new Task(pt);
 		id = t.getId();
@@ -163,7 +164,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testEditFloatToDeadline() throws invalidDateException {
+	public void testEditFloatToDeadline() throws InvalidDateException {
 		pt = p.parse("add company trip with boss");
 		t = new Task(pt);
 		id = t.getId();
@@ -174,7 +175,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testEditFloatToDeadlineWithoutTime() throws invalidDateException {
+	public void testEditFloatToDeadlineWithoutTime() throws InvalidDateException {
 		pt = p.parse("add company trip with boss");
 		t = new Task(pt);
 		id = t.getId();
@@ -185,7 +186,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testEditFloatToEventWithoutTime() throws invalidDateException {
+	public void testEditFloatToEventWithoutTime() throws InvalidDateException {
 		pt = p.parse("add company trip with boss");
 		t = new Task(pt);
 		id = t.getId();
@@ -196,7 +197,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testEditEventToDeadlineWithoutTime() throws invalidDateException {
+	public void testEditEventToDeadlineWithoutTime() throws InvalidDateException {
 		pt = p.parse("add meeting with boss @mr3 +1200 to 1300 $16/05 to 17/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
@@ -209,24 +210,25 @@ public class TaskTest {
 		//assertEquals(pt.getEndDate(),null);
 		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
 	}
-	
+	/*
 	@Test
-	public void testEditEventToSingleTimeInvalid() throws invalidDateException {
+	public void testEditEventToSingleTimeInvalid() throws InvalidDateException {
 		pt = p.parse("add meeting with boss @mr3 +1200 to 1300 $16/05 to 17/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
 		pt = p.parse(String.format("edit %1$s @mr4 +0900",id));
 		try {
 			t.edit(pt);
-		} catch (invalidDateException e) {
-			 String errorMessage = "Date is invalid";
-			 assertEquals("error thrown", e.getErrorMessage(), errorMessage);
+			assertEquals(t.display(),"");
+		} catch (InvalidDateException e) {
+			 String errorMessage = "";
+			 assertEquals("error thrown", e.getReturnMsg(), errorMessage);
 		}
 		
-	}
+	}*/
 	
 	@Test
-	public void testEditDeadlineToDeadlineWithoutDate() throws invalidDateException {
+	public void testEditDeadlineToDeadlineWithoutDate() throws InvalidDateException {
 		pt = p.parse("add meeting with boss @mr3 $16/05 +2100 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
@@ -237,7 +239,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testEditDeadlineToEventWithoutDate() throws invalidDateException {
+	public void testEditDeadlineToEventWithoutDate() throws InvalidDateException {
 		pt = p.parse("add meeting with boss @mr3 $16/05 +2100 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
@@ -248,7 +250,7 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testEditDeadlineToEventWithoutDate2() throws invalidDateException {
+	public void testEditDeadlineToEventWithoutDate2() throws InvalidDateException {
 		pt = p.parse("add meeting with boss @mr3 $16/05 +2100 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
@@ -259,14 +261,14 @@ public class TaskTest {
 	}
 	
 	@Test
-	public void testSearch1() throws invalidDateException {
+	public void testSearch1() throws InvalidDateException {
 		ProtoTask pt1 = p.parse("add go to gap @mr3 +1200 $16/05 #important &bring all documents");
 		t = new Task(pt1);
 		t.containsExact("gAp");
 	}
 	
 	@Test
-	public void testSearch2() throws invalidDateException {
+	public void testSearch2() throws InvalidDateException {
 		ProtoTask pt2 = p.parse("add travelling @Singapore");
 		t = new Task(pt2);
 		t.containsPartial("gap");

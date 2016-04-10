@@ -10,6 +10,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import tucklife.parser.ProtoTask;
+import tucklife.storage.internal.Storage;
+import tucklife.storage.internal.StorageExceptions.InvalidDateException;
 
 
 public class TaskList {
@@ -134,11 +136,9 @@ public class TaskList {
 
 	private StringBuilder getRemainingString(StringBuilder sb, int remainingTask, String case1, String case2) {
 		if (remainingTask == 1) { 
-			//sb.append(String.format("And %1$s other task in queue\n",remainingTask));
 			sb.append(String.format(case1,remainingTask));
 		} else {
 			if (remainingTask > 1) { 
-				//sb.append(String.format("And %1$s other task in queue\n",remainingTask));
 				sb.append(String.format(case2,remainingTask));
 			} 
 		}
@@ -166,7 +166,7 @@ public class TaskList {
 		return sb.toString();
 	}
 	
-	protected void add(ProtoTask task) throws invalidDateException {
+	protected void add(ProtoTask task) throws InvalidDateException {
 		Task newTask = new Task(task);
 		taskList.add(newTask);
 		log.log( Level.FINE, "{0} added to tasklist via ProtoTask", newTask.getName());
@@ -205,7 +205,7 @@ public class TaskList {
 		return t;
 	}
 	
-	protected void edit(int taskID, ProtoTask toEditTask) throws invalidDateException {
+	protected void edit(int taskID, ProtoTask toEditTask) throws InvalidDateException {
 		for (Task task:taskList) {
 			if (hasFoundID(taskID, task)) {
 				int taskIndex = taskList.indexOf(task);
@@ -274,7 +274,6 @@ public class TaskList {
 		else {
 			Collections.sort(taskList,new TaskComparators().new ComparatorDefault());
 			log.log( Level.FINE, "tasklist has been sorted by queue number, then by time");
-			//Collections.reverse(taskList);
 		}
 	}
 	

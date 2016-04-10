@@ -1,5 +1,5 @@
 // @@author A0121352X
-package tucklife.storage;
+package tucklife.storage.external;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -12,7 +12,7 @@ import java.io.InputStreamReader;
 public class PrefsStorage {
 	
 	private static final String FILENAME_PREFS = "prefs.txt";
-	private static final String FILE_BLANK = "Preferences:\n\n\n-1\n\n\n\n50\ntrue";
+	private static final String FILE_BLANK = "Preferences:\n\n50";
 	private static final String FILE_HEADER = "Preferences:";
 	
 	private String testPath;
@@ -23,22 +23,23 @@ public class PrefsStorage {
 	private String defLocation;
 	private int defPriority;
 	private String defCategory;
-	private String defTime;
 	private String defAdditional;
 	
-	protected PrefsStorage(){
+	public PrefsStorage(){
 		// default values
 		savePath = "";
 		overloadLimit = 50;
-		reminderOn = true;
-		
-		defLocation = "";
-		defPriority = -1;
-		defCategory = "";
-		defTime = "";
-		defAdditional = "";
-		
 		testPath = "";
+		
+//		reminderOn = true;
+//		
+//		defLocation = "";
+//		defPriority = -1;
+//		defCategory = "";
+//		defTime = "";
+//		defAdditional = "";
+//		
+//		testPath = "";
 	}
 	
 	// special constructor meant for testing only
@@ -46,15 +47,14 @@ public class PrefsStorage {
 		// default values
 		savePath = "";
 		overloadLimit = 50;
-		reminderOn = true;
-		
-		defLocation = "";
-		defPriority = -1;
-		defCategory = "";
-		defTime = "";
-		defAdditional = "";
-		
 		testPath = path;
+		
+//		reminderOn = true;		
+//		defLocation = "";
+//		defPriority = -1;
+//		defCategory = "";
+//		defTime = "";
+//		defAdditional = "";
 	}
 	
 	protected boolean loadPreferences(){
@@ -81,30 +81,22 @@ public class PrefsStorage {
 			 * format for prefs file
 			 * line 0 - Preferences:
 			 * line 1 - savePath
-			 * 
-			 * line 2 - defLocation
-			 * line 3 - defPriority
-			 * line 4 - defCategory
-			 * line 5 - defTime
-			 * line 6 - defAdditional
-			 * 
-			 * line 7 - overload limit
-			 * line 8 - reminders on/off
+			 * line 2 - overload limit
 			 */
 			
 			// remove first line
 			br.readLine();
 			
 			savePath = br.readLine();
-			
-			defLocation = br.readLine();
-			defPriority = Integer.parseInt(br.readLine());
-			defCategory = br.readLine();
-			defTime = br.readLine();
-			defAdditional = br.readLine();
-			
 			overloadLimit = Integer.parseInt(br.readLine());
-			reminderOn = Boolean.parseBoolean(br.readLine());
+			
+//			defLocation = br.readLine();
+//			defPriority = Integer.parseInt(br.readLine());
+//			defCategory = br.readLine();
+//			defTime = br.readLine();
+//			defAdditional = br.readLine();
+//					
+//			reminderOn = Boolean.parseBoolean(br.readLine());
 			
 			br.close();
 			isr.close();
@@ -152,15 +144,7 @@ public class PrefsStorage {
 			 * format for prefs file
 			 * line 0 - Preferences:
 			 * line 1 - savePath
-			 * 
-			 * line 2 - defLocation
-			 * line 3 - defPriority
-			 * line 4 - defCategory
-			 * line 5 - defTime
-			 * line 6 - defAdditional
-			 * 
-			 * line 7 - overload limit
-			 * line 8 - reminders on/off
+			 * line 2 - overload limit
 			 */
 			
 			// write preferences to file
@@ -170,27 +154,27 @@ public class PrefsStorage {
 			bos.write(savePath.getBytes());
 			bos.write("\n".getBytes());
 			
-			bos.write(defLocation.getBytes());
-			bos.write("\n".getBytes());
-			
-			bos.write(Integer.toString(defPriority).getBytes());
-			bos.write("\n".getBytes());
-			
-			bos.write(defCategory.getBytes());
-			bos.write("\n".getBytes());
-			
-			bos.write(defTime.getBytes());
-			bos.write("\n".getBytes());
-			
-			bos.write(defAdditional.getBytes());
-			bos.write("\n".getBytes());
-			
 			bos.write(Integer.toString(overloadLimit).getBytes());
 			bos.write("\n".getBytes());
 			
-			bos.write(Boolean.toString(reminderOn).getBytes());
-			bos.write("\n".getBytes());
-			
+//			bos.write(defLocation.getBytes());
+//			bos.write("\n".getBytes());
+//			
+//			bos.write(Integer.toString(defPriority).getBytes());
+//			bos.write("\n".getBytes());
+//			
+//			bos.write(defCategory.getBytes());
+//			bos.write("\n".getBytes());
+//			
+//			bos.write(defTime.getBytes());
+//			bos.write("\n".getBytes());
+//			
+//			bos.write(defAdditional.getBytes());
+//			bos.write("\n".getBytes());
+//			
+//			bos.write(Boolean.toString(reminderOn).getBytes());
+//			bos.write("\n".getBytes());
+//			
 			bos.close();
 			fos.close();
 		

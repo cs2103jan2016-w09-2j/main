@@ -214,6 +214,9 @@ public class Storage {
 		}
 		
 		int limit = pf.getOverloadLimit();
+		if(limit == -1) {
+			return false;
+		}
 		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy");
 		String newTaskDateString = sdf.format(newTask.getEndDate().getTime());
 		return checkIsOverloaded(limit, newTaskDateString);

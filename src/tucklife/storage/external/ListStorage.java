@@ -1,5 +1,5 @@
 // @@author A0121352X
-package tucklife.storage;
+package tucklife.storage.external;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -16,6 +16,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import tucklife.parser.ProtoTask;
+import tucklife.storage.Task;
+import tucklife.storage.TaskList;
+import tucklife.storage.internal.StorageExceptions;
+import tucklife.storage.internal.StorageExceptions.InvalidDateException;
 
 public class ListStorage {
 	
@@ -78,7 +82,7 @@ public class ListStorage {
 					
 					try {
 						list.add(pt);
-					} catch (invalidDateException e) {
+					} catch (InvalidDateException e) {
 						// should not happen if save was correct
 						EXTERNAL_LOG.log(Level.WARNING, LOG_TASK_DATE_ERROR);		
 					}
@@ -256,9 +260,10 @@ public class ListStorage {
 			while(tasks.hasNext()){
 				Task t = tasks.next();
 				
-				String taskString = t.displayAll();
-				int idBreak = taskString.indexOf((int) ' ');
+				String taskString = t.displayAll().trim();
 				
+				// remove the id as we do not save it
+				int idBreak = taskString.indexOf((int) ' ');				
 				taskString = taskString.substring(idBreak + 1);
 				
 				bos.write(taskString.getBytes());

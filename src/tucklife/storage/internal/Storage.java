@@ -1,5 +1,5 @@
 //@@author A0111101N
-package tucklife.storage;
+package tucklife.storage.internal;
 
 
 import java.text.SimpleDateFormat;
@@ -8,6 +8,13 @@ import java.util.Iterator;
 import java.util.logging.Logger;
 
 import tucklife.parser.ProtoTask;
+import tucklife.storage.external.PrefsStorage;
+import tucklife.storage.internal.StorageExceptions.InvalidDateException;
+import tucklife.storage.internal.StorageExceptions.NothingToRedoException;
+import tucklife.storage.internal.StorageExceptions.NothingToUndoException;
+import tucklife.storage.internal.StorageExceptions.OverloadException;
+import tucklife.storage.DataBox;
+import tucklife.storage.Task;
 import tucklife.storage.TaskList;
 
 public class Storage {
@@ -41,11 +48,11 @@ public class Storage {
 	
 	private static TaskList queueList;
 	
-	private static ArrayList<ArrayList<TaskList>> undoSaveState = new ArrayList<ArrayList<TaskList>>();
-	private static ArrayList<ArrayList<TaskList>> redoSaveState = new ArrayList<ArrayList<TaskList>>();
+	private static SaveState state = new SaveState();
 
 	private static PrefsStorage pf;
 	
+	/*
 	private enum COMMAND_TYPE {
 		ADD, DISPLAY, COMPLETE, DISPLAYDONE, DELETE, EDIT, INVALID, QUEUE, SETLIMIT, UNDO, REDO, UNCOMPLETE
 	}
@@ -55,90 +62,37 @@ public class Storage {
 		String returnMessage = parseCommand(pt,ct);
 		return returnMessage;
 	}
-
-	private static void storeUndoSaveState() {
-		ArrayList<TaskList> saveState = getSaveState();
-		
-		if (undoSaveState.size() < 50) {
-			undoSaveState.add(saveState);
-		} else {
-			undoSaveState.remove(0);
-			undoSaveState.add(saveState);
-		}
+	*/
+	
+	public Storage(DataBox db) {
+		TaskList[] loadList = db.getLists();
+		toDoList = loadList[0];
+		doneList = loadList[1];
+		queueList = state.getQueueListFromToDoList(toDoList);
+		pf = db.getPrefs();
 	}
 	
-	private static void storeRedoSaveState() {
-		ArrayList<TaskList> saveState = getSaveState();
-		
-		if (redoSaveState.size() < 50) {
-			redoSaveState.add(saveState);
-		} else {
-			redoSaveState.remove(0);
-			redoSaveState.add(saveState);
+	public String undo() throws NothingToUndoException{
+		if (state.getUndoSaveState().size() == 0) {
+			throw new StorageExceptions.NothingToUndoException();
 		}
-	}
-
-	private static ArrayList<TaskList> getSaveState() {
-		ArrayList<TaskList> saveState = new ArrayList<TaskList>();
-		
-		TaskList oldToDoList = duplicateTaskList(toDoList);
-		TaskList oldQueueList = getQueueListFromToDoList(oldToDoList);
-		
-		saveState.add(oldToDoList);
-		saveState.add(oldQueueList);
-		
-		TaskList oldDoneList = duplicateTaskList(doneList);
-		
-		saveState.add(oldDoneList);
-		return saveState;
-	}
-
-	private static TaskList getQueueListFromToDoList(TaskList oldToDoList) {
-		oldToDoList.sort(null, true);
-		TaskList oldQueueList = new TaskList();
-		Iterator<Task> taskListIter = oldToDoList.iterator();
-		while(taskListIter.hasNext()){
-			Task t = taskListIter.next();
-			if(t.getQueueID()!=-1) {
-				oldQueueList.add(t);
-			}
-		}
-		return oldQueueList;
-	}
-
-	private static TaskList duplicateTaskList(TaskList originalList) {
-		TaskList duplicateList = new TaskList();
-		Iterator<Task> taskListIter = originalList.iterator();
-		while(taskListIter.hasNext()){
-			Task t = new Task(taskListIter.next());
-			duplicateList.add(t);
-		}
-		return duplicateList;
-	}
-	
-	private static String undo() throws nothingToUndoException{
-		if (undoSaveState.size() == 0) {
-			throw new nothingToUndoException();
-		}
-		storeRedoSaveState();
-		ArrayList<TaskList> saveState = undoSaveState.remove(undoSaveState.size()-1);
-		restoreSaveState(saveState);
+		state.storeRedoSaveState(toDoList, doneList);
+		TaskList[] tl = state.restoreSaveState("undo");
+		toDoList = tl[0];
+		queueList = tl[1];
+		doneList = tl[2];
 		return "undone";
 	}
-
-	private static void restoreSaveState(ArrayList<TaskList> saveState) {
-		toDoList = saveState.get(0);
-		queueList = saveState.get(1);
-		doneList = saveState.get(2);
-	}
 	
-	private static String redo() throws nothingToRedoException{
-		if (redoSaveState.size() == 0) {
-			throw new nothingToRedoException();
+	public String redo() throws NothingToRedoException{
+		if (state.getRedoSaveState().size() == 0) {
+			throw new StorageExceptions.NothingToRedoException();
 		}
-		storeUndoSaveState();
-		ArrayList<TaskList> saveState = redoSaveState.remove(redoSaveState.size()-1);
-		restoreSaveState(saveState);
+		state.storeUndoSaveState(toDoList, doneList);
+		TaskList[] tl = state.restoreSaveState("redo");
+		toDoList = tl[0];
+		queueList = tl[1];
+		doneList = tl[2];
 		return "redone";
 	}
 	
@@ -150,14 +104,7 @@ public class Storage {
 		return db;
 	}
 	
-	public void load(DataBox db) {
-		TaskList[] loadList = db.getLists();
-		toDoList = loadList[0];
-		doneList = loadList[1];
-		queueList = getQueueListFromToDoList(toDoList);
-		pf = db.getPrefs();
-	}
-	
+	/*
 	private static COMMAND_TYPE determineCommandType(String commandTypeString) {
 		if (commandTypeString.equalsIgnoreCase("add")) {
 			return COMMAND_TYPE.ADD;
@@ -190,42 +137,39 @@ public class Storage {
 		switch (commandType) {
 		case ADD :
 			try {
-				prepareForUndo();
+				state.prepareForUndo(toDoList, doneList);
 				return add(pt);
 			} catch (overloadException e) {
 				return e.getReturnMsg();
 			} catch (invalidDateException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				return e.getReturnMsg();
 			}
 		case COMPLETE :
-			prepareForUndo();
+			state.prepareForUndo(toDoList, doneList);
 			return complete(pt.getId());
 		case DISPLAY :
 			return display(pt, toDoList);
 		case DISPLAYDONE :
 			return display(pt, doneList);
 		case DELETE :
-			prepareForUndo();
+			state.prepareForUndo(toDoList, doneList);
 			return delete(pt.getId());
 		case EDIT :
 			try {
-				prepareForUndo();
+				state.prepareForUndo(toDoList, doneList);
 				return edit(pt.getId(), pt);
 			} catch (overloadException e) {
 				return e.getReturnMsg();
 			} catch (invalidDateException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return "I GOT PROBLEM WITH DATE DUDE";
+				return e.getReturnMsg();
 			}
 		case QUEUE :
-			prepareForUndo();
+			state.prepareForUndo(toDoList, doneList);
 			return queue(pt.getId(), pt.getPosition());
 		case SETLIMIT :
 			return setLimit(pt.getLimit());
 		case UNCOMPLETE :
-			prepareForUndo();
+			state.prepareForUndo(toDoList, doneList);
 			return uncomplete(pt.getId());
 		case UNDO :
 			try {
@@ -244,13 +188,10 @@ public class Storage {
 			throw new Error("Unrecognized command type");
 		}
 	}
-
-	private static void prepareForUndo() {
-		storeUndoSaveState();
-		redoSaveState.clear();
-	}
+	*/
 	
-	private static String add(ProtoTask task) throws overloadException, invalidDateException{
+	public String add(ProtoTask task) throws OverloadException, InvalidDateException{
+		state.prepareForUndo(toDoList, doneList);
 		Task newTask = new Task(task);
 		if (newTask.isFloating()) {
 			toDoList.add(newTask);
@@ -258,66 +199,75 @@ public class Storage {
 		}
 		toDoList.sort("$",true);
 		if(isOverloaded(newTask)) {
-			throw new overloadException(pf.getOverloadLimit());
+			throw new StorageExceptions.OverloadException(pf.getOverloadLimit());
 		}
 		
 		toDoList.add(newTask);
 		return String.format(RETURN_MESSAGE_FOR_ADD, newTask.displayAll());
 	}
 
-	private static boolean isOverloaded(Task newTask) {
-		if(newTask.isFloating() || newTask.getStartDate() != null) { //dont count floating tasks and events
+	private boolean isOverloaded(Task newTask) {
+		
+		//dont count floating tasks and events
+		if(!newTask.isDeadline()) {
 			return false;
 		}
 		
 		int limit = pf.getOverloadLimit();
+		if(limit == -1) {
+			return false;
+		}
 		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy");
 		String newTaskDateString = sdf.format(newTask.getEndDate().getTime());
 		return checkIsOverloaded(limit, newTaskDateString);
 	}
 
-	private static boolean checkIsOverloaded(int limit, String newTaskDateString) {
+	private static boolean checkIsOverloaded(int limit, String newDeadlineDate) {
 		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy");
-		boolean flag = true;
-		boolean hitLimit = false;
-		int count = 0;
-		String oldDateString = null;
+		boolean isNewDeadlineDateInToDoList = true;
+		boolean hasHitLimit = false;
+		int limitCount = 0;
+		String currentDate = null;
 		Iterator<Task> taskListIter = toDoList.iterator();
 		
 		while(taskListIter.hasNext()) {
 			Task t = taskListIter.next();
 			
-			if(t.isFloating() || t.getStartDate() != null) { //dont count floating tasks and events
+			//dont count floating tasks and events
+			if(!t.isDeadline()) {
 				continue;
 			} 
 			
-			String taskEndDateString = sdf.format(t.getEndDate().getTime());
+			String deadlineDate = sdf.format(t.getEndDate().getTime());
 			
-			if(taskEndDateString.equals(oldDateString)) {
-				count += 1;
+			//adds to count if the task's date is the same as the current date
+			//otherwise reset count and update current date
+			if(deadlineDate.equals(currentDate)) {
+				limitCount += 1;
 			} else {
-				oldDateString = taskEndDateString;
-				count = 1;
+				currentDate = deadlineDate; 
+				limitCount = 1; 
 			}
-			if(flag) {
-				if(taskEndDateString.equals(newTaskDateString)) {
-					count +=1;
-					flag = false;
+			if(isNewDeadlineDateInToDoList) {
+				if(deadlineDate.equals(newDeadlineDate)) {
+					limitCount +=1;
+					isNewDeadlineDateInToDoList = false;
 				}
 			}
-			if(count == limit+1) {
-				hitLimit = true;
+			if(limitCount > limit) {
+				hasHitLimit = true;
 				break;
 			}
 		}
-		return hitLimit;
+		return hasHitLimit;
 	}
 	
-	private static String edit(int taskID, ProtoTask toEditTask) throws overloadException, invalidDateException {
+	public String edit(int taskID, ProtoTask toEditTask) throws OverloadException, InvalidDateException {
+		state.prepareForUndo(toDoList, doneList);
 		if(toDoList.contains(taskID)){	
 			Task newTask = new Task(toEditTask);
 			if(isOverloaded(newTask)) {
-				throw new overloadException(pf.getOverloadLimit());
+				throw new StorageExceptions.OverloadException(pf.getOverloadLimit());
 			}
 			toDoList.edit(taskID, toEditTask);
 			String editedTaskDetails = toDoList.displayID(taskID);
@@ -327,7 +277,8 @@ public class Storage {
 		}
 	}
 	
-	private static String complete(int taskID) {
+	public String complete(int taskID) {
+		state.prepareForUndo(toDoList, doneList);
 		if(toDoList.contains(taskID)){
 			Task completedTask = toDoList.delete(taskID);
 			completedTask.setQueueID(-(doneList.size() + 1));
@@ -342,7 +293,8 @@ public class Storage {
 		}
 	}
 	
-	private static String uncomplete(int taskID) {
+	public String uncomplete(int taskID) {
+		state.prepareForUndo(toDoList, doneList);
 		if(doneList.contains(taskID)) {
 			Task uncompletedTask = doneList.delete(taskID);
 			uncompletedTask.setQueueID(-1);
@@ -353,7 +305,8 @@ public class Storage {
 		}
 	}
 	
-	private static String delete(int taskID) {
+	public String delete(int taskID) {
+		state.prepareForUndo(toDoList, doneList);
 		if(toDoList.contains(taskID)){
 			Task deletedTask = toDoList.delete(taskID);
 			if(queueList.contains(taskID)) {
@@ -366,7 +319,7 @@ public class Storage {
 		}
 	}
 	
-	private static String displayID(int taskID) {
+	public String displayID(int taskID) {
 		if(toDoList.contains(taskID)){
 			return toDoList.displayID(taskID);
 		} else {
@@ -374,7 +327,13 @@ public class Storage {
 		}
 	}
 	
-	private static String display(ProtoTask pt, TaskList taskList) {
+	public String display(ProtoTask pt, String tl) {
+		TaskList taskList;
+		if(tl.equals("toDoList")) {
+			taskList = toDoList;
+		} else {
+			taskList = doneList;
+		}
 		if (pt.getSearchKey()!=null) {
 			taskList.sort(null, true);
 			return taskList.search(pt.getSearchKey());
@@ -388,12 +347,6 @@ public class Storage {
 			boolean isAscending = pt.getIsAscending();
 			taskList.sort(sortBy,isAscending);
 			if (sortBy == null) {
-				/*
-				if(taskList == doneList) {
-					taskList.sort(null, true);
-					return taskList.display(20);
-				}
-				*/
 				return taskList.displayDefault(defaultNumberOfDisplayedTasks);
 			} else {
 				return taskList.display(defaultNumberOfDisplayedTasks);
@@ -401,13 +354,15 @@ public class Storage {
 		}
 	}
 	
-	private static String queue(int taskID, int pos) {
+	public String queue(int taskID, int pos) {
+		state.prepareForUndo(toDoList, doneList);
 		if(toDoList.contains(taskID)){
-			boolean flag = false;
+			boolean isPosDefault = pos == -1;
+			boolean isPosTooLarge = pos>queueList.size();
+			boolean isBackOfQueue = isPosDefault || isPosTooLarge;
 			Task qTask = toDoList.get(taskID);
-			if(pos == -1 || pos>queueList.size()) {
+			if(isBackOfQueue) {
 				pos = queueList.size();
-				flag = true;
 			}
 			if(queueList.contains(taskID)) {
 				
@@ -415,7 +370,7 @@ public class Storage {
 				queueList.add(pos-1,qTask);
 				
 			} else {
-				if(flag) {
+				if(isBackOfQueue) {
 					queueList.add(pos,qTask);
 				} else {
 					queueList.add(pos-1,qTask);
@@ -430,7 +385,7 @@ public class Storage {
 		}
 	}
 
-	private static int updateQueueIDs(int taskID, int pos) {
+	private int updateQueueIDs(int taskID, int pos) {
 		Iterator<Task> qIter = queueList.iterator();
 		int count = 1;
 		while(qIter.hasNext()) {
@@ -444,7 +399,7 @@ public class Storage {
 		return pos;
 	}
 	
-	private static String setLimit(int limit) {
+	public String setLimit(int limit) {
 		assert limit >= 0;
 		pf.setOverloadLimit(limit);
 		if(limit == 0) {
@@ -480,12 +435,11 @@ public class Storage {
 	public static void clear(){
 		Task.resetGlobalId();
 		pf = new PrefsStorage();
-		setLimit(0);
+		pf.setOverloadLimit(-1);
 		toDoList = new TaskList();
 		queueList = new TaskList();
 		doneList = new TaskList();
-		undoSaveState = new ArrayList<ArrayList<TaskList>>();
-		redoSaveState = new ArrayList<ArrayList<TaskList>>();
+		state = new SaveState();
 	}
 	
 	public static TaskList getTD(){

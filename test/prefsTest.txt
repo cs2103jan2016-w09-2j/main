@@ -1,9 +1,3 @@
 Preferences:
 C:\Users\Ryan\Desktop\Holding Area\
-
--1
-
-
-
 74
-false

@@ -193,7 +193,7 @@ public class PrefsStorage {
 		this.savePath = savePath;
 	}
 
-	protected void setOverloadLimit(int overloadLimit) {
+	public void setOverloadLimit(int overloadLimit) {
 		this.overloadLimit = overloadLimit;
 	}
 	
@@ -201,7 +201,7 @@ public class PrefsStorage {
 		return savePath;
 	}
 	
-	protected int getOverloadLimit(){
+	public int getOverloadLimit(){
 		return overloadLimit;
 	}
 	

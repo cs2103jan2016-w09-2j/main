@@ -396,7 +396,7 @@ public class Storage {
 		return pos;
 	}
 	
-	public static String setLimit(int limit) {
+	public String setLimit(int limit) {
 		assert limit >= 0;
 		pf.setOverloadLimit(limit);
 		if(limit == 0) {
@@ -432,7 +432,7 @@ public class Storage {
 	public static void clear(){
 		Task.resetGlobalId();
 		pf = new PrefsStorage();
-		setLimit(0);
+		pf.setOverloadLimit(-1);
 		toDoList = new TaskList();
 		queueList = new TaskList();
 		doneList = new TaskList();

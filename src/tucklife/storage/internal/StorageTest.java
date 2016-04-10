@@ -84,6 +84,7 @@ public class StorageTest {
 	@Test
 	public void testOverload2() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		String command1 = "add meeting @meeting room 7 $16/05 +1400";
 		String command2 = "add staff retreat @botanic gardens $16/05 +0500";
@@ -100,14 +101,17 @@ public class StorageTest {
 		fc.execute(command3);
 		fc.execute(command4);
 
-		assertEquals("able to add",fc.execute(command5),"{4. 4th task | By: Mon, 16 May 2016 23:59} has been added to TuckLife's to-do list!");
-		assertEquals("able to add",fc.execute(command6),"{5. overload | By: Tue, 17 May 2016 23:00} has been added to TuckLife's to-do list!");
+		status = s.getStatus() + "\n\n";
+		assertEquals("able to add",fc.execute(command5),status + "{4. 4th task | By: Mon, 16 May 2016 23:59} has been added to TuckLife's to-do list!");
+		status = s.getStatus() + "\n\n";
+		assertEquals("able to add",fc.execute(command6),status + "{5. overload | By: Tue, 17 May 2016 23:00} has been added to TuckLife's to-do list!");
 		assertEquals("unable to add, hit limit",fc.execute(command7),"That day has been filled with 4 tasks! It hit the limit! You should reschedule the task to another day. Alternatively, you can either change the overload limit or turn it off.");
 	}
 	
 	@Test
 	public void testOverload3() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		String command1 = "add meeting @meeting room 7 $16/05 +1400";
 		String command2 = "add staff retreat @botanic gardens $16/05 +0500";
@@ -129,8 +133,8 @@ public class StorageTest {
 		fc.execute(command4);
 		
 		fc.execute(command9);
-
-		assertEquals("able to add",fc.execute(command5),"{5. 4th task | By: Mon, 16 May 2016 23:59} has been added to TuckLife's to-do list!");
+		status = s.getStatus() + "\n\n";
+		assertEquals("able to add",fc.execute(command5),status + "{5. 4th task | By: Mon, 16 May 2016 23:59} has been added to TuckLife's to-do list!");
 		assertEquals("able to add",fc.execute(command6),"{6. redundant | By: Tue, 17 May 2016 23:00} has been added to TuckLife's to-do list!");
 		assertEquals("unable to add, hit limit",fc.execute(command7),"That day has been filled with 4 tasks! It hit the limit! You should reschedule the task to another day. Alternatively, you can either change the overload limit or turn it off.");
 		assertEquals("able to add, hit limit",fc.execute(command8),"{8. safety awareness week | From: Mon, 09 May 2016 00:00 To: Mon, 16 May 2016 23:59 | Category: gg} has been added to TuckLife's to-do list!");
@@ -141,6 +145,7 @@ public class StorageTest {
 	@Test
 	public void testSearch() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		TaskList td = Storage.getTD();
 		Task t;
@@ -165,12 +170,14 @@ public class StorageTest {
 		
 		String search = "display meeting";
 		fc.execute(search);
-		assertEquals("search correctly", "Exact Match\n5. client meeting | By: Mon, 09 May 2016 23:59\n1. meeting | Location: meeting room 7\n\nPartial Match\n7. email boss | By: Sun, 15 May 2016 23:59 | Category: siammeeting\n",fc.execute(search));
+		status = s.getStatus() + "\n\n";
+		assertEquals("search correctly",status + "Exact Match\n5. client meeting | By: Mon, 09 May 2016 23:59\n1. meeting | Location: meeting room 7\n\nPartial Match\n7. email boss | By: Sun, 15 May 2016 23:59 | Category: siammeeting\n",fc.execute(search));
 	}
 	
 	@Test
 	public void testSearch2() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		TaskList td = Storage.getTD();
 		Task t;
@@ -195,12 +202,14 @@ public class StorageTest {
 		
 		String search = "display meet";
 		fc.execute(search);
-		assertEquals("search correctly", "Exact Match\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens | Additional: meet at 4am\n\nPartial Match\n6. payday | By: Thu, 05 May 2016 23:59 | Additional: buy teammeet beer\n5. client meeting | By: Mon, 09 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59 | Category: siammeeting\n1. meeting | Location: meeting room 7\n", fc.execute(search));
+		status = s.getStatus() + "\n\n";
+		assertEquals("search correctly",status + "Exact Match\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens | Additional: meet at 4am\n\nPartial Match\n6. payday | By: Thu, 05 May 2016 23:59 | Additional: buy teammeet beer\n5. client meeting | By: Mon, 09 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59 | Category: siammeeting\n1. meeting | Location: meeting room 7\n", fc.execute(search));
 	}
 	
 	@Test
 	public void testSearch3() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		TaskList td = Storage.getTD();
 		Task t;
@@ -225,7 +234,8 @@ public class StorageTest {
 		
 		String search = "display meet";
 		fc.execute(search);
-		assertEquals("search correctly", "Exact Match\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens | Additional: Meet at 4am\n\nPartial Match\n6. payday | By: Thu, 05 May 2016 23:59 | Additional: buy teammeet beer\n5. client Meeting | By: Mon, 09 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59 | Category: siammeeting\n1. meeting | Location: meeting room 7\n", fc.execute(search));
+		status = s.getStatus() + "\n\n";
+		assertEquals("search correctly",status + "Exact Match\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens | Additional: Meet at 4am\n\nPartial Match\n6. payday | By: Thu, 05 May 2016 23:59 | Additional: buy teammeet beer\n5. client Meeting | By: Mon, 09 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59 | Category: siammeeting\n1. meeting | Location: meeting room 7\n", fc.execute(search));
 	}
 	
 	@Test
@@ -267,6 +277,7 @@ public class StorageTest {
 	@Test
 	public void testUndo() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		String command1 = "add meeting @meeting room 7";
 		String command2 = "add staff retreat @botanic gardens $16/05 +0500";
@@ -277,11 +288,12 @@ public class StorageTest {
 		fc.execute(command1);
 		fc.execute(command2);
 		fc.execute(command3);
-		
-		assertEquals("check display",fc.execute(commandDisplay),"2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
+		status = s.getStatus() + "\n\n";
+		assertEquals("check display",fc.execute(commandDisplay),status + "2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
 		String command5 = "undo";	
 		fc.execute(command5);
-		assertEquals("check display change",fc.execute(commandDisplay),"2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n1. meeting         | Location: meeting room 7\n");
+		status = s.getStatus() + "\n\n";
+		assertEquals("check display change",fc.execute(commandDisplay),status + "2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n1. meeting         | Location: meeting room 7\n");
 	}
 	
 	@Test
@@ -363,6 +375,7 @@ public class StorageTest {
 	@Test
 	public void testUndoForQueue() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		String command1 = "add meeting @meeting room 7";
 		String command2 = "add staff retreat @botanic gardens $16/05 +0500";
@@ -374,18 +387,22 @@ public class StorageTest {
 		fc.execute(command2);
 		fc.execute(command3);
 		
-		assertEquals("check display",fc.execute(commandDisplay),"2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
+		status = s.getStatus() + "\n\n";
+		assertEquals("check display",fc.execute(commandDisplay),status + "2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
 		String command4 = "queue 1";
 		fc.execute(command4);
-		assertEquals("task is queued",fc.execute(commandDisplay),"Queue:\n1. meeting         | Location: meeting room 7\n\nOther Tasks:\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n");
+		status = s.getStatus() + "\n\n";
+		assertEquals("task is queued",fc.execute(commandDisplay),status + "Queue:\n1. meeting         | Location: meeting room 7\n\nOther Tasks:\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n");
 		String command5 = "undo";	
 		fc.execute(command5);
-		assertEquals("task is unqueued",fc.execute(commandDisplay),"2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
+		status = s.getStatus() + "\n\n";
+		assertEquals("task is unqueued",fc.execute(commandDisplay),status + "2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
 	}
 	
 	@Test
 	public void testRedo() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		String command1 = "add meeting @meeting room 7";
 		String command2 = "add staff retreat @botanic gardens $16/05 +0500";
@@ -396,16 +413,18 @@ public class StorageTest {
 		fc.execute(command1);
 		fc.execute(command2);
 		fc.execute(command3);
-
-		assertEquals("check display",fc.execute(commandDisplay),"2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
+		status = s.getStatus() + "\n\n";
+		assertEquals("check display",fc.execute(commandDisplay),status + "2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
 		
 		String commandDO = "undo";	
 		fc.execute(commandDO);
-		assertEquals("check display change",fc.execute(commandDisplay),"2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n1. meeting         | Location: meeting room 7\n");
+		status = s.getStatus() + "\n\n";
+		assertEquals("check display change",fc.execute(commandDisplay),status + "2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n1. meeting         | Location: meeting room 7\n");
 		
 		commandDO = "redo";
 		fc.execute(commandDO);
-		assertEquals("check display",fc.execute(commandDisplay),"2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
+		status = s.getStatus() + "\n\n";
+		assertEquals("check display",fc.execute(commandDisplay),status + "2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
 		
 	}
 	
@@ -461,6 +480,7 @@ public class StorageTest {
 	@Test
 	public void testRedo2() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		TaskList td = Storage.getTD();
 		Task t;
@@ -497,12 +517,14 @@ public class StorageTest {
 		assertEquals("able to undo multiple times", 4, td.size());
 		fc.execute(command5);
 		String redo = "redo";
-		assertEquals("previous command not undo", fc.execute(redo), "There is no previous action to redo!");
+		status = s.getStatus() + "\n\n";
+		assertEquals("previous command not undo", fc.execute(redo),status + "There is no previous action to redo!");
 	}
 	
 	@Test
 	public void testQueue1() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		TaskList td = Storage.getTD();
 		Task t;
@@ -525,7 +547,8 @@ public class StorageTest {
 		fc.execute(command6);
 		fc.execute(command7);
 		
-		assertEquals("check normal display without queue",fc.execute(commandDisplay),"4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
+		status = s.getStatus() + "\n\n";
+		assertEquals("check normal display without queue",fc.execute(commandDisplay),status + "4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
 		
 		String command8 = "queue 4";
 		String command9 = "queue 6";
@@ -540,6 +563,7 @@ public class StorageTest {
 	@Test
 	public void testQueue11() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		TaskList td = Storage.getTD();
 		Task t;
@@ -562,7 +586,8 @@ public class StorageTest {
 		fc.execute(command6);
 		fc.execute(command7);
 		
-		assertEquals("check normal display without queue",fc.execute(commandDisplay),"4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
+		status = s.getStatus() + "\n\n";
+		assertEquals("check normal display without queue",fc.execute(commandDisplay),status + "4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
 		
 		String command8 = "queue 4";
 		String command9 = "queue 6";
@@ -582,6 +607,7 @@ public class StorageTest {
 	@Test
 	public void testQueue2() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		TaskList td = Storage.getTD();
 		Task t;
@@ -604,7 +630,8 @@ public class StorageTest {
 		fc.execute(command6);
 		fc.execute(command7);
 		
-		assertEquals("check normal display without queue",fc.execute(commandDisplay),"4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
+		status = s.getStatus() + "\n\n";
+		assertEquals("check normal display without queue",fc.execute(commandDisplay),status + "4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
 		
 		String command8 = "queue 4";
 		String command9 = "queue 6";
@@ -623,6 +650,7 @@ public class StorageTest {
 	@Test
 	public void testQueue3() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		TaskList td = Storage.getTD();
 		Task t;
@@ -645,7 +673,8 @@ public class StorageTest {
 		fc.execute(command6);
 		fc.execute(command7);
 		
-		assertEquals("check normal display without queue",fc.execute(commandDisplay),"4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
+		status = s.getStatus() + "\n\n";
+		assertEquals("check normal display without queue",fc.execute(commandDisplay),status + "4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
 		
 		String command8 = "queue 4";
 		String command9 = "queue 6";
@@ -664,6 +693,7 @@ public class StorageTest {
 	@Test
 	public void testQueue4() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		TaskList td = Storage.getTD();
 		Task t;
@@ -686,7 +716,8 @@ public class StorageTest {
 		fc.execute(command6);
 		fc.execute(command7);
 		
-		assertEquals("check normal display without queue",fc.execute(commandDisplay),"4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
+		status = s.getStatus() + "\n\n";
+		assertEquals("check normal display without queue",fc.execute(commandDisplay),status + "4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
 		
 		String command8 = "queue 4";
 		String command9 = "queue 6";
@@ -707,6 +738,7 @@ public class StorageTest {
 	@Test
 	public void testQueue5() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		TaskList td = Storage.getTD();
 		Task t;
@@ -729,7 +761,8 @@ public class StorageTest {
 		fc.execute(command6);
 		fc.execute(command7);
 		
-		assertEquals("check normal display without queue",fc.execute(commandDisplay),"4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
+		status = s.getStatus() + "\n\n";
+		assertEquals("check normal display without queue",fc.execute(commandDisplay),status + "4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
 		
 		String command8 = "queue 4";
 		String command9 = "queue 6";
@@ -752,12 +785,13 @@ public class StorageTest {
 	@Test
 	public void testQueue6() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		TaskList td = Storage.getTD();
 		Task t;
 		
 		String command1 = "add meeting @meeting room 7";
-		String command2 = "add staff retreat @botanic gardens $16/05 +0500)";
+		String command2 = "add staff retreat @botanic gardens $16/05 +0500";
 		String command3 = "add interview intern @mr5 $13/12/16";
 		String command4 = "add financial report $01/05/16";
 		String command5 = "add client meeting $09/05/16";
@@ -774,7 +808,8 @@ public class StorageTest {
 		fc.execute(command6);
 		fc.execute(command7);
 		
-		assertEquals("check normal display without queue",fc.execute(commandDisplay),"4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
+		status = s.getStatus() + "\n\n";
+		assertEquals("check normal display without queue",fc.execute(commandDisplay),status + "4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
 		
 		String command8 = "queue 4";
 		String command9 = "queue 6";
@@ -797,6 +832,7 @@ public class StorageTest {
 	@Test
 	public void testQueue7() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		TaskList td = Storage.getTD();
 		Task t;
@@ -819,7 +855,8 @@ public class StorageTest {
 		fc.execute(command6);
 		fc.execute(command7);
 		
-		assertEquals("check normal display without queue",fc.execute(commandDisplay),"4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
+		status = s.getStatus() + "\n\n";
+		assertEquals("check normal display without queue",fc.execute(commandDisplay),status + "4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
 		
 		String command8 = "queue 4";
 		String command9 = "queue 6";
@@ -842,6 +879,7 @@ public class StorageTest {
 	@Test
 	public void testQueueDisplay() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		TaskList td = Storage.getTD();
 		Task t;
@@ -864,7 +902,8 @@ public class StorageTest {
 		fc.execute(command6);
 		fc.execute(command7);
 		
-		assertEquals("check normal display without queue",fc.execute(commandDisplay),"4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
+		status = s.getStatus() + "\n\n";
+		assertEquals("check normal display without queue",fc.execute(commandDisplay),status + "4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
 		
 		String command8 = "queue 4";
 		String command9 = "queue 6";
@@ -879,13 +918,15 @@ public class StorageTest {
 		fc.execute(command12);
 		fc.execute(command13);
 		
-		assertEquals("check normal display without queue","Queue:\n7. email boss      | By: Sun, 15 May 2016 23:59\n4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n5. client meeting  | By: Mon, 09 May 2016 23:59\n1. meeting         | Location: meeting room 7\n\nOther Tasks:\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n",fc.execute(commandDisplay));
+		status = s.getStatus() + "\n\n";
+		assertEquals("check normal display without queue",status + "Queue:\n7. email boss      | By: Sun, 15 May 2016 23:59\n4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n5. client meeting  | By: Mon, 09 May 2016 23:59\n1. meeting         | Location: meeting room 7\n\nOther Tasks:\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n",fc.execute(commandDisplay));
 	}
 	
 	
 	@Test
 	public void testQueueWithUndo() {
 		Storage.clear();
+		s = FlowController.getStorage();
 		
 		TaskList td = Storage.getTD();
 		Task t;
@@ -908,7 +949,8 @@ public class StorageTest {
 		fc.execute(command6);
 		fc.execute(command7);
 		
-		assertEquals("check normal display without queue",fc.execute(commandDisplay),"4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
+		status = s.getStatus() + "\n\n";
+		assertEquals("check normal display without queue",fc.execute(commandDisplay),status + "4. financial re... | By: Sun, 01 May 2016 23:59\n6. payday          | By: Thu, 05 May 2016 23:59\n5. client meeting  | By: Mon, 09 May 2016 23:59\n7. email boss      | By: Sun, 15 May 2016 23:59\n2. staff retreat   | By: Mon, 16 May 2016 05:00 | Location: botanic gardens\n3. interview in... | By: Tue, 13 Dec 2016 23:59 | Location: mr5\n1. meeting         | Location: meeting room 7\n");
 		
 		String command8 = "queue 4";
 		String command9 = "queue 6";

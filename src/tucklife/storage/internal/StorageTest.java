@@ -27,11 +27,6 @@ public class StorageTest {
 		Hashtable<String,String> ht = new Hashtable<String,String>();
 		p.loadCommands(ht);
 	}
-	ArrayList<ArrayList<TaskList>> al = new ArrayList<ArrayList<TaskList>>();
-	@Test
-	public void testal() {
-		assertEquals(al.size(), 0);
-	}
 	
 	@Test
 	public void testSortLocation() {

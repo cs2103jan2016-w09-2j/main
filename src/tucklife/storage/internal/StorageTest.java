@@ -3,7 +3,6 @@ package tucklife.storage.internal;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
 import java.util.Hashtable;
 
 import org.junit.Before;

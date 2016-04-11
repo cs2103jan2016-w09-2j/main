@@ -31,8 +31,8 @@ public class TaskList {
 		}
 		return containsID;
 	}
-	
-	//precondition: there must be a task with taskID in the ArrayList
+
+	// precondition: there must be a task with taskID in the ArrayList
 	public String displayID(int taskID) {
 		String displayString = "";
 		for (Task task : taskList) {
@@ -62,7 +62,7 @@ public class TaskList {
 		}
 		return sb.toString();
 	}
-	
+
 	public String displayDefault(int itemsToDisplay) {
 		if (taskList.size() == 0) {
 			return "No tasks to display!";
@@ -80,50 +80,58 @@ public class TaskList {
 		int queueItemsToDisplay = itemsToDisplay / 2;
 		int counter = 0;
 		Task task = taskList.get(0);
-		
-		//Only add the "Queue:\n" header if there are queued Task
+
+		// Only add the "Queue:\n" and "\nOther Tasks:\n" headers if there are queued Task
 		if (task.getQueueID() > 0) {
-			sb.append("Queue:\n");
-			for (Task qTask : taskList) {
-				//Not all queued Tasks are displayed, stops when the limit is reached
-				if (counter >= queueItemsToDisplay) {
-					int remainingQTask = qCounter - queueItemsToDisplay;
-					sb = getRemainingString(sb, remainingQTask, "And %1$s other task in queue\n",
-							"And %1$s other tasks in queue\n");
-					break;
-				}
-				if (qTask.getQueueID() != -1) {
-					sb.append(qTask.display());
-					sb.append("\n");
-				} else {
-					break;
-				}
-				counter++;
-			}
-			sb.append("\nOther Tasks:\n");
-			int remainingItemsToDisplay = itemsToDisplay - counter;
-			counter = 0;
-			for (Task oTask : taskList) {
-				//Not all queued Tasks are displayed, stops when the limit is reached
-				if (counter == remainingItemsToDisplay) {
-					int remainingOTask = rCounter - remainingItemsToDisplay;
-					sb = getRemainingString(sb, remainingOTask, "And %1$s other task\n", "And %1$s other tasks\n");
-					break;
-				}
-				if (oTask.getQueueID() > 0) {
-					continue;
-				} else {
-					sb.append(oTask.display());
-					sb.append("\n");
-				}
-				counter++;
-			}
+			counter = displayQueuedTasks(sb, qCounter, queueItemsToDisplay, counter);
+			displayOtherTasks(itemsToDisplay, sb, rCounter, counter);
 		} else {
-			//Since there are no queued Task, we can just use the display function
+			// Since there are no queued Task, we can just use the display function
 			return display(itemsToDisplay);
 		}
-
 		return sb.toString();
+	}
+
+	private void displayOtherTasks(int itemsToDisplay, StringBuilder sb, int rCounter, int counter) {
+		sb.append("\nOther Tasks:\n");
+		int remainingItemsToDisplay = itemsToDisplay - counter;
+		counter = 0;
+		for (Task oTask : taskList) {
+			// Not all other Tasks are displayed, stops when the limit is reached
+			if (counter == remainingItemsToDisplay) {
+				int remainingOTask = rCounter - remainingItemsToDisplay;
+				sb = getRemainingString(sb, remainingOTask, "And %1$s other task\n", "And %1$s other tasks\n");
+				break;
+			}
+			if (oTask.getQueueID() > 0) {
+				continue;
+			} else {
+				sb.append(oTask.display());
+				sb.append("\n");
+			}
+			counter++;
+		}
+	}
+
+	private int displayQueuedTasks(StringBuilder sb, int qCounter, int queueItemsToDisplay, int counter) {
+		sb.append("Queue:\n");
+		for (Task qTask : taskList) {
+			// Not all queued Tasks are displayed, stops when the limit is reached
+			if (counter >= queueItemsToDisplay) {
+				int remainingQTask = qCounter - queueItemsToDisplay;
+				sb = getRemainingString(sb, remainingQTask, "And %1$s other task in queue\n",
+						"And %1$s other tasks in queue\n");
+				break;
+			}
+			if (qTask.getQueueID() != -1) {
+				sb.append(qTask.display());
+				sb.append("\n");
+			} else {
+				break;
+			}
+			counter++;
+		}
+		return counter;
 	}
 
 	private StringBuilder getRemainingString(StringBuilder sb, int remainingTask, String case1, String case2) {
@@ -186,8 +194,8 @@ public class TaskList {
 	public int size() {
 		return taskList.size();
 	}
-	
-	//precondition: there must be a task with taskID in the ArrayList
+
+	// precondition: there must be a task with taskID in the ArrayList
 	public Task delete(int taskID) {
 		Task removed = null;
 		for (Task task : taskList) {
@@ -200,14 +208,14 @@ public class TaskList {
 		}
 		return removed;
 	}
-	
+
 	public Task remove(int index) {
 		Task t = taskList.remove(index);
 		log.log(Level.FINE, "{0} has been removed", t.getName());
 		return t;
 	}
-	
-	//precondition: there must be a task with taskID in the ArrayList
+
+	// precondition: there must be a task with taskID in the ArrayList
 	public void edit(int taskID, ProtoTask toEditTask) throws InvalidDateException {
 		for (Task task : taskList) {
 			if (hasFoundID(taskID, task)) {
@@ -218,7 +226,7 @@ public class TaskList {
 			}
 		}
 	}
-	
+
 	public Task get(int taskID) {
 		Task getTask = null;
 		for (Task task : taskList) {

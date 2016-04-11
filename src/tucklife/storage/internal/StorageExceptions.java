@@ -4,8 +4,10 @@ package tucklife.storage.internal;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+//Nested class of all exceptions that are returned to Flow Controller
 public class StorageExceptions {
 
+	//Returned when the number of tasks in a day exceeds the limit
 	public static class OverloadException extends Exception {
 		private int limit;
 		private static final String RETURN_MESSAGE_FOR_OVERLOAD = "That day has been filled with %1$s tasks! It hit the limit! You should reschedule the task to another day. "
@@ -19,7 +21,7 @@ public class StorageExceptions {
 			return String.format(RETURN_MESSAGE_FOR_OVERLOAD, this.limit);
 		}
 	}
-
+	
 	public static class NothingToUndoException extends Exception {
 		private static final String RETURN_MESSAGE_FOR_NOTHING_TO_UNDO = "There is no previous action to undo!";
 
@@ -36,8 +38,8 @@ public class StorageExceptions {
 		}
 	}
 
+	//Returned when start date is before end date
 	public static class InvalidDateException extends Exception {
-		// private String errorMessage = "Date is invalid";
 
 		private SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
 		Calendar start;

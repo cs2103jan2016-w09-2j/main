@@ -8,7 +8,8 @@ import tucklife.storage.Task;
 import tucklife.storage.TaskList;
 
 public class SaveState {
-
+	
+	//Stores the previous versions of toDoList, queueList and doneList
 	private ArrayList<ArrayList<TaskList>> undoSaveState = new ArrayList<ArrayList<TaskList>>();
 	private ArrayList<ArrayList<TaskList>> redoSaveState = new ArrayList<ArrayList<TaskList>>();
 
@@ -19,7 +20,7 @@ public class SaveState {
 	public ArrayList<ArrayList<TaskList>> getRedoSaveState() {
 		return redoSaveState;
 	}
-
+	
 	public void storeUndoSaveState(TaskList toDoList, TaskList doneList) {
 		ArrayList<TaskList> saveState = getSaveState(toDoList, doneList);
 
@@ -56,7 +57,8 @@ public class SaveState {
 		saveState.add(oldDoneList);
 		return saveState;
 	}
-
+	
+	//Ensures that the corresponding Tasks in the queueList and toDoList are the same object
 	public TaskList getQueueListFromToDoList(TaskList oldToDoList) {
 		oldToDoList.sort(null, true);
 		TaskList oldQueueList = new TaskList();
@@ -74,12 +76,14 @@ public class SaveState {
 		TaskList duplicateList = new TaskList();
 		Iterator<Task> taskListIter = originalList.iterator();
 		while (taskListIter.hasNext()) {
+			//new Tasks are created because it's a new version
 			Task t = new Task(taskListIter.next());
 			duplicateList.add(t);
 		}
 		return duplicateList;
 	}
 
+	//Restores the previous versions of toDoList, queueList and doneList
 	public TaskList[] restoreSaveState(String type) {
 		ArrayList<TaskList> state;
 		if (type.equals("undo")) {

@@ -6,6 +6,7 @@ import java.util.Calendar;
 
 public class TaskComparators {
 
+	//Handles the event where the parameters to compare are null
 	private static int handleNullCases(Task task1, Task task2, String param1, String param2) {
 		if (param1 == null && param2 == null) {
 			return new ComparatorName().compare(task1, task2);
@@ -16,6 +17,7 @@ public class TaskComparators {
 			if (param2 == null) {
 				return -1;
 			}
+			//If the comparisons are equivalent, compare by name
 			if (param1.compareTo(param2) == 0) {
 				return new ComparatorName().compare(task1, task2);
 			}
@@ -100,7 +102,8 @@ public class TaskComparators {
 			}
 		}
 	}
-
+	
+	//Compares the start times if they exist, else compare the end times
 	public static class ComparatorTime implements Comparator<Task> {
 
 		@Override

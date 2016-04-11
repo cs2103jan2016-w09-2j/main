@@ -37,6 +37,7 @@ public class CommandStorage {
 				Files.createFile(Paths.get(FILENAME_COMMANDS));
 			}
 			
+			// load commands from file
 			fis = new FileInputStream(FILENAME_COMMANDS);
 			isr = new InputStreamReader(fis);
 			br = new BufferedReader(isr);

@@ -17,6 +17,7 @@ public class Interaction {
 
 		// Initialisation
 		System.out.println(MESSAGE_WELCOME);
+		System.out.println(fc.statusOnly() + "\n");
 
 		// Program loop
 		while (true) {

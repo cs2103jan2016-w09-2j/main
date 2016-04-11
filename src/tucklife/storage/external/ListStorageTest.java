@@ -145,7 +145,7 @@ public class ListStorageTest {
 		
 		// fourth task type - deadline parameter (day only)
 		task = todoList.displayID(2);
-		assertEquals(" 2. task4 | By: Mon, 4 Apr 2016 23:59", task);
+		assertEquals(" 2. task4 | By: Mon, 04 Apr 2016 23:59", task);
 		
 		// fifth task type - deadline parameter (time only)
 		task = todoList.displayID(1);
@@ -161,7 +161,7 @@ public class ListStorageTest {
 		
 		// eighth task type - event (days only)
 		task = todoList.displayID(4);
-		assertEquals(" 4. task8 | From: Mon, 8 Aug 2016 23:59 To: Wed, 10 Aug 2016 23:59", task);
+		assertEquals(" 4. task8 | From: Mon, 08 Aug 2016 23:59 To: Wed, 10 Aug 2016 23:59", task);
 		
 		// ninth task type - event (time only)
 		task = doneList.displayID(10);

@@ -34,13 +34,13 @@ public class TaskListTest {
 		tl = new TaskList();
 		pt = p.parse("add meeting");
 		tl.add(pt);
-		assertEquals("fail to add", tl.size(), 1);
+		assertEquals("fail to add", 1, tl.size());
 		tl.add(pt);
-		assertEquals("fail to add", tl.size(), 2);
+		assertEquals("fail to add", 2, tl.size());
 		tl.add(pt);
 		tl.add(pt);
 		tl.add(pt);
-		assertEquals("fail to add", tl.size(), 5);
+		assertEquals("fail to add", 5, tl.size());
 	}
 
 	@Test

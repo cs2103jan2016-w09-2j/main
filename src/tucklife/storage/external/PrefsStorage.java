@@ -18,6 +18,8 @@ public class PrefsStorage {
 	private String testPath;
 	private String savePath;
 	private int overloadLimit;
+	
+	// unused variables
 //	private boolean reminderOn;
 //	
 //	private String defLocation;
@@ -31,6 +33,7 @@ public class PrefsStorage {
 		overloadLimit = 50;
 		testPath = "";
 		
+		// unused
 //		reminderOn = true;
 //		
 //		defLocation = "";
@@ -49,6 +52,7 @@ public class PrefsStorage {
 		overloadLimit = 50;
 		testPath = path;
 		
+		// unused
 //		reminderOn = true;		
 //		defLocation = "";
 //		defPriority = -1;

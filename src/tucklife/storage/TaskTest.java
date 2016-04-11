@@ -209,7 +209,6 @@ public class TaskTest {
 		assertEquals(pt.getStartDate(), null);
 		assertEquals(pt.getStartTime(), null);
 		assertEquals(pt.getEndTime(), null);
-		// assertEquals(pt.getEndDate(),null);
 		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
 	}
 
@@ -249,6 +248,7 @@ public class TaskTest {
 		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
 	}
 
+	//@@author A0124274L
 	@Test
 	public void testSearch1() throws InvalidDateException {
 		ProtoTask pt1 = p.parse("add go to gap @mr3 +1200 $16/05 #important &bring all documents");

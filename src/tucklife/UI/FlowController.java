@@ -1,4 +1,4 @@
-//@@author a0124274l
+//@@author A0124274L
 
 package tucklife.UI;
 
@@ -24,7 +24,7 @@ public class FlowController {
 		ADD, DISPLAY, COMPLETE, DISPLAYDONE, DELETE, EDIT, INVALID, QUEUE, SETLIMIT, UNDO, REDO, UNCOMPLETE
 	}
 
-	//@@author a0124274l
+	//@@author A0124274L
 	public FlowController() {
 		es.load();
 		DataBox db = es.getLoadedData();

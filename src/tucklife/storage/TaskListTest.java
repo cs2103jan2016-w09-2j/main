@@ -34,13 +34,13 @@ public class TaskListTest {
 		tl = new TaskList();
 		pt = p.parse("add meeting");
 		tl.add(pt);
-		assertEquals("fail to add", tl.size(), 1);
+		assertEquals("fail to add", 1, tl.size());
 		tl.add(pt);
-		assertEquals("fail to add", tl.size(), 2);
+		assertEquals("fail to add", 2, tl.size());
 		tl.add(pt);
 		tl.add(pt);
 		tl.add(pt);
-		assertEquals("fail to add", tl.size(), 5);
+		assertEquals("fail to add", 5, tl.size());
 	}
 
 	@Test
@@ -50,13 +50,13 @@ public class TaskListTest {
 		t = new Task(pt);
 		id = t.getId();
 		tl.add(t);
-		assertEquals("tl contains, but it doesnt show", tl.contains(id), true);
-		assertEquals("contains does not always return true", tl.contains(id + 2), false);
+		assertEquals("tl contains, but it doesnt show", true, tl.contains(id));
+		assertEquals("contains does not always return true", false, tl.contains(id + 2));
 		t = new Task(pt);
 		tl.add(t);
 		t = new Task(pt);
 		tl.add(t);
-		assertEquals("tl contains does not work after adding multiple stuff", tl.contains(id), true);
+		assertEquals("tl contains does not work after adding multiple stuff", true, tl.contains(id));
 	}
 
 	@Test
@@ -70,10 +70,10 @@ public class TaskListTest {
 		t = new Task(pt);
 		tl.add(t);
 		int size = tl.size();
-		assertEquals("tasklist does not contain id. should return null.", tl.delete(id - 1), null);
-		assertEquals("tasklist size should not change", tl.size(), size);
-		assertEquals("incorrect task deleted", tl.delete(id), oldTask);
-		assertEquals("tasklist size should change", tl.size(), size - 1);
+		assertEquals("tasklist does not contain id. should return null.", null, tl.delete(id - 1));
+		assertEquals("tasklist size should not change", size, tl.size());
+		assertEquals("incorrect task deleted", oldTask, tl.delete(id));
+		assertEquals("tasklist size should change", size - 1, tl.size());
 	}
 
 	@Test
@@ -87,11 +87,11 @@ public class TaskListTest {
 		Task oldTask = t;
 		pt = p.parse(String.format("edit %s$1 @mr5 #management #intern", id));
 		tl.edit(id, pt);
-		assertEquals("tasklist size should not change", tl.size(), size);
+		assertEquals("tasklist size should not change", size, tl.size());
 		pt = p.parse("add hire interns");
 		t = new Task(pt);
 		tl.add(t);
-		assertEquals("the task should not change", tl.get(id), oldTask);
+		assertEquals("the task should not change", oldTask, tl.get(id));
 	}
 
 	@Test
@@ -113,7 +113,7 @@ public class TaskListTest {
 		t = new Task(pt);
 		tl.add(t);
 		tl.sort("@", true);
-		assertEquals("location should be sorted", checkSorted(tl), true);
+		assertEquals("location should be sorted", true, checkSorted(tl));
 	}
 
 	private boolean checkSorted(TaskList unsorted) {

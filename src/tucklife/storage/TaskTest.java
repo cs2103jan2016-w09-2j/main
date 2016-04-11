@@ -24,6 +24,7 @@ public class TaskTest {
 		p = new Parser();
 		Hashtable<String, String> ht = new Hashtable<String, String>();
 		p.loadCommands(ht);
+		Task.resetGlobalId();
 	}
 
 	@Test
@@ -180,7 +181,7 @@ public class TaskTest {
 		id = t.getId();
 		pt = p.parse(String.format("edit %1$s @mr4 $16/05", id));
 		t.edit(pt);
-		String taskDisplayEdit = String.format(" %1$s. company trip... | By: Mon, 16 May 2016 23:59",
+		String taskDisplayEdit = String.format("%1$s. company trip... | By: Mon, 16 May 2016 23:59",
 				id);
 		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
 	}

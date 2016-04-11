@@ -14,6 +14,7 @@ displaydone,displaydone,Shows all completed tasks in the reverse order of comple
 displaydone,displaydone -#,Shows all completed tasks sorted by category in descending order
 displaydone,displaydone +$,Shows all completed tasks sorted by date in ascending order
 displaydone,displaydone meeting,Shows all completed tasks containing the word 'meeting'
+uncomplete,uncomplete 2,If the task with id: 2 is marked as done, marks the task as outstanding again
 undo,undo,Undoes the most recent add/edit/complete/delete done
 redo,redo,Redoes the most recent undo
 save,save,Saves any changes you have made in TuckLife

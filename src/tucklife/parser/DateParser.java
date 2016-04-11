@@ -154,11 +154,6 @@ public class DateParser {
 		reset();
 	}
 	
-	// Getter for date
-	public Calendar getDate() {
-		return calendar;
-	}
-	
 	// Reset the calendar to current date and time
 	public void reset() {
 		calendar = Calendar.getInstance();
@@ -425,10 +420,9 @@ public class DateParser {
 	}
 	
 	// Check if date is over
-	public boolean isDateOver(Calendar date, Calendar time) {
+	public boolean isDateOver(Calendar c) {
 		Calendar curr = Calendar.getInstance();
-		Calendar combined = combineDateTime(date, time);
-		return combined.before(curr);
+		return c.before(curr);
 	}
 	
 	// Combines date and time into a single Calendar

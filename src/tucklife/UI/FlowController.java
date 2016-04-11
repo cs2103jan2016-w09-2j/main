@@ -11,7 +11,6 @@ import tucklife.storage.internal.StorageExceptions.NothingToRedoException;
 import tucklife.storage.internal.StorageExceptions.NothingToUndoException;
 import tucklife.storage.internal.StorageExceptions.OverloadException;
 import tucklife.storage.DataBox;
-import tucklife.storage.TaskList;
 
 public class FlowController {
 
@@ -37,37 +36,34 @@ public class FlowController {
 		return s.getStatus().substring(10);
 	}
 
-	public String execute(String command){
+	public String execute(String command) {
 
 		ProtoTask pt = p.parse(command);
 
-		if(pt.isError()){
-			return pt.toString();
-		} else {
-			
-			String result, status;
-			
-			if (pt.getCommand().equals("save")) {
-				result = executeSave();
-			} else if (pt.getCommand().equals("saveto")) {
-				result = executeSaveTo(pt.getPath());				
-			} else if (pt.getCommand().equals("help")) {
-				result = es.getHelp();
-			} else if (pt.getCommand().equals("demo")) {
-				result = es.getDemo(pt);
-			} else if (pt.getCommand().equals("change")) {
-				result = pt.getChangeMessage() + "\n" + executeSave();
-			} else if (pt.getCommand().equals("exit")) {
-				executeSave();
-				System.exit(0);
-				return null;
-			} else{
-				result = parseCommand(pt);
-			}
-			status = s.getStatus();
+		String result, status;
+
+		if (pt.isError()) {
+			result = pt.toString();
+		} else if (pt.getCommand().equals("save")) {
+			result = executeSave();
+		} else if (pt.getCommand().equals("saveto")) {
+			result = executeSaveTo(pt.getPath());				
+		} else if (pt.getCommand().equals("help")) {
+			result = es.getHelp();
+		} else if (pt.getCommand().equals("demo")) {
+			result = es.getDemo(pt);
+		} else if (pt.getCommand().equals("change")) {
+			result = pt.getChangeMessage() + "\n" + executeSave();
+		} else if (pt.getCommand().equals("exit")) {
 			executeSave();
-			return status + "\n\n" + result;
+			System.exit(0);
+			return null;
+		} else{
+			result = parseCommand(pt);
 		}
+		status = s.getStatus();
+		executeSave();
+		return status + "\n\n" + result;
 	}
 	
 	//@@author A0111101N

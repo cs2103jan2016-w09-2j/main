@@ -49,8 +49,10 @@ public class HelpStorage {
 			isr = new InputStreamReader(is);
 			br = new BufferedReader(isr);
 			
-			br.readLine(); // removes first line
+			// removes first line
+			br.readLine();
 			
+			// read .csv format from file
 			while(br.ready()){
 				String[] nextLine = br.readLine().split(",");
 				helpDirectory.add(nextLine[1] + ":\n");
@@ -85,7 +87,8 @@ public class HelpStorage {
 			isr = new InputStreamReader(is);
 			br = new BufferedReader(isr);
 			
-			br.readLine(); // removes first line
+			// removes first line
+			br.readLine(); 
 			
 			String currCommand = null;
 			ArrayList<String> exampleTable = new ArrayList<String>();
@@ -98,10 +101,13 @@ public class HelpStorage {
 					exampleTable = new ArrayList<String>();
 					exampleTable.add(String.format(DEMO_LINE1, nextLine[1]));
 					exampleTable.add(String.format(DEMO_LINE2, nextLine[2]));
-					
+				
+				// same command - add to same entry
 				} else if(currCommand.equals(nextLine[0])){
 					exampleTable.add(String.format(DEMO_LINE1, nextLine[1]));
 					exampleTable.add(String.format(DEMO_LINE2, nextLine[2]));
+					
+				// different command - start new entry and save current one
 				} else{
 					demoDirectory.put(currCommand, exampleTable);
 					currCommand = nextLine[0];
@@ -125,6 +131,7 @@ public class HelpStorage {
 		return true;
 	}
 	
+	// return entire help directory
 	protected String getHelp(){
 		
 		StringBuilder helpString = new StringBuilder();
@@ -137,6 +144,7 @@ public class HelpStorage {
 		return helpString.toString();
 	}
 	
+	// return demo for command input
 	protected String getDemo(String command){
 		
 		StringBuilder demoString = new StringBuilder();

@@ -599,13 +599,13 @@ public class Parser {
 							if (type == CommandType.EDIT)  {
 								endTime = dp.parseTime(time);
 
-								if (dp.isDateOver(endTime, endTime)) {
+								if (dp.isDateOver(endTime)) {
 									endTime = dp.getNextDay(endTime);
 								}
 							} else {
 								endDate = dp.getDefaultDate();
 
-								if (dp.isDateOver(endDate, dp.parseTime(time))) {
+								if (dp.isDateOver(dp.combineDateTime(endDate, dp.parseTime(time)))) {
 									endDate = dp.getNextDay(endDate);
 								}
 
@@ -618,7 +618,7 @@ public class Parser {
 								startTime = dp.parseTime(times[0]);
 								endTime = dp.parseTime(times[1]);
 
-								if (dp.isDateOver(startTime, startTime)) {
+								if (dp.isDateOver(startTime)) {
 									startTime = dp.getNextDay(startTime);
 									endTime = dp.getNextDay(endTime);
 								}
@@ -629,7 +629,7 @@ public class Parser {
 							} else {
 								startDate = dp.getDefaultDate();
 
-								if (dp.isDateOver(startDate, dp.parseTime(times[0]))) {
+								if (dp.isDateOver(dp.combineDateTime(startDate, dp.parseTime(times[0])))) {
 									startDate = dp.getNextDay(startDate);
 								}
 
@@ -655,7 +655,7 @@ public class Parser {
 								// Deadline
 								endDate = dp.combineDateTime(dp.parseDate(date), dp.parseTime(time));
 								
-								if (dp.isDateOver(endDate, endDate)) {
+								if (dp.isDateOver(endDate)) {
 									throw new InvalidParamException(ERROR_DATE_OVER);
 								}
 
@@ -669,7 +669,7 @@ public class Parser {
 								endDate = dp.combineDateTime(dp.parseDate(dates[1]), dp.parseTime(times[1]));
 								boolean hasEndYear = dp.hasYear();
 								
-								if (dp.isDateOver(endDate, endDate) || dp.isDateOver(startDate, startDate)) {
+								if (dp.isDateOver(endDate) || dp.isDateOver(startDate)) {
 									throw new InvalidParamException(ERROR_DATE_OVER);
 								} else if (endDate.before(startDate)) {
 									if (hasEndYear) {
@@ -693,7 +693,7 @@ public class Parser {
 							startDate = dp.combineDateTime(dp.parseDate(date), dp.parseTime(times[0]));
 							endDate = dp.combineDateTime(dp.parseDate(date), dp.parseTime(times[1]));
 							
-							if (dp.isDateOver(endDate, endDate) || dp.isDateOver(startDate, startDate)) {
+							if (dp.isDateOver(endDate) || dp.isDateOver(startDate)) {
 								throw new InvalidParamException(ERROR_DATE_OVER);
 							}
 

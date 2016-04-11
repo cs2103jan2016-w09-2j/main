@@ -1,7 +1,6 @@
 //@@author A0111101N
 package tucklife.storage;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -19,18 +18,6 @@ public class TaskList {
 
 	private ArrayList<Task> taskList;
 
-	// intended for use when table is aligned
-
-	private static final String HEADER_ID = "ID";
-	private static final String HEADER_NAME = "Name";
-	private static final String HEADER_LOCATION = "Location";
-	private static final String HEADER_CATEGORY = "Category";
-	private static final String HEADER_PRIORITY = "Priority";
-	private static final String HEADER_DEADLINE = "By";
-	private static final String HEADER_ADDITIONAL = "Additional";
-	private static final String HEADER_EVENT_START = "From";
-	private static final String HEADER_EVENT_END = " To";
-
 	public TaskList() {
 		taskList = new ArrayList<Task>();
 	}
@@ -45,6 +32,7 @@ public class TaskList {
 		return containsID;
 	}
 
+	// precondition: there must be a task with taskID in the ArrayList
 	public String displayID(int taskID) {
 		String displayString = "";
 		for (Task task : taskList) {
@@ -92,47 +80,58 @@ public class TaskList {
 		int queueItemsToDisplay = itemsToDisplay / 2;
 		int counter = 0;
 		Task task = taskList.get(0);
+
+		// Only add the "Queue:\n" and "\nOther Tasks:\n" headers if there are queued Task
 		if (task.getQueueID() > 0) {
-			sb.append("Queue:\n");
-			for (Task qTask : taskList) {
-				if (counter >= queueItemsToDisplay) {
-					int remainingQTask = qCounter - queueItemsToDisplay;
-					sb = getRemainingString(sb, remainingQTask, "And %1$s other task in queue\n",
-							"And %1$s other tasks in queue\n");
-					break;
-				}
-				if (qTask.getQueueID() != -1) {
-					sb.append(qTask.display());
-					sb.append("\n");
-				} else {
-					break;
-				}
-				counter++;
-			}
-			sb.append("\nOther Tasks:\n");
-			int remainingItemsToDisplay = itemsToDisplay - counter;
-			counter = 0;
-			for (Task oTask : taskList) {
-				if (counter == remainingItemsToDisplay) {
-					int remainingOTask = rCounter - remainingItemsToDisplay;
-					sb = getRemainingString(sb, remainingOTask, "And %1$s other task\n", "And %1$s other tasks\n");
-					// sb.append(String.format("And %1$s other
-					// tasks\n",remainingOTask));
-					break;
-				}
-				if (oTask.getQueueID() > 0) {
-					continue;
-				} else {
-					sb.append(oTask.display());
-					sb.append("\n");
-				}
-				counter++;
-			}
+			counter = displayQueuedTasks(sb, qCounter, queueItemsToDisplay, counter);
+			displayOtherTasks(itemsToDisplay, sb, rCounter, counter);
 		} else {
+			// Since there are no queued Task, we can just use the display function
 			return display(itemsToDisplay);
 		}
-
 		return sb.toString();
+	}
+
+	private void displayOtherTasks(int itemsToDisplay, StringBuilder sb, int rCounter, int counter) {
+		sb.append("\nOther Tasks:\n");
+		int remainingItemsToDisplay = itemsToDisplay - counter;
+		counter = 0;
+		for (Task oTask : taskList) {
+			// Not all other Tasks are displayed, stops when the limit is reached
+			if (counter == remainingItemsToDisplay) {
+				int remainingOTask = rCounter - remainingItemsToDisplay;
+				sb = getRemainingString(sb, remainingOTask, "And %1$s other task\n", "And %1$s other tasks\n");
+				break;
+			}
+			if (oTask.getQueueID() > 0) {
+				continue;
+			} else {
+				sb.append(oTask.display());
+				sb.append("\n");
+			}
+			counter++;
+		}
+	}
+
+	private int displayQueuedTasks(StringBuilder sb, int qCounter, int queueItemsToDisplay, int counter) {
+		sb.append("Queue:\n");
+		for (Task qTask : taskList) {
+			// Not all queued Tasks are displayed, stops when the limit is reached
+			if (counter >= queueItemsToDisplay) {
+				int remainingQTask = qCounter - queueItemsToDisplay;
+				sb = getRemainingString(sb, remainingQTask, "And %1$s other task in queue\n",
+						"And %1$s other tasks in queue\n");
+				break;
+			}
+			if (qTask.getQueueID() != -1) {
+				sb.append(qTask.display());
+				sb.append("\n");
+			} else {
+				break;
+			}
+			counter++;
+		}
+		return counter;
 	}
 
 	private StringBuilder getRemainingString(StringBuilder sb, int remainingTask, String case1, String case2) {
@@ -148,15 +147,13 @@ public class TaskList {
 
 	public String search(String searchKey) {
 		StringBuilder sb = new StringBuilder();
+		getExactMatches(searchKey, sb);
+		getPartialMatches(searchKey, sb);
+		log.log(Level.FINE, "Done searching through taskList for Tasks with searchKey");
+		return sb.toString();
+	}
 
-		sb.append("Exact Match\n");
-		for (Task task : taskList) {
-			if (task.containsExact(searchKey)) {
-				sb.append(task.displayAll());
-				sb.append("\n");
-			}
-		}
-
+	private void getPartialMatches(String searchKey, StringBuilder sb) {
 		sb.append("\nPartial Match\n");
 		for (Task task : taskList) {
 			if (task.containsPartial(searchKey)) {
@@ -164,7 +161,18 @@ public class TaskList {
 				sb.append("\n");
 			}
 		}
-		return sb.toString();
+		log.log(Level.FINE, "Partial matches obtained");
+	}
+
+	private void getExactMatches(String searchKey, StringBuilder sb) {
+		sb.append("Exact Match\n");
+		for (Task task : taskList) {
+			if (task.containsExact(searchKey)) {
+				sb.append(task.displayAll());
+				sb.append("\n");
+			}
+		}
+		log.log(Level.FINE, "Exact matches obtained");
 	}
 
 	public void add(ProtoTask task) throws InvalidDateException {
@@ -187,6 +195,7 @@ public class TaskList {
 		return taskList.size();
 	}
 
+	// precondition: there must be a task with taskID in the ArrayList
 	public Task delete(int taskID) {
 		Task removed = null;
 		for (Task task : taskList) {
@@ -206,6 +215,7 @@ public class TaskList {
 		return t;
 	}
 
+	// precondition: there must be a task with taskID in the ArrayList
 	public void edit(int taskID, ProtoTask toEditTask) throws InvalidDateException {
 		for (Task task : taskList) {
 			if (hasFoundID(taskID, task)) {
@@ -257,8 +267,7 @@ public class TaskList {
 				log.log(Level.FINE, "tasklist has been sorted by time");
 			}
 
-			if (sortBy.equals("+")) { // is there actually a point doing this??
-										// Im setting it to time for now
+			if (sortBy.equals("+")) {
 				Collections.sort(taskList, new TaskComparators.ComparatorTime());
 				log.log(Level.FINE, "tasklist has been sorted by time");
 			}

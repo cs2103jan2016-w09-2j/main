@@ -61,7 +61,7 @@ public class StorageTest {
 	}
 
 	@Test
-	public void testOverload() {
+	public void testOverloadAdd() {
 		Storage.clear();
 
 		String command1 = "add meeting @meeting room 7 $16/05 +1400";
@@ -88,7 +88,7 @@ public class StorageTest {
 	}
 
 	@Test
-	public void testOverload2() {
+	public void testOverloadEdit() {
 		Storage.clear();
 		s = FlowController.getStorage();
 
@@ -122,7 +122,7 @@ public class StorageTest {
 	}
 
 	@Test
-	public void testOverload3() {
+	public void testOverloadMultipleAdds() {
 		Storage.clear();
 		s = FlowController.getStorage();
 
@@ -174,7 +174,6 @@ public class StorageTest {
 		s = FlowController.getStorage();
 
 		TaskList td = Storage.getTD();
-		Task t;
 
 		String command1 = "add meeting @meeting room 7";
 		String command2 = "add staff retreat @botanic gardens $16/05 +0500 &meet at 4am";
@@ -203,12 +202,11 @@ public class StorageTest {
 	}
 
 	@Test
-	public void testSearch2() {
+	public void testSearchPartial() {
 		Storage.clear();
 		s = FlowController.getStorage();
 
 		TaskList td = Storage.getTD();
-		Task t;
 
 		String command1 = "add meeting @meeting room 7";
 		String command2 = "add staff retreat @botanic gardens $16/05 +0500 &meet at 4am";
@@ -233,40 +231,6 @@ public class StorageTest {
 		status = s.getStatus() + "\n\n";
 		assertEquals("search correctly",
 				status + "Exact Match\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens | Additional: meet at 4am\n\nPartial Match\n6. payday | By: Thu, 05 May 2016 23:59 | Additional: buy teammeet beer\n5. client meeting | By: Mon, 09 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59 | Category: siammeeting\n1. meeting | Location: meeting room 7\n",
-				fc.execute(search));
-	}
-
-	@Test
-	public void testSearch3() {
-		Storage.clear();
-		s = FlowController.getStorage();
-
-		TaskList td = Storage.getTD();
-		Task t;
-
-		String command1 = "add meeting @meeting room 7";
-		String command2 = "add staff retreat @botanic gardens $16/05 +0500 &Meet at 4am";
-		String command3 = "add interview intern @mr5 $13/12/16";
-		String command4 = "add financial report $01/05/16";
-		String command5 = "add client Meeting $09/05/16";
-		String command6 = "add payday $05/05/16 &buy teammeet beer";
-		String command7 = "add email boss $15/05 #siammeeting";
-
-		fc.execute(command1);
-		fc.execute(command2);
-		fc.execute(command3);
-		fc.execute(command4);
-		fc.execute(command5);
-		fc.execute(command6);
-		fc.execute(command7);
-
-		assertEquals("added correctly", 7, td.size());
-
-		String search = "display meet";
-		fc.execute(search);
-		status = s.getStatus() + "\n\n";
-		assertEquals("search correctly",
-				status + "Exact Match\n2. staff retreat | By: Mon, 16 May 2016 05:00 | Location: botanic gardens | Additional: Meet at 4am\n\nPartial Match\n6. payday | By: Thu, 05 May 2016 23:59 | Additional: buy teammeet beer\n5. client Meeting | By: Mon, 09 May 2016 23:59\n7. email boss | By: Sun, 15 May 2016 23:59 | Category: siammeeting\n1. meeting | Location: meeting room 7\n",
 				fc.execute(search));
 	}
 
@@ -331,11 +295,10 @@ public class StorageTest {
 	}
 
 	@Test
-	public void testUndo2() {
+	public void testNonConsecutiveUndos() {
 		Storage.clear();
 
 		TaskList td = Storage.getTD();
-		Task t;
 
 		String command1 = "add meeting @meeting room 7";
 		String command2 = "add staff retreat @botanic gardens $16/05 +0500";
@@ -368,11 +331,10 @@ public class StorageTest {
 	}
 
 	@Test
-	public void testMultipleUndo() {
+	public void testMultipleConsecutiveUndos() {
 		Storage.clear();
 
 		TaskList td = Storage.getTD();
-		Task t;
 
 		String command1 = "add meeting @meeting room 7";
 		String command2 = "add staff retreat @botanic gardens $16/05 +0500";
@@ -381,8 +343,6 @@ public class StorageTest {
 		String command5 = "add client meeting $09/05/16";
 		String command6 = "add payday $05/05/16";
 		String command7 = "add email boss $15/05";
-
-		String commandDisplay = "display";
 
 		fc.execute(command1);
 		fc.execute(command2);
@@ -473,7 +433,6 @@ public class StorageTest {
 		Storage.clear();
 
 		TaskList td = Storage.getTD();
-		Task t;
 
 		String command1 = "add meeting @meeting room 7";
 		String command2 = "add staff retreat @botanic gardens $16/05 +0500";
@@ -482,8 +441,6 @@ public class StorageTest {
 		String command5 = "add client meeting $09/05/16";
 		String command6 = "add payday $05/05/16";
 		String command7 = "add email boss $15/05";
-
-		String commandDisplay = "display";
 
 		fc.execute(command1);
 		fc.execute(command2);
@@ -518,12 +475,11 @@ public class StorageTest {
 	}
 
 	@Test
-	public void testRedo2() {
+	public void testRedoAfterNonUndo() {
 		Storage.clear();
 		s = FlowController.getStorage();
 
 		TaskList td = Storage.getTD();
-		Task t;
 
 		String command1 = "add meeting @meeting room 7";
 		String command2 = "add staff retreat @botanic gardens $16/05 +0500";
@@ -532,8 +488,6 @@ public class StorageTest {
 		String command5 = "add client meeting $09/05/16";
 		String command6 = "add payday $05/05/16";
 		String command7 = "add email boss $15/05";
-
-		String commandDisplay = "display";
 
 		fc.execute(command1);
 		fc.execute(command2);
@@ -562,7 +516,7 @@ public class StorageTest {
 	}
 
 	@Test
-	public void testQueue1() {
+	public void testAddToBackOfQueue() {
 		Storage.clear();
 		s = FlowController.getStorage();
 
@@ -602,7 +556,7 @@ public class StorageTest {
 	}
 
 	@Test
-	public void testQueue11() {
+	public void testQueueIDUpdated() {
 		Storage.clear();
 		s = FlowController.getStorage();
 
@@ -635,8 +589,6 @@ public class StorageTest {
 		String command9 = "queue 6";
 		String command10 = "queue 5";
 		String command11 = "queue 7 1";
-		String command12 = "queue 2 4";
-		String command13 = "queue 1 100";
 		fc.execute(command8);
 		t = td.get(4);
 		assertEquals("queue id is updated", 1, t.getQueueID());
@@ -646,8 +598,9 @@ public class StorageTest {
 		assertEquals("queue id is updated", 2, t.getQueueID());
 	}
 
+	//@@author A0124274L
 	@Test
-	public void testQueue2() {
+	public void testQueuePositionHead() {
 		Storage.clear();
 		s = FlowController.getStorage();
 
@@ -691,7 +644,7 @@ public class StorageTest {
 	}
 
 	@Test
-	public void testQueue3() {
+	public void testQueuePositionMiddle() {
 		Storage.clear();
 		s = FlowController.getStorage();
 
@@ -735,7 +688,8 @@ public class StorageTest {
 	}
 
 	@Test
-	public void testQueue4() {
+	public void testQueuePositionEnd() {
+		//testing when the pos index is too large
 		Storage.clear();
 		s = FlowController.getStorage();
 
@@ -780,8 +734,9 @@ public class StorageTest {
 		assertEquals("task is added to end of queue when pos > max queue", 6, t.getQueueID());
 	}
 
+	//@@author A0111101N
 	@Test
-	public void testQueue5() {
+	public void testQueueIDAfterDeletion() {
 		Storage.clear();
 		s = FlowController.getStorage();
 
@@ -825,11 +780,11 @@ public class StorageTest {
 		String command14 = "delete 2";
 		fc.execute(command14);
 		t = td.get(5);
-		assertEquals("queue id is update after deletion", 4, t.getQueueID());
+		assertEquals("queue id is updated after deletion", 4, t.getQueueID());
 	}
 
 	@Test
-	public void testQueue6() {
+	public void testQueueIDAfterCompletion() {
 		Storage.clear();
 		s = FlowController.getStorage();
 
@@ -877,7 +832,7 @@ public class StorageTest {
 	}
 
 	@Test
-	public void testQueue7() {
+	public void testCompletedTaskQueueID() {
 		Storage.clear();
 		s = FlowController.getStorage();
 
@@ -918,19 +873,18 @@ public class StorageTest {
 		fc.execute(command11);
 		fc.execute(command12);
 		fc.execute(command13);
-		t = td.get(2);
 		String command14 = "complete 2";
 		fc.execute(command14);
-		assertEquals("queue id of completed is updated to default", -1, t.getQueueID());
+		t = td.get(6);
+		String command15 = "complete 6";
+		fc.execute(command15);
+		assertEquals("queue id of completed is updated to default", -2, t.getQueueID());
 	}
 
 	@Test
 	public void testQueueDisplay() {
 		Storage.clear();
 		s = FlowController.getStorage();
-
-		TaskList td = Storage.getTD();
-		Task t;
 
 		String command1 = "add meeting @meeting room 7";
 		String command2 = "add staff retreat @botanic gardens $16/05 +0500";

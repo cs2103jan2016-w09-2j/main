@@ -34,12 +34,14 @@ public class Storage {
 	private static final String RETURN_MESSAGE_FOR_NONEXISTENT_ID = "No task with id:%1$s in TuckLife's to-do list!";
 	private static final String RETURN_MESSAGE_FOR_NONEXISTENT_ID_DONELIST = "No task with id:%1$s in TuckLife's done list!";
 
+	// @@author A0121352X
 	private static final String STATUS_HEADER = "\n\n\n\n\n\n\n\n\n\nTasks at a glance...";
 	private static final String STATUS_OUTSTANDING = "Total outstanding tasks: %1$s";
 	private static final String STATUS_TODAY = "Tasks due today: %1$s";
 	private static final String STATUS_CURRENT = "Current task: {%1$s}";
 	private static final String STATUS_CURRENT_NONE = "None";
 
+	//@@author A0111101N
 	private static final int defaultNumberOfDisplayedTasks = 20;
 
 	private static TaskList toDoList;
@@ -318,6 +320,7 @@ public class Storage {
 		}
 	}
 
+	// @@author A0121352X
 	public String getStatus() {
 		StringBuilder status = new StringBuilder();
 
@@ -336,7 +339,8 @@ public class Storage {
 		return status.toString();
 	}
 
-	// for testing purposes only
+	//@@author A0111101N
+	//for testing purposes only
 	public static void clear() {
 		Task.resetGlobalId();
 		pf = new PrefsStorage();

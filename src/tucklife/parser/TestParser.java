@@ -1,9 +1,12 @@
+// @@author A0127835Y
 package tucklife.parser;
 
 import java.util.Scanner;
 import java.util.Hashtable;
 
 public class TestParser {
+	
+	// Only used for manual testing of parser
 	
 	private static Parser p;
 

@@ -24,17 +24,18 @@ public class TaskTest {
 		p = new Parser();
 		Hashtable<String, String> ht = new Hashtable<String, String>();
 		p.loadCommands(ht);
+		Task.resetGlobalId();
 	}
 
 	@Test
 	public void testTask() throws InvalidDateException {
 		pt = p.parse("add meeting");
 		Task t = new Task(pt);
-		assertEquals("fail to create task", t.getName(), "meeting");
-		assertEquals("unable to get correct location", t.getLocation(), null);
+		assertEquals("fail to create task", "meeting", t.getName());
+		assertEquals("unable to get correct location", null, t.getLocation());
 		pt = p.parse("add meeting aylward @mr3");
 		t = new Task(pt);
-		assertEquals("unable to get correct location", t.getLocation(), "mr3");
+		assertEquals("unable to get correct location", "mr3", t.getLocation());
 	}
 
 	@Test
@@ -43,12 +44,12 @@ public class TaskTest {
 		t = new Task(pt);
 		id = t.getId();
 		String taskDisplay = String.format("%1$s. meeting        ", id);
-		assertEquals("fail to display", t.display(), taskDisplay);
+		assertEquals("fail to display", taskDisplay, t.display());
 		pt = p.parse("add meeting aylward @mr3 +1200 $16/05 #important &bring all documents");
 		t = new Task(pt);
 		id = t.getId();
 		taskDisplay = String.format("%1$s. meeting aylward | By: Mon, 16 May 2016 12:00", id);
-		assertEquals("fail to display properly", t.display(), taskDisplay);
+		assertEquals("fail to display properly", taskDisplay, t.display());
 		taskDisplay = String.format(
 				"%1$s. meeting aylward | By: Mon, 16 May 2016 12:00 | Location: mr3 | Category: important | Additional: bring all documents",
 				id);
@@ -64,9 +65,9 @@ public class TaskTest {
 		pt = p.parse(String.format("edit %1$s @ +1300 $17/05 &", id));
 		t.edit(pt);
 		String taskDisplayEdit = String.format("%1$s. meeting aylward | By: Tue, 17 May 2016 13:00", id);
-		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+		assertEquals("fail to display properly", taskDisplayEdit, t.display());
 		taskDisplay = String.format("%1$s. meeting aylward | By: Tue, 17 May 2016 13:00 | Category: important", id);
-		assertEquals("fail to display all properly", t.displayAll(), taskDisplay);
+		assertEquals("fail to display all properly", taskDisplay, t.displayAll());
 	}
 
 	@Test
@@ -78,10 +79,10 @@ public class TaskTest {
 		pt = p.parse(String.format("edit %1$s @mr4 &bring yourself +", id));
 		t.edit(pt);
 		String taskDisplayEdit = String.format("%1$s. meeting aylward", id);
-		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+		assertEquals("fail to display properly", taskDisplayEdit, t.display());
 		taskDisplay = String
 				.format("%1$s. meeting aylward | Location: mr4 | Category: important | Additional: bring yourself", id);
-		assertEquals("fail to display all properly", t.displayAll(), taskDisplay);
+		assertEquals("fail to display all properly", taskDisplay, t.displayAll());
 	}
 
 	@Test
@@ -94,11 +95,11 @@ public class TaskTest {
 		t.edit(pt);
 		String taskDisplayEdit = String.format("%1$s. meeting aylward | By: Mon, 16 May 2016 13:00",
 				id);
-		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+		assertEquals("fail to display properly", taskDisplayEdit, t.display());
 		taskDisplay = String.format(
 				"%1$s. meeting aylward | By: Mon, 16 May 2016 13:00 | Location: mr4 | Category: important | Additional: bring yourself",
 				id);
-		assertEquals("fail to display all properly", t.displayAll(), taskDisplay);
+		assertEquals("fail to display all properly", taskDisplay, t.displayAll());
 	}
 
 	@Test
@@ -110,7 +111,7 @@ public class TaskTest {
 		t.edit(pt);
 		String taskDisplayEdit = String.format(
 				"%1$s. meeting aylward | From: Mon, 16 May 2016 11:00 To: Mon, 16 May 2016 12:00", id);
-		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+		assertEquals("fail to display properly", taskDisplayEdit, t.display());
 	}
 
 	@Test
@@ -122,7 +123,7 @@ public class TaskTest {
 		t.edit(pt);
 		String taskDisplayEdit = String.format(
 				"%1$s. meeting aylward | From: Mon, 16 May 2016 09:00 To: Tue, 17 May 2016 10:00", id);
-		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+		assertEquals("fail to display properly", taskDisplayEdit, t.display());
 	}
 
 	@Test
@@ -134,7 +135,7 @@ public class TaskTest {
 		t.edit(pt);
 		String taskDisplayEdit = String.format("%1$s. meeting aylward | By: Mon, 16 May 2016 09:00",
 				id);
-		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+		assertEquals("fail to display properly", taskDisplayEdit, t.display());
 	}
 
 	@Test
@@ -146,7 +147,7 @@ public class TaskTest {
 		t.edit(pt);
 		String taskDisplayEdit = String.format(
 				"%1$s. company trip... | From: Mon, 16 May 2016 09:00 To: Tue, 17 May 2016 10:00", id);
-		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+		assertEquals("fail to display properly", taskDisplayEdit, t.display());
 	}
 
 	@Test
@@ -158,7 +159,7 @@ public class TaskTest {
 		t.edit(pt);
 		String taskDisplayEdit = String.format("%1$s. company trip... | By: Mon, 16 May 2016 15:00",
 				id);
-		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+		assertEquals("fail to display properly", taskDisplayEdit, t.display());
 	}
 
 	@Test
@@ -170,7 +171,7 @@ public class TaskTest {
 		t.edit(pt);
 		String taskDisplayEdit = String.format("%1$s. company trip... | By: Mon, 16 May 2016 15:00",
 				id);
-		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+		assertEquals("fail to display properly", taskDisplayEdit, t.display());
 	}
 
 	@Test
@@ -180,9 +181,9 @@ public class TaskTest {
 		id = t.getId();
 		pt = p.parse(String.format("edit %1$s @mr4 $16/05", id));
 		t.edit(pt);
-		String taskDisplayEdit = String.format(" %1$s. company trip... | By: Mon, 16 May 2016 23:59",
+		String taskDisplayEdit = String.format("%1$s. company trip... | By: Mon, 16 May 2016 23:59",
 				id);
-		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+		assertEquals("fail to display properly", taskDisplayEdit, t.display());
 	}
 
 	@Test
@@ -194,7 +195,7 @@ public class TaskTest {
 		t.edit(pt);
 		String taskDisplayEdit = String.format(
 				"%1$s. company trip... | From: Mon, 16 May 2016 00:00 To: Tue, 17 May 2016 23:59", id);
-		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+		assertEquals("fail to display properly", taskDisplayEdit, t.display());
 	}
 
 	@Test
@@ -209,7 +210,7 @@ public class TaskTest {
 		assertEquals(pt.getStartDate(), null);
 		assertEquals(pt.getStartTime(), null);
 		assertEquals(pt.getEndTime(), null);
-		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+		assertEquals("fail to display properly", taskDisplayEdit, t.display());
 	}
 
 	@Test
@@ -221,7 +222,7 @@ public class TaskTest {
 		t.edit(pt);
 		String taskDisplayEdit = String.format("%1$s. meeting aylward | By: Mon, 16 May 2016 09:00",
 				id);
-		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+		assertEquals("fail to display properly", taskDisplayEdit, t.display());
 	}
 
 	@Test
@@ -233,7 +234,7 @@ public class TaskTest {
 		t.edit(pt);
 		String taskDisplayEdit = String.format(
 				"%1$s. meeting aylward | From: Mon, 16 May 2016 09:00 To: Mon, 16 May 2016 17:00", id);
-		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+		assertEquals("fail to display properly", taskDisplayEdit, t.display());
 	}
 
 	@Test
@@ -245,7 +246,7 @@ public class TaskTest {
 		t.edit(pt);
 		String taskDisplayEdit = String.format(
 				"%1$s. meeting aylward | From: Mon, 16 May 2016 22:00 To: Tue, 17 May 2016 10:00", id);
-		assertEquals("fail to display properly", t.display(), taskDisplayEdit);
+		assertEquals("fail to display properly", taskDisplayEdit, t.display());
 	}
 
 	//@@author A0124274L

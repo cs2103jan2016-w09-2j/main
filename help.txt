@@ -17,12 +17,13 @@ displayid,display <id>,Displays all information about a task
 displaysortasc,display +<attribute>,View all tasks in ascending order of <attribute>
 displaysortdesc,display -<attribute>,View all tasks in descending order of <attribute>
 displaysearch,display <keywords>,Searches for all tasks containing <keywords>
-displaydone,displaydone,Displays all completed tasks
+displaydone,displaydone,Displays all completed tasks - searching and sorting possible - refer to display
+uncomplete,uncomplete <id>,Makes a completed task outstanding again
 undo,undo,Undoes the most recent add/edit/delete/complete/queue
 redo,redo,Redoes the most recent undo
 save,save,Manual save
 exit,exit,Saves files and shuts down TuckLife
-help,help,You're looking at it now - duh
+help,help,You're looking at it now :)
 demo,demo <command>,Get an example of how to use <command>
 queue,queue <id> <pos>,Adds task to position <pos> of queue - the back of the queue if <pos> 0
 setlimit,setlimit <limit>,Task overload warning will trigger at <limit> tasks outstanding

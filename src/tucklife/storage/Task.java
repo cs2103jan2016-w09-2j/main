@@ -302,24 +302,17 @@ public class Task {
 		StringBuilder displayString = new StringBuilder();
 
 		// display order:
-		// id. truncated name | date | location
+		// id. truncated name | date
 
 		displayString.append(idField());
 		displayString.append(" ");
 		displayString.append(nameField(true));
+		
+		String date = dateField();
 
-		String[] fields = new String[2];
-
-		fields[0] = dateField();
-		fields[1] = locationField();
-
-		for (int i = 0; i < 2; i++) {
-			if (fields[i] != null) {
-				displayString.append(TASK_FIELD_SEPERATOR);
-				displayString.append(fields[i]);
-			} /*else {
-				displayString.append(TASK_FIELD_SEPERATOR + "                          ");
-			}*/
+		if(date != null){
+			displayString.append(TASK_FIELD_SEPERATOR);
+			displayString.append(date);
 		}
 
 		return displayString.toString();

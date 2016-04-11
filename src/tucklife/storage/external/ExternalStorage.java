@@ -37,8 +37,9 @@ public class ExternalStorage {
 	private CommandStorage commands;
 	
 	public ExternalStorage(){
-		prefs = new PrefsStorage();
 		
+		// load prefs first
+		prefs = new PrefsStorage();		
 		boolean prefsLoaded = prefs.loadPreferences();
 		
 		if(prefsLoaded){
@@ -47,12 +48,13 @@ public class ExternalStorage {
 			EXTERNAL_LOG.log(Level.WARNING, LOG_PREFS_FAILED);
 		}
 		
+		// create file storage classes
 		targetFolder = prefs.getSavePath();
 		assert(targetFolder != null);
 		EXTERNAL_LOG.log(Level.FINE, String.format(LOG_PREFS_SAVEPATH, targetFolder));
 		
 		todo = new ListStorage(targetFolder + FILENAME_TODO);
-		done = new ListStorage(targetFolder + FILENAME_DONE);
+		done = new ListStorage(targetFolder + FILENAME_DONE);		
 		help = new HelpStorage();
 		commands = new CommandStorage();
 	}

@@ -17,37 +17,48 @@ public class Parser {
 		HELP, QUEUE, REDO, SAVE, SAVETO, SETLIMIT, UNCOMPLETE, UNDO;
 	}
 	
+	// Indicator for extractParameter to show that parameter is to be removed
+	private final String EMPTY = " ";
+	
+	// Indicator for ProtoTask to tell Storage that parameter is to be removed
+	private final String TO_REMOVE = "";
+	
 	/* ****************
 	 * Error messages *
 	 ******************/
 	
 	private final String ERROR_INVALID_PARAMS = "Incorrect number of parameters";
 	private final String ERROR_INVALID_COMMAND = "'%1$s' is not a valid command";
-	private final String ERROR_INVALID_SORT_PARAMS = "invalid sort parameters";
+	private final String ERROR_INVALID_SORT_PARAMS = "invalid sort parameters.\nValid parameters: "
+													 + paramSymbols.substring(1);
 	private final String ERROR_INVALID_PRIORITY = "invalid priority";
 	private final String ERROR_INVALID_DATE = "invalid date";
 	private final String ERROR_INVALID_TIME = "invalid time";
 	private final String ERROR_INVALID_EVENT_FORMAT = "invalid event format";
 	
-	private final String ERROR_PARAMS_NONE = "Format: %1$s";
-	private final String ERROR_PARAMS_ID = "Format: %1$s <id>";
-	
 	private final String ERROR_ID_NOT_POSITIVE = "id '%1$s' must be positive";
 	private final String ERROR_POSITION_NOT_POSITIVE = "position '%1$s' must be positive";
 	private final String ERROR_LIMIT_NOT_NON_NEGATIVE = "limit '%1$s' must be non-negative";
 	private final String ERROR_RESERVED_ALIAS = "'%1$s' is a reserved command alias / type for the command '%2$s'";
-	private final String ERROR_DATE_OVER = "date has passed. You can't travel back in time!";
+	private final String ERROR_DATE_OVER = "date has passed.\nYou can't travel back in time!";
+	private final String ERROR_START_AFTER_END = "start date is after end date.\nYou can't travel back in time!";
+	private final String ERROR_ODD_INVERTED_COMMAS = "inverted commas don't match.\nMake sure to add closing inverted commas.";
 	
+	private final String ERROR_PARAMS_NONE = "Format: %1$s";
+	private final String ERROR_PARAMS_ID = "Format: %1$s <id>";
 	private final String ERROR_PARAMS_ADD = "Format: add <task description> (optional: $<date> "
 										  + "+<time> #<category> !<priority> @<location> &<additional>)";
 	private final String ERROR_PARAMS_EDIT = "Format: edit <id> (at least 1 of the following: <task description> "
 										   + "$<date> +<time> #<category> !<priority> @<location> &<additional>)";
-	private final String ERROR_PARAMS_DISPLAY = "Format: display (optional: <search term> or +/-<sort order>)";
 	private final String ERROR_PARAMS_QUEUE = "Format: queue <id> <pos>";
 	private final String ERROR_PARAMS_DEMO = "Format: demo <command>";
 	private final String ERROR_PARAMS_LIMIT = "Format: setlimit <limit>";
 	private final String ERROR_PARAMS_SAVETO = "Format: saveto <file path>";
 	private final String ERROR_PARAMS_CHANGE = "Format: change <old command> <new command>";
+	
+	/* ****************
+	 * Other messages *
+	 ******************/
 	
 	private final String MESSAGE_CHANGED_ALIAS = "'%1$s' has been changed to '%2$s'!";
 	private final String MESSAGE_SAME_ALIAS = "'%1$s' is the same as '%2$s'! No change occurred.";
@@ -84,10 +95,20 @@ public class Parser {
 		return pt;
 	}
 	
+	/**
+	 * This method returns the Hashtable which stores all the custom command mappings.
+	 * 
+	 * @return Custom command mappings.
+	 */
 	public Hashtable<String, String> getCommands() {
 		return commandTable;
 	}
 	
+	/**
+	 * This method loads the custom command mappings from a Hashtable.
+	 * 
+	 * @param ht Custom command mappings.
+	 */
 	public void loadCommands(Hashtable<String, String> ht) {
 		commandTable = ht;
 	}
@@ -296,9 +317,48 @@ public class Parser {
 		}
 	}
 	
-	// Display
-	private void parseDisplay(String commandArg) throws InvalidParamException {
-		parseCommandWithDisplay(commandArg);
+	// Display and displaydone
+	private void parseDisplay(String arg)
+			throws InvalidParamException {
+		if (!arg.isEmpty()) {
+			// Only continue checking if a parameter is provided
+			if (isInteger(arg) && Integer.parseInt(arg) > 0) {
+				// Display or displaydone ID
+				pt.setId(Integer.parseInt(arg));
+			} else {
+				String searchTerm = extractParameter("", arg).trim();
+
+				if (!searchTerm.isEmpty()) {
+					pt.setSearchKey(searchTerm);
+				}
+
+				boolean hasSortOrder = false;
+				boolean isAscending = false;
+				String sortBy = extractParameter("+", arg);
+
+				if (!sortBy.isEmpty()) {
+					isAscending = true;
+					hasSortOrder = true;
+				} else {
+					sortBy = extractParameter("-", arg);
+
+					if (!sortBy.isEmpty()) {
+						isAscending = false;
+						hasSortOrder = true;
+					}
+				}
+
+				if (hasSortOrder) {
+					if (isValidSortCrit(sortBy)) {
+						pt.setHasSortOrder(true);
+						pt.setIsAscending(isAscending);
+						pt.setSortCrit(sortBy);
+					} else {
+						throw new InvalidParamException(ERROR_INVALID_SORT_PARAMS);
+					}
+				}
+			}
+		}
 	}
 	
 	// Edit
@@ -433,56 +493,18 @@ public class Parser {
 		}
 	}
 	
-	private void parseCommandWithDisplay(String arg)
-			throws InvalidParamException {
-		if (isInteger(arg) && Integer.parseInt(arg) > 0) {
-			// Display or displaydone ID
-			pt.setId(Integer.parseInt(arg));
-		} else {
-			String searchTerm = extractParameter("", arg).trim();
-			
-			if (!searchTerm.isEmpty()) {
-				pt.setSearchKey(searchTerm);
-			}
-
-			boolean hasSortOrder = false;
-			boolean isAscending = false;
-			String sortBy = extractParameter("+", arg);
-
-			if (!sortBy.isEmpty()) {
-				isAscending = true;
-				hasSortOrder = true;
-			} else {
-				sortBy = extractParameter("-", arg);
-
-				if (!sortBy.isEmpty()) {
-					isAscending = false;
-					hasSortOrder = true;
-				}
-			}
-
-			if (hasSortOrder) {
-				if (isValidSortCrit(sortBy)) {
-					pt.setHasSortOrder(true);
-					pt.setIsAscending(isAscending);
-					pt.setSortCrit(sortBy);
-				} else {
-					throw new InvalidParamException(ERROR_INVALID_SORT_PARAMS);
-				}
-			}
-		}
-	}
-	
 	private void parseTaskCommands(CommandType type, String arg) 
 			throws InvalidParamException {
 		String taskDesc = extractParameter("", arg);
 
+		// Check task description
 		if (!taskDesc.isEmpty()) {
 			pt.setTaskDesc(taskDesc);
 		} else if (type == CommandType.ADD) {
 			throw new InvalidParamException(ERROR_INVALID_PARAMS + "\n" + ERROR_PARAMS_ADD);
 		}
 
+		// Extract relevant parameters
 		String location = extractParameter("@", arg);
 		String priority = extractParameter("!", arg);
 		String cat = extractParameter("#", arg);
@@ -490,18 +512,22 @@ public class Parser {
 		String date = extractParameter("$", arg);
 		String additional = extractParameter("&", arg);
 
+		// Check location
 		if (!location.isEmpty()) {
-			if (location.equals(" ") && type == CommandType.EDIT) {
-				pt.setLocation("");
+			if (location.equals(EMPTY) && type == CommandType.EDIT) {
+				// Remove location
+				pt.setLocation(TO_REMOVE);
 			} else {
 				pt.setLocation(location);
 			}
 		}
 
+		// Check priority
 		if (!priority.isEmpty()) {
 			int priorityRank = convertPriority(priority);
 
-			if (priority.equals(" ") && type == CommandType.EDIT) {
+			if (priority.equals(EMPTY) && type == CommandType.EDIT) {
+				// Remove priority
 				pt.setPriority(0);
 			} else {
 				if (priorityRank == -1) {
@@ -512,18 +538,22 @@ public class Parser {
 			}
 		}
 
+		// Check category
 		if (!cat.isEmpty()) {
-			if (cat.equals(" ") && type == CommandType.EDIT) {
-				pt.setCategory("");
+			if (cat.equals(EMPTY) && type == CommandType.EDIT) {
+				// Remove category
+				pt.setCategory(TO_REMOVE);
 			} else {
 				pt.setCategory(cat);
 			}
 		}
 
+		// Check date and time
 		if (!time.isEmpty() || !date.isEmpty()) {
 			dp.reset();
 
-			if ((time.equals(" ") || date.equals(" ")) && type == CommandType.EDIT) {
+			if ((time.equals(EMPTY) || date.equals(EMPTY)) && type == CommandType.EDIT) {
+				// Remove date and time
 				pt.setEndDate(dp.getRemovalDate());
 
 			} else {
@@ -546,9 +576,14 @@ public class Parser {
 							// Event
 							startDate = dp.combineDateTime(dp.parseDate(dates[0]), dp.getDefaultStartTime());
 							endDate = dp.combineDateTime(dp.parseDate(dates[1]), dp.getDefaultEndTime());
+							boolean hasEndYear = dp.hasYear();
 
 							if (endDate.before(startDate)) {
-								endDate = dp.getNextYear(endDate);
+								if (hasEndYear) {
+									throw new InvalidParamException(ERROR_START_AFTER_END);
+								} else {
+									endDate = dp.getNextYear(endDate);
+								}
 							}
 
 						} else {
@@ -632,9 +667,16 @@ public class Parser {
 								// Multiple day event
 								startDate = dp.combineDateTime(dp.parseDate(dates[0]), dp.parseTime(times[0]));
 								endDate = dp.combineDateTime(dp.parseDate(dates[1]), dp.parseTime(times[1]));
+								boolean hasEndYear = dp.hasYear();
 								
 								if (dp.isDateOver(endDate, endDate) || dp.isDateOver(startDate, startDate)) {
 									throw new InvalidParamException(ERROR_DATE_OVER);
+								} else if (endDate.before(startDate)) {
+									if (hasEndYear) {
+										throw new InvalidParamException(ERROR_START_AFTER_END);
+									} else {
+										endDate = dp.getNextYear(endDate);
+									}
 								}
 
 								if (type == CommandType.EDIT) {
@@ -692,16 +734,27 @@ public class Parser {
 			}
 		}
 
+		// Check additional
 		if (!additional.isEmpty()) {
-			if (additional.equals(" ") && type == CommandType.EDIT) {
-				pt.setAdditional("");
+			if (additional.equals(EMPTY) && type == CommandType.EDIT) {
+				pt.setAdditional(TO_REMOVE);
 			} else {
 				pt.setAdditional(additional);
 			}
 		}
 	}
 	
-	private String extractParameter(String symbol, String commandArg) {
+	/**
+	 * This method extracts the parameter for a specific symbol from user entered command.
+	 * Text enclosed within inverted commas are ignored when checking for parameter symbol.
+	 * 
+	 * @param symbol Symbol to indicate where to extract from.
+	 * @param commandArg User entered command (without the first word).
+	 * @return Contents for the parameter.
+	 * @throws InvalidParamException if the inverted commas don't match.
+	 */
+	private String extractParameter(String symbol, String commandArg)
+			throws InvalidParamException {
 		boolean toCheck = true;
 		boolean isInParam = false;
 		boolean isEmpty = false;
@@ -709,6 +762,7 @@ public class Parser {
 		char symbolChar = ' ';
 
 		if (symbol.isEmpty()) {
+			// For getting task description and search term
 			isInParam = true;
 		} else {
 			symbolChar = symbol.charAt(0);
@@ -719,8 +773,10 @@ public class Parser {
 				toCheck = !toCheck;
 			} else {
 				if (isInParam) {
+					// Within the parameter
 					if (toCheck) {
 						if (i == 0 && paramSymbols.contains(commandArg.charAt(i) + "")) {
+							// Special case for empty task description and search term
 							isInParam = false;
 							break;
 						} else if (commandArg.charAt(i) == ' ' && i + 1 != commandArg.length()
@@ -730,11 +786,14 @@ public class Parser {
 								isInParam = false;
 								
 								if (parameter.trim().isEmpty()) {
+									// Parameter is empty - remove parameter
 									isEmpty = true;
 								}
 								
 								break;
 							} else {
+								// Special case for event dates
+								// e.g. 1 Jan - 31 Dec
 								parameter += commandArg.charAt(i);
 							}
 						} else {
@@ -743,7 +802,8 @@ public class Parser {
 					} else {
 						parameter += commandArg.charAt(i);
 					}
-				} else {				
+				} else {
+					// Not within the parameter
 					if (toCheck && commandArg.charAt(i) == symbolChar) {
 						if (i == 0 || commandArg.charAt(i - 1) == ' ') {
 							isInParam = true;
@@ -753,19 +813,34 @@ public class Parser {
 			}
 		}
 		
-		if (isEmpty) {
-			return " ";
-		} else if (isInParam && parameter.trim().isEmpty()) {
-			return " ";
+		if (!toCheck) {
+			// Odd number of inverted commas - invalid
+			throw new InvalidParamException(ERROR_ODD_INVERTED_COMMAS);
 		} else {
-			return parameter.trim();
+			if (isEmpty) {
+				// Remove parameter
+				return EMPTY;
+			} else if (isInParam && parameter.trim().isEmpty()) {
+				// Remove parameter
+				return EMPTY;
+			} else {
+				return parameter.trim();
+			}
 		}
 	}
 	
+	/**
+	 * This method converts the user entered priorities into integer priorities.
+	 * (High = 1, medium = 2, low = 3, invalid priority = -1)
+	 * 
+	 * @param priority User entered String for priority.
+	 * @return Integer corresponding to priority.
+	 */
 	private int convertPriority(String priority) {
 		if (priority.equalsIgnoreCase("high")) {
 			return 1;
-		} else if (priority.equalsIgnoreCase("medium")) {
+		} else if (priority.equalsIgnoreCase("medium")
+				   || priority.equalsIgnoreCase("med")) {
 			return 2;
 		} else if (priority.equalsIgnoreCase("low")) {
 			return 3;
@@ -774,10 +849,25 @@ public class Parser {
 		}
 	}
 	
+	/**
+	 * This method checks if the sort criteria provided by user is
+	 * a valid sort criteria.
+	 * 
+	 * @param sortParam User entered String for sort criteria
+	 * @return True is sort criteria is valid, false otherwise.
+	 */
 	private boolean isValidSortCrit(String sortParam) {
 		return paramSymbols.substring(1).contains(sortParam);
 	}
 	
+	/**
+	 * This method checks whether user entered a range of date or time,
+	 * separates the starting date and ending date, and returns both in an array.
+	 * If no range is found, the original String is also returned in an length 1 array.
+	 * 
+	 * @param s String to check for date range.
+	 * @return Array with start and end date separated.
+	 */
 	private String[] splitEventDate(String s) {
 		String[] result;
 		if (s.contains(" - ")) {
@@ -789,6 +879,8 @@ public class Parser {
 			return ss;
 		}
 		
+		// Fix for relative day of week dates
+		// e.g. Next mon to fri --> next mon to next fri
 		if (result[0].startsWith("next") && !result[1].startsWith("next")) {
 			result[1] = "next " + result[1];
 		}
@@ -852,10 +944,22 @@ public class Parser {
 		return type;
 	}
 	
+	/**
+	 * This method converts a CommandType enum constant to its String equivalent.
+	 * 
+	 * @param type CommandType enum constant.
+	 * @return String corresponding to CommandType.
+	 */
 	private String commandTypeToString(CommandType type) {
 		return type.toString().toLowerCase();
 	}
 	
+	/**
+	 * This method checks if a String is an integer.
+	 * 
+	 * @param s String to check. 
+	 * @return True if String is an integer, false otherwise.
+	 */
 	private boolean isInteger(String s) {
 		boolean isInt = true;
 		
@@ -868,6 +972,12 @@ public class Parser {
 		return isInt;
 	}
 	
+	/**
+	 * This method creates a ProtoTask with command set to error.
+	 * Used for sending error messages back to user.
+	 * 
+	 * @param errorMsg Error message to be sent to user.
+	 */
 	private void createErrorTask(String errorMsg) {
 		pt = new ProtoTask("error");
 		pt.setErrorMessage(errorMsg);

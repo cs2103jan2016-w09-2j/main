@@ -19,16 +19,22 @@ public class FlowController {
 	private static Storage s;
 	private static ExternalStorage es = new ExternalStorage();
 	
+	//@@author A0111101N
 	private enum COMMAND_TYPE {
 		ADD, DISPLAY, COMPLETE, DISPLAYDONE, DELETE, EDIT, INVALID, QUEUE, SETLIMIT, UNDO, REDO, UNCOMPLETE
 	}
 
+	//@@author a0124274l
 	public FlowController() {
 		es.load();
 		DataBox db = es.getLoadedData();
 		p.loadCommands(db.getCommands());
 		//s.load(db);
 		s = new Storage(db);
+	}
+	
+	public String statusOnly(){
+		return s.getStatus().substring(10);
 	}
 
 	public String execute(String command){

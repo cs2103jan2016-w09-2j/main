@@ -123,6 +123,7 @@ public class ListStorage {
 		return pt;
 	}
 	
+	// process each part of a task String to extract a parameter
 	private ProtoTask processField(ProtoTask pt, String field){
 		String[] fieldDetails = field.split(" ");
 		String fieldHeader = fieldDetails[0];
@@ -163,6 +164,7 @@ public class ListStorage {
 		return pt;
 	}
 	
+	// for the annoying process of determining the time from the string
 	private ProtoTask processTime(boolean event, ProtoTask pt, String field){
 		
 		if(event){
@@ -182,7 +184,7 @@ public class ListStorage {
 			String eDate = endDate.toString();
 			
 			try{
-				SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
+				SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm");
 				Calendar cStart = Calendar.getInstance();
 				Calendar cEnd = Calendar.getInstance();
 				cStart.setTime(sdf.parse(sDate));
@@ -201,7 +203,7 @@ public class ListStorage {
 			
 		} else{
 			try{
-				SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
+				SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm");
 				Calendar c = Calendar.getInstance();
 				c.setTime(sdf.parse(removeFirstWord(field)));
 				
@@ -270,6 +272,7 @@ public class ListStorage {
 				
 				EXTERNAL_LOG.log(Level.FINER, String.format(LOG_SAVE_TASK, taskString));
 				
+				// add queueId if there is one
 				if(t.getQueueID() != -1){
 					bos.write((" | " + HEADER_QUEUE + " " + Integer.toString(t.getQueueID())).getBytes());
 					EXTERNAL_LOG.log(Level.FINER, String.format(LOG_SAVE_QUEUE, Integer.toString(t.getQueueID())));

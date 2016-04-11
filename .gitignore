@@ -8,3 +8,5 @@ test/doneRes.txt
 test/todoRes.txt
 nyonexist*
 test\*
+*.png
+*.ucls

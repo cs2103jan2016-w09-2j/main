@@ -70,50 +70,6 @@ public class ParserTest {
 					 + "Additional information: about sales performance. Prepare to present.\n",
 					 p.parse("add meeting &about sales performance. Prepare to present.").toString());
 		
-		// Date - $
-		// Single date
-		assertEquals("Command type: add\nParameters:\nTask description: job interview\n"
-					 + "End date: Wed, 25 May 2016 23:59\n",
-					 p.parse("add job interview $25/5/16").toString());
-		
-		// Invalid dates
-		assertTrue(p.parse("add my birthday $30 feb").isError());
-		assertTrue(p.parse("add task $not a date").isError());
-		
-		// Event dates
-		// Using to
-		assertEquals("Command type: add\nParameters:\nTask description: work trip\n"
-					 + "Start date: Mon, 23 May 2016 00:00\n"
-					 + "End date: Fri, 27 May 2016 23:59\n",
-					 p.parse("add work trip $23may to 27may").toString());
-		
-		// Using dash
-		assertEquals("Command type: add\nParameters:\nTask description: work trip\n"
-					 + "Start date: Mon, 23 May 2016 00:00\n"
-					 + "End date: Fri, 27 May 2016 23:59\n",
-					 p.parse("add work trip $23may - 27may").toString());
-		
-		// Invalid event dates
-		assertTrue(p.parse("add some event $29 feb - 30 feb").isError());
-		assertTrue(p.parse("add task $30 feb - 1 mar").isError());
-		
-		// Time - +
-		// Getting the correct date based on current date
-		Calendar c = Calendar.getInstance();
-		if (c.get(Calendar.HOUR_OF_DAY) > 16) {
-			c.add(Calendar.DATE, 1);
-		}
-		c.set(Calendar.HOUR_OF_DAY, 17);
-		c.set(Calendar.MINUTE, 0);
-		
-		assertEquals("Command type: add\nParameters:\nTask description: evening run\nEnd date: "
-					 + sdf.format(c.getTime()) + "\n",
-					 p.parse("add evening run +5pm").toString());
-		
-		// Invalid times
-		assertTrue(p.parse("add 13 o'clock +13pm").isError());
-		assertTrue(p.parse("add task +not a time").isError());
-		
 		// All parameters
 		assertEquals("Command type: add\nParameters:\nTask description: meeting with boss\n"
 					 + "Location: boss's office\nCategory: top secret project\nAdditional information: "
@@ -121,10 +77,147 @@ public class ParserTest {
 					 p.parse("add meeting with boss !high +10am $28-may-2016 @boss's office"
 							 + " &BIG BOSS COMING!!! #top secret project").toString());
 		
-		// Some parameters
+		// Some parameters in different order
 		assertEquals("Command type: add\nParameters:\nTask description: buy office supplies\n"
 					 + "Category: misc\nPriority: 2\nEnd date: Tue, 24 May 2016 23:59\n",
 					 p.parse("add buy office supplies $24 may 16 #misc !medium").toString());
+	}
+	
+	@Test
+	public void testAddForDates() {
+		// Date - $
+		// Single date
+		assertEquals("Command type: add\nParameters:\nTask description: job interview\n"
+					 + "End date: Wed, 25 May 2016 23:59\n",
+					 p.parse("add job interview $25/5/16").toString());
+
+		// Invalid dates
+		assertTrue(p.parse("add my birthday $30 feb").isError());
+		assertTrue(p.parse("add task $not a date").isError());
+		
+		// Date that has passed
+		assertTrue(p.parse("add overdue date $1 jan 2015").isError());
+
+		// Event dates
+		// Using to
+		assertEquals("Command type: add\nParameters:\nTask description: work trip\n"
+					 + "Start date: Mon, 23 May 2016 00:00\n"
+					 + "End date: Fri, 27 May 2016 23:59\n",
+					 p.parse("add work trip $23may to 27may").toString());
+
+		// Using dash
+		assertEquals("Command type: add\nParameters:\nTask description: work trip\n"
+					 + "Start date: Mon, 23 May 2016 00:00\n"
+					 + "End date: Fri, 27 May 2016 23:59\n",
+					 p.parse("add work trip $23may - 27may").toString());
+
+		// Invalid event dates
+		assertTrue(p.parse("add some event $29 feb - 30 feb").isError());
+		assertTrue(p.parse("add task $30 feb - 1 mar").isError());
+		
+		// Start date has passed
+		assertTrue(p.parse("add start over $25/12/10 - 1/1/11").isError());
+		
+		// End date has passed
+		assertTrue(p.parse("add end over $today - 1/1/16").isError());
+
+		// Time - +
+		// Getting the correct date based on current date
+		Calendar c1 = Calendar.getInstance();
+		if (c1.get(Calendar.HOUR_OF_DAY) > 16) {
+			c1.add(Calendar.DATE, 1);
+		}
+		c1.set(Calendar.HOUR_OF_DAY, 17);
+		c1.set(Calendar.MINUTE, 0);
+
+		assertEquals("Command type: add\nParameters:\nTask description: evening run\n"
+					 + "End date: " + sdf.format(c1.getTime()) + "\n",
+					 p.parse("add evening run +5pm").toString());
+
+		// This is most likely going to be set for next day
+		Calendar c2 = Calendar.getInstance();
+		if (c2.get(Calendar.HOUR_OF_DAY) > 0
+			|| (c2.get(Calendar.HOUR_OF_DAY) == 0 && c2.get(Calendar.MINUTE) > 1)) {
+			c2.add(Calendar.DATE, 1);
+		}
+		c2.set(Calendar.HOUR_OF_DAY, 0);
+		c2.set(Calendar.MINUTE, 1);
+
+		assertEquals("Command type: add\nParameters:\nTask description: midnight run\n"
+					 + "End date: " + sdf.format(c2.getTime()) + "\n",
+					 p.parse("add midnight run +12:01am").toString());
+
+		// Invalid times
+		assertTrue(p.parse("add 13 o'clock +13pm").isError());
+		assertTrue(p.parse("add task +not a time").isError());
+		
+		// Both date and time - $ and +
+		// Deadline
+		assertEquals("Command type: add\nParameters:\nTask description: submit report\n"
+					+ "End date: Mon, 05 Sep 2016 18:00\n",
+					p.parse("add submit report $5/9 +6pm").toString());
+		
+		// Deadline that has passed
+		assertTrue(p.parse("add submit overdue report $1/1/16 +9am").isError());
+		
+		// Event
+		// Multiple day event
+		assertEquals("Command type: add\nParameters:\nTask description: roadshow\n"
+					 + "Start date: Wed, 18 May 2016 09:00\nEnd date: Sun, 22 May 2016 21:00\n",
+					 p.parse("add roadshow $18/5 to 22/5 +9am to 9pm").toString());
+		
+		// Event that has passed
+		assertTrue(p.parse("add roadshow over $18/5/15 to 22/5/15 +9am to 9pm").isError());
+		
+		// Start date after end date
+		assertTrue(p.parse("add travel in time $tmr to today").isError());
+	}
+	
+	@Test
+	public void testChange() {
+		// < 2 parameters
+		assertTrue(p.parse("change").isError());
+		assertTrue(p.parse("change sth").isError());
+		
+		// 2 parameters
+		
+		// Old command is invalid
+		assertTrue(p.parse("change sth sthelse").isError());
+		
+		// Old command is valid
+		
+		// Old command is default command name
+		// New command is not used
+		// (Valid)
+		assertEquals("Command type: change\nParameters:\n"
+					 + "Change message: 'delete' has been changed to 'dl'!\n",
+					 p.parse("change delete dl").toString());
+		
+		// Checking that new command indeed works
+		assertEquals("Command type: delete\nParameters:\nID: 1\n", p.parse("dl 1").toString());
+		
+		// Checking that old command still works too
+		assertEquals("Command type: delete\nParameters:\nID: 1\n", p.parse("delete 1").toString());
+		
+		// New command has already been set
+		assertEquals("Command type: change\nParameters:\n"
+					 + "Change message: 'delete' is the same as 'dl'! No change occurred.\n",
+					 p.parse("change delete dl").toString());
+		
+		assertEquals("Command type: change\nParameters:\n"
+				 + "Change message: 'dl' is the same as 'dl'! No change occurred.\n",
+				 p.parse("change dl dl").toString());
+		
+		// New command is a default command name
+		assertTrue(p.parse("change help add").isError());
+		
+		// New command is a used alias
+		assertTrue(p.parse("change help dl").isError());
+		
+		// Old command is alias
+		assertEquals("Command type: change\nParameters:\n"
+					 + "Change message: 'dl' has been changed to 'del'!\n",
+					 p.parse("change dl del").toString());
 	}
 	
 	@Test
@@ -279,12 +372,16 @@ public class ParserTest {
 
 		// Time - +
 		// Getting the correct date based on current date
-		Calendar c  = Calendar.getInstance();
-		c.set(Calendar.HOUR_OF_DAY, 17);
-		c.set(Calendar.MINUTE, 0);
+		Calendar c1  = Calendar.getInstance();
+		if (c1.get(Calendar.HOUR_OF_DAY) > 16) {
+			c1.add(Calendar.DATE, 1);
+		}
+		
+		c1.set(Calendar.HOUR_OF_DAY, 17);
+		c1.set(Calendar.MINUTE, 0);
 		
 		assertEquals("Command type: edit\nParameters:\nID: 15\nEnd time: "
-					 + sdf.format(c.getTime()) + "\n",
+					 + sdf.format(c1.getTime()) + "\n",
 					 p.parse("edit 15 +5pm").toString());
 
 		// Invalid times
@@ -293,12 +390,14 @@ public class ParserTest {
 
 		// All parameters
 		// Getting the correct date based on current date
-		c.set(Calendar.HOUR_OF_DAY, 10);
+		Calendar c2 = Calendar.getInstance();
+		c2.set(Calendar.HOUR_OF_DAY, 10);
+		c2.set(Calendar.MINUTE, 0);
 		
 		assertEquals("Command type: edit\nParameters:\nTask description: meeting with boss\n"
 					 + "Location: boss's office\nCategory: top secret project\nAdditional information: "
 					 + "BIG BOSS COMING!!!\nPriority: 1\nID: 15\nEnd date: Sat, 28 May 2016 10:00\n"
-					 + "End time: " + sdf.format(c.getTime()) + "\n",
+					 + "End time: " + sdf.format(c2.getTime()) + "\n",
 					 p.parse("edit 15 meeting with boss !high +10am $28-may-2016 @boss's office"
 							 + " &BIG BOSS COMING!!! #top secret project").toString());
 

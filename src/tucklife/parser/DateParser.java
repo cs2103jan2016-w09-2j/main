@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
  * - Others
  *   - today
  *   - tmr or tomorrow
+ *   - day of week (mon, monday, next mon)
  *
  * Supported time formats:
  * - 12-hour
@@ -150,27 +151,41 @@ public class DateParser {
 	private static final String TIME_24H = "[0-2]\\d[0-5]\\d";
 	
 	public DateParser() {
+		reset();
+	}
+	
+	// Getter for date
+	public Calendar getDate() {
+		return calendar;
+	}
+	
+	// Reset the calendar to current date and time
+	public void reset() {
 		calendar = Calendar.getInstance();
 		timeHour = calendar.get(Calendar.HOUR_OF_DAY);
 		timeMin = calendar.get(Calendar.MINUTE);
 	}
 	
-	public Calendar getDate() {
-		return calendar;
-	}
-	
+	// Parse date
 	public Calendar parseDate(String rawDate) throws InvalidDateException {
 		SimpleDateFormat sdf;
-		calendar = Calendar.getInstance();
+		reset();
 		
 		if (rawDate.equalsIgnoreCase("today")) {
+			// Today
+			hasYear = true;
 			return calendar;
 			
 		} else if (rawDate.equalsIgnoreCase("tomorrow") || rawDate.equalsIgnoreCase("tmr")) {
+			// Tomorrow
+			hasYear = true;
 			calendar.add(Calendar.DATE, 1);
 			return calendar;
 			
 		} else if (rawDate.matches(DAY_SHORT) || rawDate.matches(DAY_FULL)) {
+			// Day of week
+			
+			hasYear = true;
 			String[] d = rawDate.split(" ");
 			String dayOfWeek;
 			boolean isNextWeek = false;
@@ -218,6 +233,8 @@ public class DateParser {
 			}
 			
 		} else {
+			// Other date formats
+			
 			/* ***********************
 			 * Variations of dd mm yy *
 			 *************************/
@@ -307,8 +324,12 @@ public class DateParser {
 				Date date = sdf.parse(rawDate);
 				calendar.setTime(date);
 				
-				if (!hasYear && isPastDate()) {
-					calendar.add(Calendar.YEAR, 1);
+				if (isPastDate()) {
+					if (hasYear) {
+						throw new InvalidDateException("date has passed. You can't travel back in time!");
+					} else {
+						calendar.add(Calendar.YEAR, 1);
+					}
 				}
 				
 				return calendar;
@@ -318,8 +339,9 @@ public class DateParser {
 		}
 	}
 	
+	// Parse time
 	public Calendar parseTime(String rawTime) throws InvalidDateException {
-		calendar = Calendar.getInstance();
+		reset();
 		is12Hour = false;
 		
 		/* ****************************
@@ -402,8 +424,8 @@ public class DateParser {
 		return timeOfDay.equalsIgnoreCase("pm");
 	}
 	
-	// Check if date has passed
-	public boolean hasDatePassed(Calendar date, Calendar time) {
+	// Check if date is over
+	public boolean isDateOver(Calendar date, Calendar time) {
 		Calendar curr = Calendar.getInstance();
 		Calendar combined = combineDateTime(date, time);
 		return combined.before(curr);
@@ -423,6 +445,7 @@ public class DateParser {
 		return c;
 	}
 	
+	// Return default start time
 	public Calendar getDefaultStartTime() {
 		Calendar c = Calendar.getInstance();
 		
@@ -432,6 +455,7 @@ public class DateParser {
 		return c;
 	}
 	
+	// Return default end time
 	public Calendar getDefaultEndTime() {
 		Calendar c = Calendar.getInstance();
 		
@@ -441,10 +465,12 @@ public class DateParser {
 		return c;
 	}
 	
+	// Return default date
 	public Calendar getDefaultDate() {
 		return Calendar.getInstance();
 	}
 	
+	// Return the next day from date in c
 	public Calendar getNextDay(Calendar c) {
 		Calendar next = c;
 		next.add(Calendar.DATE, 1);
@@ -452,6 +478,7 @@ public class DateParser {
 		return next;
 	}
 	
+	// Return next year from date in c
 	public Calendar getNextYear(Calendar c) {
 		Calendar next = c;
 		next.add(Calendar.YEAR, 1);
@@ -459,10 +486,17 @@ public class DateParser {
 		return next;
 	}
 	
+	// Returns the date that is used to signify deleting it from task
 	public Calendar getRemovalDate() {
 		Calendar removalDate = Calendar.getInstance();
 		removalDate.set(Calendar.YEAR, 2000);
 		
 		return removalDate;
+	}
+	
+	// Check if year is entered by user
+	// Only use right after parsing date, otherwise it won't work
+	public boolean hasYear() {
+		return hasYear;
 	}
 }

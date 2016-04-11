@@ -30,6 +30,10 @@ public class FlowController {
 		//s.load(db);
 		s = new Storage(db);
 	}
+	
+	public String statusOnly(){
+		return s.getStatus().substring(10);
+	}
 
 	public String execute(String command){
 

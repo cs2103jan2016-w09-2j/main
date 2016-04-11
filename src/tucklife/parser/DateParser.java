@@ -154,11 +154,6 @@ public class DateParser {
 		reset();
 	}
 	
-	// Getter for date
-	public Calendar getDate() {
-		return calendar;
-	}
-	
 	// Reset the calendar to current date and time
 	public void reset() {
 		calendar = Calendar.getInstance();
@@ -254,12 +249,15 @@ public class DateParser {
 			} else if (rawDate.matches(DATE_DM_SLASH)) {
 				rawDate += "/" + calendar.get(Calendar.YEAR);
 				sdf = new SimpleDateFormat("dd/M/yy");
+				hasYear = false;
 			} else if (rawDate.matches(DATE_DM_DOT)) {
 				rawDate += "." + calendar.get(Calendar.YEAR);
 				sdf = new SimpleDateFormat("dd.M.yy");
+				hasYear = false;
 			} else if (rawDate.matches(DATE_DM_DASH)) {
 				rawDate += "-" + calendar.get(Calendar.YEAR);
 				sdf = new SimpleDateFormat("dd-M-yy");
+				hasYear = false;
 			
 			/* ***************************************
 			 * Variations of dd mmm yy (short month) *
@@ -280,12 +278,15 @@ public class DateParser {
 			} else if (rawDate.matches(DATE_SHORT_DM)) {
 				rawDate += calendar.get(Calendar.YEAR);
 				sdf = new SimpleDateFormat("ddMMMyy");
+				hasYear = false;
 			} else if (rawDate.matches(DATE_SHORT_DM_SPACE)) {
 				rawDate += " " + calendar.get(Calendar.YEAR);
 				sdf = new SimpleDateFormat("dd MMM yy");
+				hasYear = false;
 			} else if (rawDate.matches(DATE_SHORT_DM_DASH)) {
 				rawDate += "-" + calendar.get(Calendar.YEAR);
 				sdf = new SimpleDateFormat("dd-MMM-yy");
+				hasYear = false;
 				
 			/* ***************************************
 			 * Variations of dd mmmm yy (long month) *
@@ -306,12 +307,15 @@ public class DateParser {
 			} else if (rawDate.matches(DATE_FULL_DM)) {
 				rawDate += calendar.get(Calendar.YEAR);
 				sdf = new SimpleDateFormat("ddMMMMyy");
+				hasYear = false;
 			} else if (rawDate.matches(DATE_FULL_DM_SPACE)) {
 				rawDate += " " + calendar.get(Calendar.YEAR);
 				sdf = new SimpleDateFormat("dd MMMM yy");
+				hasYear = false;
 			} else if (rawDate.matches(DATE_FULL_DM_DASH)) {
 				rawDate += "-" + calendar.get(Calendar.YEAR);
 				sdf = new SimpleDateFormat("dd-MMMM-yy");
+				hasYear = false;
 				
 			// Unrecognised date
 			} else {
@@ -425,10 +429,9 @@ public class DateParser {
 	}
 	
 	// Check if date is over
-	public boolean isDateOver(Calendar date, Calendar time) {
+	public boolean isDateOver(Calendar c) {
 		Calendar curr = Calendar.getInstance();
-		Calendar combined = combineDateTime(date, time);
-		return combined.before(curr);
+		return c.before(curr);
 	}
 	
 	// Combines date and time into a single Calendar

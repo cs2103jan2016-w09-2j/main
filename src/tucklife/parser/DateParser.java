@@ -249,12 +249,15 @@ public class DateParser {
 			} else if (rawDate.matches(DATE_DM_SLASH)) {
 				rawDate += "/" + calendar.get(Calendar.YEAR);
 				sdf = new SimpleDateFormat("dd/M/yy");
+				hasYear = false;
 			} else if (rawDate.matches(DATE_DM_DOT)) {
 				rawDate += "." + calendar.get(Calendar.YEAR);
 				sdf = new SimpleDateFormat("dd.M.yy");
+				hasYear = false;
 			} else if (rawDate.matches(DATE_DM_DASH)) {
 				rawDate += "-" + calendar.get(Calendar.YEAR);
 				sdf = new SimpleDateFormat("dd-M-yy");
+				hasYear = false;
 			
 			/* ***************************************
 			 * Variations of dd mmm yy (short month) *
@@ -275,12 +278,15 @@ public class DateParser {
 			} else if (rawDate.matches(DATE_SHORT_DM)) {
 				rawDate += calendar.get(Calendar.YEAR);
 				sdf = new SimpleDateFormat("ddMMMyy");
+				hasYear = false;
 			} else if (rawDate.matches(DATE_SHORT_DM_SPACE)) {
 				rawDate += " " + calendar.get(Calendar.YEAR);
 				sdf = new SimpleDateFormat("dd MMM yy");
+				hasYear = false;
 			} else if (rawDate.matches(DATE_SHORT_DM_DASH)) {
 				rawDate += "-" + calendar.get(Calendar.YEAR);
 				sdf = new SimpleDateFormat("dd-MMM-yy");
+				hasYear = false;
 				
 			/* ***************************************
 			 * Variations of dd mmmm yy (long month) *
@@ -301,12 +307,15 @@ public class DateParser {
 			} else if (rawDate.matches(DATE_FULL_DM)) {
 				rawDate += calendar.get(Calendar.YEAR);
 				sdf = new SimpleDateFormat("ddMMMMyy");
+				hasYear = false;
 			} else if (rawDate.matches(DATE_FULL_DM_SPACE)) {
 				rawDate += " " + calendar.get(Calendar.YEAR);
 				sdf = new SimpleDateFormat("dd MMMM yy");
+				hasYear = false;
 			} else if (rawDate.matches(DATE_FULL_DM_DASH)) {
 				rawDate += "-" + calendar.get(Calendar.YEAR);
 				sdf = new SimpleDateFormat("dd-MMMM-yy");
+				hasYear = false;
 				
 			// Unrecognised date
 			} else {

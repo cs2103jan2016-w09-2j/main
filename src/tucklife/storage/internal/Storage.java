@@ -2,8 +2,8 @@
 package tucklife.storage.internal;
 
 import java.text.SimpleDateFormat;
-//import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import tucklife.parser.ProtoTask;
@@ -34,12 +34,14 @@ public class Storage {
 	private static final String RETURN_MESSAGE_FOR_NONEXISTENT_ID = "No task with id:%1$s in TuckLife's to-do list!";
 	private static final String RETURN_MESSAGE_FOR_NONEXISTENT_ID_DONELIST = "No task with id:%1$s in TuckLife's done list!";
 
+	// @@author A0121352X
 	private static final String STATUS_HEADER = "\n\n\n\n\n\n\n\n\n\nTasks at a glance...";
 	private static final String STATUS_OUTSTANDING = "Total outstanding tasks: %1$s";
 	private static final String STATUS_TODAY = "Tasks due today: %1$s";
 	private static final String STATUS_CURRENT = "Current task: {%1$s}";
 	private static final String STATUS_CURRENT_NONE = "None";
 
+	//@@author A0111101N
 	private static final int defaultNumberOfDisplayedTasks = 20;
 
 	private static TaskList toDoList;
@@ -47,16 +49,19 @@ public class Storage {
 
 	private static TaskList queueList;
 
-	private static SaveState state = new SaveState();
+	private static SaveState state;
 
 	private static PrefsStorage pf;
 
 	public Storage(DataBox db) {
 		TaskList[] loadList = db.getLists();
+		state = new SaveState();
 		toDoList = loadList[0];
 		doneList = loadList[1];
+		//Generate queueList from toDoList so that the corresponding Tasks are the same object
 		queueList = state.getQueueListFromToDoList(toDoList);
 		pf = db.getPrefs();
+		log.log(Level.FINE, "Storage object created");
 	}
 
 	public String undo() throws NothingToUndoException {
@@ -97,6 +102,7 @@ public class Storage {
 		if (isOverloaded(newTask)) {
 			throw new StorageExceptions.OverloadException(pf.getOverloadLimit());
 		} else {
+			//method changes TaskLists, hence use state to save the old versions
 			state.prepareForUndo(toDoList, doneList);
 			toDoList.add(newTask);
 			return String.format(RETURN_MESSAGE_FOR_ADD, newTask.displayAll());
@@ -104,7 +110,6 @@ public class Storage {
 	}
 
 	private boolean isOverloaded(Task newTask) {
-
 		// dont count floating tasks and events
 		if (!newTask.isDeadline()) {
 			return false;
@@ -129,7 +134,6 @@ public class Storage {
 
 		while (taskListIter.hasNext()) {
 			Task t = taskListIter.next();
-
 			// dont count floating tasks and events
 			if (!t.isDeadline()) {
 				continue;
@@ -160,13 +164,14 @@ public class Storage {
 	}
 
 	public String edit(int taskID, ProtoTask toEditTask) throws OverloadException, InvalidDateException {
-		state.prepareForUndo(toDoList, doneList);
 		if (toDoList.contains(taskID)) {
 			Task newTask = new Task(toEditTask);
 			Task.decrementGlobalId();
 			if (isOverloaded(newTask)) {
 				throw new StorageExceptions.OverloadException(pf.getOverloadLimit());
 			}
+			//method changes TaskLists, hence use state to save the old versions
+			state.prepareForUndo(toDoList, doneList);
 			toDoList.edit(taskID, toEditTask);
 			String editedTaskDetails = toDoList.displayID(taskID);
 			return String.format(RETURN_MESSAGE_FOR_EDIT, editedTaskDetails);
@@ -176,8 +181,9 @@ public class Storage {
 	}
 
 	public String complete(int taskID) {
-		state.prepareForUndo(toDoList, doneList);
 		if (toDoList.contains(taskID)) {
+			//method changes TaskLists, hence use state to save the old versions
+			state.prepareForUndo(toDoList, doneList);
 			Task completedTask = toDoList.delete(taskID);
 			completedTask.setQueueID(-(doneList.size() + 1));
 			if (queueList.contains(taskID)) {
@@ -192,8 +198,9 @@ public class Storage {
 	}
 
 	public String uncomplete(int taskID) {
-		state.prepareForUndo(toDoList, doneList);
 		if (doneList.contains(taskID)) {
+			//method changes TaskLists, hence use state to save the old versions
+			state.prepareForUndo(toDoList, doneList);
 			Task uncompletedTask = doneList.delete(taskID);
 			uncompletedTask.setQueueID(-1);
 			toDoList.add(uncompletedTask);
@@ -204,8 +211,9 @@ public class Storage {
 	}
 
 	public String delete(int taskID) {
-		state.prepareForUndo(toDoList, doneList);
 		if (toDoList.contains(taskID)) {
+			//method changes TaskLists, hence use state to save the old versions
+			state.prepareForUndo(toDoList, doneList);
 			Task deletedTask = toDoList.delete(taskID);
 			if (queueList.contains(taskID)) {
 				queueList.delete(taskID);
@@ -254,8 +262,9 @@ public class Storage {
 	}
 
 	public String queue(int taskID, int pos) {
-		state.prepareForUndo(toDoList, doneList);
 		if (toDoList.contains(taskID)) {
+			//method changes TaskLists, hence use state to save the old versions
+			state.prepareForUndo(toDoList, doneList);
 			boolean isPosDefault = pos == -1;
 			boolean isPosTooLarge = pos > queueList.size();
 			boolean isBackOfQueue = isPosDefault || isPosTooLarge;
@@ -311,6 +320,7 @@ public class Storage {
 		}
 	}
 
+	// @@author A0121352X
 	public String getStatus() {
 		StringBuilder status = new StringBuilder();
 
@@ -329,7 +339,8 @@ public class Storage {
 		return status.toString();
 	}
 
-	// for testing purposes only
+	//@@author A0111101N
+	//for testing purposes only
 	public static void clear() {
 		Task.resetGlobalId();
 		pf = new PrefsStorage();

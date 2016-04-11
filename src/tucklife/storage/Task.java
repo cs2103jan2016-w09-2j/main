@@ -24,8 +24,8 @@ public class Task {
 	// if null, means that it is a task not event
 	private Calendar startDate;
 
-	// either deadline or end time for event. if null, means it is a floating
-	// task
+	// either deadline or end time for event. if null, means it is a floating task
+	
 	private Calendar endDate;
 
 	private boolean floating;
@@ -256,9 +256,11 @@ public class Task {
 			}
 		}
 	}
-
+	
 	private String editParam(String self, String change) {
+		//check if ProtoTask demands a change to the Task
 		if (change != null) {
+			//check if the parameter should be removed
 			if (change.equals("")) {
 				return null;
 			} else {
@@ -270,7 +272,9 @@ public class Task {
 	}
 
 	private int editParam(int self, int change) {
+		//check if ProtoTask demands a change to the Task
 		if (change != -1) {
+			//check if the parameter should be removed
 			if (change == 0) {
 				return 0;
 			} else {
@@ -323,7 +327,7 @@ public class Task {
 		fields[3] = categoryField();
 		fields[4] = additionalField();
 		fields[5] = getName();
-
+		
 		String searchItem = " " + searchKey + " ";
 
 		for (int i = 0; i < 6; i++) {

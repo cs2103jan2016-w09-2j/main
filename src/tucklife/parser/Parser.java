@@ -74,8 +74,8 @@ public class Parser {
 	 * @return ProtoTask with the relevant parameters.
 	 */
 	public ProtoTask parse(String command) {
-		String commandAlias = getFirstWord(command).toLowerCase();
-		String commandArgument = getRemainingArgument(command);
+		String commandAlias = getFirstWord(command.trim()).toLowerCase();
+		String commandArgument = getRemainingArgument(command.trim());
 		CommandType type = convertAliasToDefault(commandAlias);
 		
 		if (type == CommandType.ERROR) {

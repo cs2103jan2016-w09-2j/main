@@ -1,46 +1,46 @@
 # A0121352Xunused
-###### \src\tucklife\storage\PrefsStorage.java
+###### \src\tucklife\storage\external\PrefsStorage.java
 ``` java
-	// these default parameters were to be used by an abandoned feature
-	protected void setReminderOn(boolean reminderOn) {
-		this.reminderOn = reminderOn;
-	}
-
-	protected void setDefLocation(String defLocation) {
-		this.defLocation = defLocation;
-	}
-
-	protected void setDefPriority(int defPriority) {
-		this.defPriority = defPriority;
-	}
-
-	protected void setDefCategory(String defCategory) {
-		this.defCategory = defCategory;
-	}
-
-	protected void setDefAdditional(String defAdditional) {
-		this.defAdditional = defAdditional;
-	}
-	
-	protected boolean getReminderStatus(){
-		return reminderOn;
-	}
-	
-	protected String getDefLocation(){
-		return defLocation;
-	}
-	
-	protected int getDefPriority(){
-		return defPriority;
-	}
-	
-	protected String getDefCategory(){
-		return defCategory;
-	}
-	
-	protected String getDefAdditional(){
-		return defAdditional;
-	}
+//	// these default parameters were to be used by an abandoned feature
+//	protected void setReminderOn(boolean reminderOn) {
+//		this.reminderOn = reminderOn;
+//	}
+//
+//	protected void setDefLocation(String defLocation) {
+//		this.defLocation = defLocation;
+//	}
+//
+//	protected void setDefPriority(int defPriority) {
+//		this.defPriority = defPriority;
+//	}
+//
+//	protected void setDefCategory(String defCategory) {
+//		this.defCategory = defCategory;
+//	}
+//
+//	protected void setDefAdditional(String defAdditional) {
+//		this.defAdditional = defAdditional;
+//	}
+//	
+//	protected boolean getReminderStatus(){
+//		return reminderOn;
+//	}
+//	
+//	protected String getDefLocation(){
+//		return defLocation;
+//	}
+//	
+//	protected int getDefPriority(){
+//		return defPriority;
+//	}
+//	
+//	protected String getDefCategory(){
+//		return defCategory;
+//	}
+//	
+//	protected String getDefAdditional(){
+//		return defAdditional;
+//	}
 }
 
 ```
